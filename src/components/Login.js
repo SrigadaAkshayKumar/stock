@@ -44,7 +44,10 @@ const Login = () => {
         <button type="submit">Login</button>
       </form>
       <p>
-        Don’t have an account? <a href="/signup">Signup</a>
+        Don’t have an account?{" "}
+        <Link to="/signup" className="nav-link">
+          Signup
+        </Link>
       </p>
     </div>
   );
