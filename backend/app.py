@@ -14,7 +14,10 @@ from sklearn.linear_model import LinearRegression
 
 app = Flask(__name__)
 CORS(app)
-model = load_model('C:/DS/Stock-Analyzer/backend/Model.keras')
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(current_dir, 'Model.keras')
+model = load_model(model_path)
 
 cleaned_data_cache = {}
 
