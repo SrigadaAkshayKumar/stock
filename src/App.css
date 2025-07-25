@@ -147,6 +147,12 @@ body,
   color: white;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
 /* ==========================================================================
    ENHANCED MULTI-COLUMN FOOTER STYLES (DARK THEME)
    ========================================================================== */
