@@ -3,12 +3,34 @@
     { "symbol": "RELIANCE.BO", "name": "Reliance Industries" },
     { "symbol": "TCS.BO", "name": "Tata Consultancy Services" },
     { "symbol": "INFY.BO", "name": "Infosys" },
-    { "symbol": "HDFCBANK.BO", "name": "HDFC Bank" }
+    { "symbol": "HDFCBANK.BO", "name": "HDFC Bank" },
+    { "symbol": "ITC.BO", "name": "ITC Limited" },
+    { "symbol": "SBIN.BO", "name": "State Bank of India" },
+    { "symbol": "LT.BO", "name": "Larsen & Toubro" },
+    { "symbol": "BHARTIARTL.BO", "name": "Bharti Airtel" },
+    { "symbol": "KOTAKBANK.BO", "name": "Kotak Mahindra Bank" },
+    { "symbol": "AXISBANK.BO", "name": "Axis Bank" },
+    { "symbol": "HINDUNILVR.BO", "name": "Hindustan Unilever" },
+    { "symbol": "BAJFINANCE.BO", "name": "Bajaj Finance" },
+    { "symbol": "MARUTI.BO", "name": "Maruti Suzuki" },
+    { "symbol": "SUNPHARMA.BO", "name": "Sun Pharma" },
+    { "symbol": "WIPRO.BO", "name": "Wipro" }
   ],
   "NSE": [
     { "symbol": "RELIANCE.NS", "name": "Reliance Industries" },
     { "symbol": "TCS.NS", "name": "Tata Consultancy Services" },
     { "symbol": "INFY.NS", "name": "Infosys" },
-    { "symbol": "HDFCBANK.NS", "name": "HDFC Bank" }
+    { "symbol": "HDFCBANK.NS", "name": "HDFC Bank" },
+    { "symbol": "ITC.NS", "name": "ITC Limited" },
+    { "symbol": "SBIN.NS", "name": "State Bank of India" },
+    { "symbol": "LT.NS", "name": "Larsen & Toubro" },
+    { "symbol": "BHARTIARTL.NS", "name": "Bharti Airtel" },
+    { "symbol": "KOTAKBANK.NS", "name": "Kotak Mahindra Bank" },
+    { "symbol": "AXISBANK.NS", "name": "Axis Bank" },
+    { "symbol": "HINDUNILVR.NS", "name": "Hindustan Unilever" },
+    { "symbol": "BAJFINANCE.NS", "name": "Bajaj Finance" },
+    { "symbol": "MARUTI.NS", "name": "Maruti Suzuki" },
+    { "symbol": "SUNPHARMA.NS", "name": "Sun Pharma" },
+    { "symbol": "WIPRO.NS", "name": "Wipro" }
   ]
 }

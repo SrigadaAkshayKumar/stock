@@ -137,46 +137,6 @@ def predict_stock():
         return jsonify({'error': 'Ticker symbol is required'}), 400
 
     try:
-        # Fetch historical stock data
-        data = yf.download(ticker, period='5y')
-        if data.empty:
-            return jsonify({'error': 'No data found for the given ticker'}), 404
-
-        # Preprocess data
-        data['Date'] = data.index
-        data['Date'] = data['Date'].map(datetime.toordinal)
-        X = data['Date'].values.reshape(-1, 1)
-        y = data['Close'].values.flatten()  # Ensure y is a 1D array
-        actual_dates = data.index.strftime('%Y-%m-%d').tolist()  # Actual dates
-
-        # Debugging: Check the shape of y
-        print(f"Shape of y: {y.shape}")
-
-        # Train model
-        model = LinearRegression()
-        model.fit(X, y)
-
-        # Predict future prices
-        future_dates = [datetime.now() + timedelta(days=i*365) for i in range(1, 11)]
-        future_dates_ordinal = [date.toordinal() for date in future_dates]
-        predictions = model.predict(np.array(future_dates_ordinal).reshape(-1, 1))
-        predicted_dates = [date.strftime('%Y-%m-%d') for date in future_dates]  # Predicted dates
-
-        # Calculate returns
-        stocks = [10, 20, 50, 100]
-        returns = []
-        current_price = float(y[-1])  # Convert current price to float once
-
-        for stock in stocks:
-            returns.append({
-                'stocks_bought': stock,
-                'current_price': round(current_price * stock, 2),
-                'after_1_year': round(float(predictions[0]) * stock, 0),
-                'after_5_years': round(float(predictions[4]) * stock, 0),
-                'after_10_years': round(float(predictions[9]) * stock, 0)
-            })
-
-
         return jsonify({
             'predictions': predictions.tolist(),
             'predicted_dates': predicted_dates,
@@ -188,6 +148,16 @@ def predict_stock():
         error_message = traceback.format_exc()
         print(f"Error during prediction: {error_message}")
         return jsonify({'error': f'Internal Server Error: {str(e)}'}), 500
+
+
+@app.route('/')
+def home():
+    return "Stock Price Prediction API is running. Use /predict?ticker=AAPL"
+
+@app.route('/predict', methods=['GET', 'OPTIONS'])
+def alias_predict():
+    return predict_stock()
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
