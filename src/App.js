@@ -6,6 +6,7 @@ import "./App.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Login from "./components/Login";
+import About from "./components/About";
 import Signup from "./components/Signup";
 import { AuthProvider } from "./components/AuthContext"; // import AuthProvider
 
@@ -20,6 +21,7 @@ const App = () => {
               <Route path="/" element={<StocksList />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/about" element={<About />} />
               <Route path="/stock/:ticker" element={<Stockdata />} />
             </Routes>
           </div>
