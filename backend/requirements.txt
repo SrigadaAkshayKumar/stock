@@ -2,6 +2,7 @@ Flask
 Flask-Cors
 numpy
 pandas
+openpyxl
 yfinance
 requests
 plotly
