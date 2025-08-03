@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-// Note: Replace "YOUR_ACCESS_KEY" with your actual Web3Forms access key from https://web3forms.com
+import { useState } from "react";
+// Note: Configure REACT_APP_WEB3FORMS_ACCESS_KEY in your .env file
+// Get your access key from https://web3forms.com
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ const ContactForm = () => {
     e.preventDefault();
 
     const payload = {
-      access_key: "YOUR_ACCESS_KEY", // 🔐 Replace with your actual Web3Forms access key
+      access_key: process.env.REACT_APP_WEB3FORMS_ACCESS_KEY, // 🔐 Uses environment variable for security
       ...formData,
     };
 
@@ -47,19 +48,19 @@ const ContactForm = () => {
   };
 
   const inputStyle = {
-  width: "100%",
-  padding: "12px 14px",
-  marginBottom: "16px",
-  borderRadius: "8px",
-  border: "1px solid #ccc",
-  fontSize: "16px",
-  lineHeight: "1.5",
-  outline: "none",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-  transition: "border-color 0.3s ease",
-  textIndent: "2px", 
-  fontFamily: "Segoe UI, sans-serif",
-};
+    width: "100%",
+    padding: "12px 14px",
+    marginBottom: "16px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+    fontSize: "16px",
+    lineHeight: "1.5",
+    outline: "none",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    transition: "border-color 0.3s ease",
+    textIndent: "2px",
+    fontFamily: "Segoe UI, sans-serif",
+  };
 
   const inputFocusStyle = {
     borderColor: "#4CAF50",
@@ -82,81 +83,79 @@ const ContactForm = () => {
       </h2>
 
       <form onSubmit={handleSubmit}>
-    <input
-      type="text"
-      name="firstName"
-      placeholder="First Name"
-      value={formData.firstName}
-      onChange={handleChange}
-      required
-      style={inputStyle}
-      onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
-      onBlur={(e) => (e.target.style.borderColor = "#ccc")}
-    />
- 
+        <input
+          type="text"
+          name="firstName"
+          placeholder="First Name"
+          value={formData.firstName}
+          onChange={handleChange}
+          required
+          style={inputStyle}
+          onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
+          onBlur={(e) => (e.target.style.borderColor = "#ccc")}
+        />
 
         <div style={{ marginBottom: "10px" }}>
-    <input
-      type="text"
-      name="lastName"
-      placeholder="Last Name"
-      value={formData.lastName}
-      onChange={handleChange}
-      required
-      style={inputStyle}
-      onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
-      onBlur={(e) => (e.target.style.borderColor = "#ccc")}
-    />
-  </div>
+          <input
+            type="text"
+            name="lastName"
+            placeholder="Last Name"
+            value={formData.lastName}
+            onChange={handleChange}
+            required
+            style={inputStyle}
+            onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
+            onBlur={(e) => (e.target.style.borderColor = "#ccc")}
+          />
+        </div>
 
         <div style={{ marginBottom: "10px" }}>
-    <input
-      type="email"
-      name="email"
-      placeholder="Email Address"
-      value={formData.email}
-      onChange={handleChange}
-      required
-      style={inputStyle}
-      onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
-      onBlur={(e) => (e.target.style.borderColor = "#ccc")}
-    />
-  </div>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            style={inputStyle}
+            onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
+            onBlur={(e) => (e.target.style.borderColor = "#ccc")}
+          />
+        </div>
 
         <div style={{ marginBottom: "20px" }}>
-    <textarea
-      name="message"
-      placeholder="Write your message..."
-      rows="5"
-      value={formData.message}
-      onChange={handleChange}
-      required
-      style={{ ...inputStyle, resize: "vertical", minHeight: "120px" }}
-      onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
-      onBlur={(e) => (e.target.style.borderColor = "#ccc")}
-    />
-  </div>
-
+          <textarea
+            name="message"
+            placeholder="Write your message..."
+            rows="5"
+            value={formData.message}
+            onChange={handleChange}
+            required
+            style={{ ...inputStyle, resize: "vertical", minHeight: "120px" }}
+            onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
+            onBlur={(e) => (e.target.style.borderColor = "#ccc")}
+          />
+        </div>
 
         <button
-    type="submit"
-    style={{
-      backgroundColor: "#4CAF50",
-      color: "white",
-      padding: "12px 20px",
-      border: "none",
-      borderRadius: "8px",
-      fontSize: "16px",
-      fontWeight: "bold",
-      cursor: "pointer",
-      width: "100%",
-      transition: "background-color 0.3s ease",
-    }}
-    onMouseOver={(e) => (e.target.style.backgroundColor = "#45a049")}
-    onMouseOut={(e) => (e.target.style.backgroundColor = "#4CAF50")}
-  >
-    Send Message
-  </button>
+          type="submit"
+          style={{
+            backgroundColor: "#4CAF50",
+            color: "white",
+            padding: "12px 20px",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "16px",
+            fontWeight: "bold",
+            cursor: "pointer",
+            width: "100%",
+            transition: "background-color 0.3s ease",
+          }}
+          onMouseOver={(e) => (e.target.style.backgroundColor = "#45a049")}
+          onMouseOut={(e) => (e.target.style.backgroundColor = "#4CAF50")}
+        >
+          Send Message
+        </button>
       </form>
 
       {status && (
