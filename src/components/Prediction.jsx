@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
 import axios from "axios";
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
 import { ClipLoader } from "react-spinners"; // Import ClipLoader
 
@@ -126,5 +127,10 @@ function Prediction({ ticker }) {
     </div>
   );
 }
+
+// PropTypes validation
+Prediction.propTypes = {
+  ticker: PropTypes.string.isRequired,
+};
 
 export default Prediction;
