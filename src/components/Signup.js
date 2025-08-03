@@ -1,14 +1,16 @@
-import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, database } from "./firebase";
 import { ref, set } from "firebase/database";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useNotification } from "../utils/notifications";
+import { auth, database } from "./firebase";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -32,7 +34,10 @@ const Signup = () => {
         points: 0,
       });
 
-      alert("Signup successful! Welcome");
+      showNotification(
+        "Signup successful! Welcome to Stock Analyzer!",
+        "success"
+      );
       navigate("/");
     } catch (err) {
       setError("Signup failed: " + err.message);
