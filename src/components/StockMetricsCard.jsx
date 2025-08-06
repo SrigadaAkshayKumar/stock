@@ -1,12 +1,7 @@
-// StockMetricsCard component to display stock metrics
-export const StockMetricsCard = ({
-  open,
-  close,
-  high,
-  low,
-  previousClose
-}) => {
+import PropTypes from "prop-types";
 
+// StockMetricsCard component to display stock metrics
+export const StockMetricsCard = ({ open, close, high, low, previousClose }) => {
   const PrevClose = previousClose ?? "N/A";
   const Open = open ?? "N/A";
   const Close = close ?? "N/A";
@@ -37,7 +32,6 @@ export const StockMetricsCard = ({
       </div>
 
       <div className="stock-card-body">
-
         {/* OPEN */}
         <div className="stock-card-cell">
           <span className="stock-value">{formatValue(Open)}</span>
@@ -62,4 +56,22 @@ export const StockMetricsCard = ({
       </div>
     </div>
   );
+};
+
+// PropTypes validation
+StockMetricsCard.propTypes = {
+  open: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  close: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  high: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  low: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  previousClose: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+};
+
+// Default props
+StockMetricsCard.defaultProps = {
+  open: "N/A",
+  close: "N/A",
+  high: "N/A",
+  low: "N/A",
+  previousClose: "N/A",
 };

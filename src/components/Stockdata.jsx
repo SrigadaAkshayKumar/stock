@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
 import { useParams } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import Prediction from "./Prediction";
 import { ClipLoader } from "react-spinners";
+import Prediction from "./Prediction";
 import { StockMetricsCard } from "./StockMetricsCard";
 
 function Stockdata() {
@@ -37,8 +37,6 @@ function Stockdata() {
   useEffect(() => {
     fetchStockInfo();
   }, [ticker, chartPeriod, tablePeriod]);
-
-  console.log("Stock Data:", stockData);
 
   const fetchStockInfo = async () => {
     setIsLoading(true);
@@ -135,7 +133,7 @@ function Stockdata() {
             animate={{ y: [0, -10, 0] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            please wait while Loading...
+            Please wait while loading...
           </p>
           <p
             animate={{ opacity: [0.5, 1, 0.5] }}
@@ -173,7 +171,9 @@ function Stockdata() {
                   low={stockInfo.low}
                   previousClose={stockData[0]?.Close}
                 />
-                <h1 className="exchange-badge">Exchange : {stockInfo.exchange || "N/A"}</h1>
+                <h1 className="exchange-badge">
+                  Exchange : {stockInfo.exchange || "N/A"}
+                </h1>
               </div>
 
               <div className="period-buttons" variants={itemVariants}>
