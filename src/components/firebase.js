@@ -5,13 +5,13 @@ import { getDatabase } from "firebase/database";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD8nJTnjl9yozz8TtcP_YZANpc6Hqzfoek",
-  authDomain: "stock-34f5d.firebaseapp.com",
-  projectId: "stock-34f5d",
-  storageBucket: "stock-34f5d.firebasestorage.app",
-  messagingSenderId: "413335093270",
-  appId: "1:413335093270:web:fee27ad845d95896c4b537",
-  measurementId: "G-MM3D1MYHJZ"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_authDOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGEBUCKET",
+  messagingSenderId: "YOUR_MESSAGINGSENDERID",
+  appId: "YOUR_APPID",
+  measurementId: "MEASUREMENTID"
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
