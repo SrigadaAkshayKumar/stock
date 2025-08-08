@@ -90,7 +90,7 @@
 
 .footer-bottom {
   border-top: 1px solid #1f2937;
-  margin-top: 40px;
+  margin-top: 40px; 
   padding-top: 20px;
   display: flex;
   justify-content: space-between;
@@ -108,3 +108,5 @@
 .footer-social a:hover {
   color: #3b82f6;
 }
+
+

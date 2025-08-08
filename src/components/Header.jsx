@@ -5,6 +5,12 @@ import { useAuth } from "./AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../components/firebase";
 import { FaChartLine, FaBars, FaTimes } from "react-icons/fa";
+import { IoHome } from "react-icons/io5";
+import { SlSpeech } from "react-icons/sl";
+import { MdContactSupport } from "react-icons/md";
+import { CiBoxList } from "react-icons/ci";
+import { CiLogin } from "react-icons/ci";
+import { CiLogout } from "react-icons/ci";
 
 
 const Header = () => {
@@ -41,18 +47,18 @@ const { user: currentUser } = useAuth();
 
         <nav className={`nav-links ${isMenuOpen ? "nav-open" : ""}`}>
           <NavLink to="/" className="nav-link" onClick={closeMenu}>
-            Home
+            <div><IoHome /><p>Home</p></div>
           </NavLink>
 
           {/* === ADDED LINKS START HERE === */}
          <NavLink to="/about" className="nav-link" onClick={closeMenu}>
-  About
+<div><SlSpeech /> <p>About</p></div> 
 </NavLink>
 <NavLink to="/contact" className="nav-link" onClick={closeMenu}>
-  Contact
+<div><MdContactSupport /><p>Contact</p></div>
 </NavLink>
 <NavLink to="/watchlist" className="nav-link" onClick={closeMenu}>
-  My Watchlist
+  <div><CiBoxList /><p>My Watchlist</p></div>
 </NavLink>
 
           {/* === ADDED LINKS END HERE === */}
@@ -63,12 +69,12 @@ const { user: currentUser } = useAuth();
                 Hi, {getUsername(currentUser.email)}
               </span>
               <button onClick={handleLogout} className="nav-link-button">
-                Logout
+                <CiLogout />Logout
               </button>
             </>
           ) : (
             <NavLink to="/login" className="nav-link" onClick={closeMenu}>
-              Login
+              <div><CiLogin /><p>Login</p></div>
             </NavLink>
           )}
         </nav>

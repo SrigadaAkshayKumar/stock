@@ -119,7 +119,7 @@ body {
 html,
 body,
 #root,
-.app-container {
+.app-container { 
   height: 100%;
   margin: 0;
   display: flex;
@@ -179,9 +179,20 @@ body,
 
 .nav-links {
   display: flex;
+  justify-content: flex-start;
   align-items: center;
-  gap: 1.5rem;
+  gap: 2.5rem;
   animation: slideInRight 0.6s ease-out;
+}
+
+.nav-links div{
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.nav-links div p{
+  color: white;
 }
 
 .nav-link,
@@ -212,13 +223,32 @@ body,
   transition: transform 0.3s ease-out;
 }
 
-.nav-link:hover, .nav-link.active {
+.nav-link::after p{
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  bottom: 0;
+  left: 0;
+  background-color: #007bff;
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform 0.3s ease-out;
+}
+
+.nav-link:hover, .nav-link.active{
   color: #a2d2ff;
   text-decoration: none;
   transform: translateY(-2px);
 }
 
-.nav-link:hover::after, .nav-link.active::after {
+.nav-link:hover p,.nav-link.active p{
+  color: #a2d2ff;
+  text-decoration: none;
+  transform: translateY(0px);
+}
+
+.nav-link:hover::after, .nav-link.active::after,.nav-link:hover p::after,.nav-link.active p::after {
   transform: scaleX(1);
   transform-origin: bottom left;
 }
