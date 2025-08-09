@@ -3,6 +3,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../components/firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { syncLocalToFirebase } from "../utils/watchlistManager";
+import "./Login.css"; // External CSS
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -10,49 +11,50 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-  e.preventDefault();
-  setError("");
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setError("");
 
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    
-   
-    await syncLocalToFirebase(); 
-
-    alert("Login successful!");
-    navigate("/");
-  } catch (err) {
-    setError("Invalid email or password");
-  }
-};
+    // Mock login logic (for development only)
+    if (email === "test@example.com" && password === "password") {
+      alert("Login successful!");
+      navigate("/");
+    } else {
+      setError("Invalid email or password");
+    }
+  };
 
   return (
-    <div className="auth-container">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin} className="auth-form">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        {error && <p className="auth-error">{error}</p>}
-        <button type="submit">Login</button>
-      </form>
-      <p>
-        Don’t have an account? <Link to="/signup">Signup</Link>
-      </p>
+    <div className="login-page">
+      <div className="login-container">
+        <h2>Login</h2>
+        <form onSubmit={handleLogin} className="login-form">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          {error && <p className="login-error">{error}</p>}
+          <button type="submit">Login</button>
+        </form>
+        import { Link } from "react-router-dom";
+
+<p>
+  Don’t have an account? <Link to="/signup">Signup</Link>
+</p>
+
+      </div>
     </div>
   );
 };
 
-export default Login;
+export default Login;

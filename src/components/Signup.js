@@ -3,68 +3,64 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, database } from "./firebase";
 import { ref, set } from "firebase/database";
 import { Link, useNavigate } from "react-router-dom";
-
+import "./Signup.css"; 
+console.log("Login component rendered");
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSignup = async (e) => {
+  const handleSignup = (e) => {
     e.preventDefault();
     setError("");
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (password !== confirm) {
+      setError("Passwords do not match");
       return;
     }
-
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-
-      await set(ref(database, "Users/" + user.uid), {
-        email: user.email,
-        points: 0,
-      });
-
-      alert("Signup successful! Welcome");
-      navigate("/");
-    } catch (err) {
-      setError("Signup failed: " + err.message);
-    }
+    alert("Signup successful!");
+    navigate("/login");
   };
 
   return (
-    <div className="auth-container">
-      <h2>Signup</h2>
-      <form onSubmit={handleSignup} className="auth-form">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password (min 6 characters)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        {error && <p className="auth-error">{error}</p>}
-        <button type="submit">Signup</button>
-      </form>
-      <p>
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
+    <div className="login-page">
+      <div className="login-container">
+        <h2>Signup</h2>
+        <form onSubmit={handleSignup} className="login-form">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            required
+          />
+          {error && <p className="login-error">{error}</p>}
+          <button type="submit">Signup</button>
+        </form>
+        import { Link } from "react-router-dom";
+
+<p>
+  Already have an account? <Link to="/login">Login</Link>
+</p>
+
+      </div>
     </div>
   );
 };
 
-export default Signup;
+export default Signup;
