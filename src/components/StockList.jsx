@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
-import { motion, AnimatePresence } from "framer-motion";
-import { toggleWatchlist } from '../utils/watchlistManager';
-import { auth, db, database } from "../components/firebase";
+import { auth } from "../components/firebase";
+import { useNotification } from "../utils/notifications";
+import { toggleWatchlist } from "../utils/watchlistManager";
 import stockData from "./data/stockData.json";
 
 const StocksList = () => {
@@ -12,6 +13,7 @@ const StocksList = () => {
   const [searchTicker, setSearchTicker] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     setIsLoading(true);
@@ -26,32 +28,36 @@ const StocksList = () => {
       navigate(`/stock/${searchTicker.trim()}`);
     }
   };
- const handleAddToWatchlist = async (stock) => {
-  const user = auth.currentUser;
+  const handleAddToWatchlist = async (stock) => {
+    const user = auth.currentUser;
 
-  if (user) {
-    try {
-      await toggleWatchlist(stock); 
-      alert(`${stock.symbol} added to your Firebase watchlist!`);
-    } catch (err) {
-      alert("Failed to add to watchlist.");
-      console.error(err);
+    if (user) {
+      try {
+        await toggleWatchlist(stock);
+        showNotification(
+          `${stock.symbol} added to your Firebase watchlist!`,
+          "success"
+        );
+      } catch (err) {
+        showNotification("Failed to add to watchlist.", "error");
+        console.error(err);
+      }
+    } else {
+      const stored = JSON.parse(localStorage.getItem("watchlist")) || [];
+
+      if (stored.some((item) => item.symbol === stock.symbol)) {
+        showNotification(
+          "Stock is already in your guest watchlist!",
+          "warning"
+        );
+        return;
+      }
+
+      const updated = [...stored, stock];
+      localStorage.setItem("watchlist", JSON.stringify(updated));
+      showNotification(`${stock.symbol} added to guest watchlist!`, "success");
     }
-  } else {
-    const stored = JSON.parse(localStorage.getItem("watchlist")) || [];
-
-    if (stored.some((item) => item.symbol === stock.symbol)) {
-      alert("Stock is already in your guest watchlist!");
-      return;
-    }
-
-    const updated = [...stored, stock];
-    localStorage.setItem("watchlist", JSON.stringify(updated));
-    alert(`${stock.symbol} added to guest watchlist!`);
-  }
-};
-
-
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -60,9 +66,9 @@ const StocksList = () => {
       transition: {
         duration: 0.6,
         when: "beforeChildren",
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
@@ -70,8 +76,8 @@ const StocksList = () => {
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.5 }
-    }
+      transition: { duration: 0.5 },
+    },
   };
 
   const tableRowVariants = {
@@ -79,29 +85,23 @@ const StocksList = () => {
     visible: {
       x: 0,
       opacity: 1,
-      transition: { duration: 0.3 }
+      transition: { duration: 0.3 },
     },
     hover: {
       scale: 1.02,
       backgroundColor: "#e3f2fd",
-      transition: { duration: 0.2 }
-    }
+      transition: { duration: 0.2 },
+    },
   };
- 
-
-
-
 
   return (
-    <motion.div 
+    <motion.div
       className="stocks-list"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      <motion.h1 variants={itemVariants}>
-        Stocks List
-      </motion.h1>
+      <motion.h1 variants={itemVariants}>Stocks List</motion.h1>
 
       {/* Search Bar */}
       <motion.div variants={itemVariants}>
@@ -113,7 +113,7 @@ const StocksList = () => {
           whileFocus={{ scale: 1.05 }}
           transition={{ duration: 0.2 }}
         />
-        <motion.button 
+        <motion.button
           onClick={handleSearch}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -131,7 +131,8 @@ const StocksList = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             animate={{
-              backgroundColor: exchange === exchangeName ? "#0056b3" : "#007bff"
+              backgroundColor:
+                exchange === exchangeName ? "#0056b3" : "#007bff",
             }}
           >
             {exchangeName}
@@ -141,7 +142,7 @@ const StocksList = () => {
 
       <AnimatePresence mode="wait">
         {isLoading ? (
-          <motion.div 
+          <motion.div
             key="loading"
             className="loading-spinner"
             initial={{ opacity: 0, scale: 0.8 }}
@@ -154,7 +155,7 @@ const StocksList = () => {
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              please wait while Loading...
+              Please wait while loading...
             </motion.p>
             <motion.p
               animate={{ opacity: [0.5, 1, 0.5] }}
@@ -164,7 +165,7 @@ const StocksList = () => {
             </motion.p>
           </motion.div>
         ) : (
-          <motion.div 
+          <motion.div
             key="table"
             className="table-container"
             initial={{ opacity: 0, y: 50 }}
@@ -173,52 +174,51 @@ const StocksList = () => {
           >
             <table>
               <thead>
-  <tr>
-    <th>Symbol</th>
-    <th>Name</th>
-    <th>Actions</th> {/* New column */}
-  </tr>
-</thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Name</th>
+                  <th>Actions</th> {/* New column */}
+                </tr>
+              </thead>
 
-             <tbody>
-  <AnimatePresence>
-    {stocks.map((stock, index) => (
-      <motion.tr
-        key={`${stock.symbol}-${index}`}
-        variants={tableRowVariants}
-        initial="hidden"
-        animate="visible"
-        whileHover="hover"
-        style={{ cursor: "pointer" }}
-        onClick={() => navigate(`/stock/${stock.symbol}`)}
-        custom={index}
-        transition={{ delay: index * 0.05 }}
-      >
-        <td>{stock.symbol}</td>
-        <td>{stock.name}</td>
-        <td>
-          <button
-            onClick={(e) => {
-              e.stopPropagation(); 
-              handleAddToWatchlist(stock);
-            }}
-            style={{
-              padding: "4px 10px",
-              backgroundColor: "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer"
-            }}
-          >
-            Add to Watchlist
-          </button>
-        </td>
-      </motion.tr>
-    ))}
-  </AnimatePresence>
-</tbody>
-
+              <tbody>
+                <AnimatePresence>
+                  {stocks.map((stock, index) => (
+                    <motion.tr
+                      key={`${stock.symbol}-${index}`}
+                      variants={tableRowVariants}
+                      initial="hidden"
+                      animate="visible"
+                      whileHover="hover"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => navigate(`/stock/${stock.symbol}`)}
+                      custom={index}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      <td>{stock.symbol}</td>
+                      <td>{stock.name}</td>
+                      <td>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToWatchlist(stock);
+                          }}
+                          style={{
+                            padding: "4px 10px",
+                            backgroundColor: "#007bff",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Add to Watchlist
+                        </button>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              </tbody>
             </table>
           </motion.div>
         )}
