@@ -9,6 +9,11 @@ This app initializes the Flask server, sets up CORS, and defines two main API ro
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
+import sys
+
+# Add the backend directory to Python path so 'app' package can be found
+sys.path.insert(0, os.path.dirname(__file__))
+
 from app.services.stock_service import get_stock_data_handler
 from app.services.stock_predict import predict_stock_handler
 
@@ -18,7 +23,7 @@ from app.services.stock_predict import predict_stock_handler
 app = Flask(__name__)
 
 # Enable Cross-Origin Resource Sharing for frontend requests
-CORS(app, resources={r"/*": {"origins": ["https://aistockanalyzer.onrender.com"]}})
+CORS(app)
 
 # API route for fetching stock data (chart + table + news)
 @app.route('/api/stock', methods=['GET'])

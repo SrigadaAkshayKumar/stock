@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import React, { useState, useEffect } from "react";
+import { createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth, database } from "./firebase";
 import { ref, set } from "firebase/database";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,12 +10,25 @@ const Signup = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!auth) return;
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) navigate("/", { replace: true }); // redirect if already logged in
+    });
+    return () => unsub();
+  }, [navigate]);
+
   const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
 
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    if (!auth) {
+      setError("Auth not initialized");
       return;
     }
 
@@ -33,9 +46,10 @@ const Signup = () => {
       });
 
       alert("Signup successful! Welcome");
-      navigate("/");
+      navigate("/", { replace: true });
     } catch (err) {
-      setError("Signup failed: " + err.message);
+      console.error(err);
+      setError(err.message);
     }
   };
 

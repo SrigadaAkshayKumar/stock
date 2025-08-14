@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import React, { useState, useEffect } from "react";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../components/firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { syncLocalToFirebase } from "../utils/watchlistManager";
@@ -10,22 +10,46 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!auth) return;
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) navigate("/", { replace: true });
+    });
+    return () => unsub();
+  }, [navigate]);
+
   const handleLogin = async (e) => {
-  e.preventDefault();
-  setError("");
+    e.preventDefault();
+    setError("");
 
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    
-   
-    await syncLocalToFirebase(); 
+    if (!auth) {
+      setError("Auth not initialized");
+      return;
+    }
 
-    alert("Login successful!");
-    navigate("/");
-  } catch (err) {
-    setError("Invalid email or password");
-  }
-};
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+
+      // Try sync, but do not block navigation on failure
+      try {
+        await syncLocalToFirebase();
+      } catch (syncErr) {
+        console.warn("Watchlist sync failed:", syncErr);
+      }
+
+      navigate("/", { replace: true });
+    } catch (err) {
+      console.error(err);
+      const msg =
+        err?.code === "auth/invalid-credential" ||
+        err?.code === "auth/wrong-password" ||
+        err?.code === "auth/user-not-found"
+          ? "Invalid email or password"
+          : err.message || "Login failed";
+      setError(msg);
+    }
+  };
 
   return (
     <div className="auth-container">

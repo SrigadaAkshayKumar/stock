@@ -21,7 +21,7 @@ function Prediction({ ticker }) {
     setIsLoading(true); // Start loading
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/stock/predict?ticker=${ticker}`
+        `http://127.0.0.1:10000/api/stock/predict?ticker=${encodeURIComponent(ticker)}`
       );
       setPredictedData(res.data.predictions || []);
       setPredictedDates(res.data.predicted_dates || []); // Updated
