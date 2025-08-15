@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// Note: Replace "YOUR_ACCESS_KEY" with your actual Web3Forms access key from https://web3forms.com
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -10,17 +9,59 @@ const ContactForm = () => {
   });
 
   const [status, setStatus] = useState("");
+  const [errors, setErrors] = useState({}); // State for validation errors
+
+  // Regular expressions for validation
+  const nameRegex = /^[a-zA-Z\s]*$/; // Allows letters and spaces
+  const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Starts with letter, then valid email format
+
+  const validateField = (name, value) => {
+    let error = "";
+    if (name === "firstName" || name === "lastName") {
+      if (!nameRegex.test(value)) {
+        error = "Only letters and spaces are allowed.";
+      }
+    } else if (name === "email") {
+      if (!emailRegex.test(value)) {
+        error = "Please enter a valid email address (must start with a letter).";
+      }
+    }
+    setErrors((prev) => ({ ...prev, [name]: error }));
+    return error === ""; // Return true if valid, false otherwise
+  };
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
+    validateField(name, value); // Validate field on change
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {};
+
+    // Validate all fields
+    if (!validateField("firstName", formData.firstName)) isValid = false;
+    if (!validateField("lastName", formData.lastName)) isValid = false;
+    if (!validateField("email", formData.email)) isValid = false;
+    // Message field is already 'required' via HTML, no custom regex needed here unless more complex validation is desired.
+
+    setErrors(newErrors); // Update errors state with any new validation issues
+    return isValid && Object.values(errors).every(e => e === ""); // Ensure all fields are valid and no existing errors
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!validateForm()) {
+      setStatus("Please correct the errors in the form.");
+      return;
+    }
+
+    setStatus("Sending message..."); // Indicate sending
     const payload = {
       access_key: process.env.REACT_APP_ACCESS_KEY, // 🔐 Replace with your actual Web3Forms access key
       ...formData,
@@ -37,6 +78,7 @@ const ContactForm = () => {
       if (result.success) {
         setStatus("Message sent successfully!");
         setFormData({ firstName: "", lastName: "", email: "", message: "" });
+        setErrors({}); // Clear errors on success
       } else {
         setStatus("Failed to send message.");
       }
@@ -49,7 +91,7 @@ const ContactForm = () => {
   const inputStyle = {
     width: "100%",
     padding: "12px 14px",
-    marginBottom: "16px",
+    marginBottom: "4px", // Reduced margin to make space for error messages
     borderRadius: "8px",
     border: "1px solid #ccc",
     fontSize: "16px",
@@ -58,43 +100,41 @@ const ContactForm = () => {
     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
     transition: "border-color 0.3s ease",
     textIndent: "2px",
-    fontFamily: "Segoe UI, sans-serif",
+    fontFamily: "Inter, sans-serif", // Changed to Inter as per instructions
   };
 
-  const inputFocusStyle = {
-    borderColor: "#4CAF50",
+  const errorTextStyle = {
+    color: "red",
+    fontSize: "12px",
+    marginBottom: "16px",
+    marginTop: "4px",
+    display: "block",
   };
 
   return (
     <div
-      style={{
-        maxWidth: "600px",
-        margin: "30px auto",
-        padding: "20px",
-        backgroundColor: "#f9f9f9",
-        borderRadius: "12px",
-        boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
-        fontFamily: "Segoe UI, sans-serif",
-      }}
+      className="max-w-md mx-auto my-8 p-6 bg-gray-50 rounded-xl shadow-lg font-inter" // Using Tailwind for responsiveness and font
     >
-      <h2 style={{ textAlign: "center", marginBottom: "24px", color: "#333" }}>
+      <h2 className="text-center text-2xl font-bold mb-6 text-gray-800">
         Contact Us
       </h2>
 
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="firstName"
-          placeholder="First Name"
-          value={formData.firstName}
-          onChange={handleChange}
-          required
-          style={inputStyle}
-          onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
-          onBlur={(e) => (e.target.style.borderColor = "#ccc")}
-        />
+        <div className="mb-4">
+          <input
+            type="text"
+            name="firstName"
+            placeholder="First Name"
+            value={formData.firstName}
+            onChange={handleChange}
+            required
+            style={inputStyle}
+            className={`focus:border-green-500 ${errors.firstName ? 'border-red-500' : ''}`} // Tailwind for focus and error border
+          />
+          {errors.firstName && <span style={errorTextStyle}>{errors.firstName}</span>}
+        </div>
 
-        <div style={{ marginBottom: "10px" }}>
+        <div className="mb-4">
           <input
             type="text"
             name="lastName"
@@ -103,12 +143,12 @@ const ContactForm = () => {
             onChange={handleChange}
             required
             style={inputStyle}
-            onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
-            onBlur={(e) => (e.target.style.borderColor = "#ccc")}
+            className={`focus:border-green-500 ${errors.lastName ? 'border-red-500' : ''}`}
           />
+          {errors.lastName && <span style={errorTextStyle}>{errors.lastName}</span>}
         </div>
 
-        <div style={{ marginBottom: "10px" }}>
+        <div className="mb-4">
           <input
             type="email"
             name="email"
@@ -117,12 +157,12 @@ const ContactForm = () => {
             onChange={handleChange}
             required
             style={inputStyle}
-            onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
-            onBlur={(e) => (e.target.style.borderColor = "#ccc")}
+            className={`focus:border-green-500 ${errors.email ? 'border-red-500' : ''}`}
           />
+          {errors.email && <span style={errorTextStyle}>{errors.email}</span>}
         </div>
 
-        <div style={{ marginBottom: "20px" }}>
+        <div className="mb-6">
           <textarea
             name="message"
             placeholder="Write your message..."
@@ -131,27 +171,13 @@ const ContactForm = () => {
             onChange={handleChange}
             required
             style={{ ...inputStyle, resize: "vertical", minHeight: "120px" }}
-            onFocus={(e) => (e.target.style.borderColor = "#4CAF50")}
-            onBlur={(e) => (e.target.style.borderColor = "#ccc")}
-          />
+            className="focus:border-green-500"
+          ></textarea>
         </div>
 
         <button
           type="submit"
-          style={{
-            backgroundColor: "#4CAF50",
-            color: "white",
-            padding: "12px 20px",
-            border: "none",
-            borderRadius: "8px",
-            fontSize: "16px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            width: "100%",
-            transition: "background-color 0.3s ease",
-          }}
-          onMouseOver={(e) => (e.target.style.backgroundColor = "#45a049")}
-          onMouseOut={(e) => (e.target.style.backgroundColor = "#4CAF50")}
+          className="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-green-600 transition-colors duration-300 shadow-md"
         >
           Send Message
         </button>
@@ -159,12 +185,8 @@ const ContactForm = () => {
 
       {status && (
         <p
-          style={{
-            marginTop: "20px",
-            color: status.includes("successfully") ? "green" : "red",
-            textAlign: "center",
-            fontWeight: "bold",
-          }}
+          className={`mt-5 text-center font-bold ${status.includes("successfully") ? "text-green-700" : "text-red-600"
+            }`}
         >
           {status}
         </p>

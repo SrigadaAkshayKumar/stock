@@ -8,3 +8,5 @@ plotly
 tensorflow==2.17.0
 scikit-learn==1.3.0
 gunicorn==23.0.0
+textblob
+python-dotenv
