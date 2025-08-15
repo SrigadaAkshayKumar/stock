@@ -1,0 +1,153 @@
+/* Navbar container */
+.header {
+  background-color: #121212;
+  padding: 0.8rem 2rem;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Flex layout for content */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #00bcd4;
+  font-size: 1.4rem;
+  font-weight: 600;
+  gap: 0.4rem;
+}
+
+.logo-icon {
+  font-size: 1.6rem;
+}
+
+.logo-text {
+  font-size: 1.2rem;
+}
+
+/* Navigation */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  color: white;
+  font-size: 1.05rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+/* Smooth underline effect */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #00bcd4;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #00bcd4;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Icons layout */
+.icons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.3rem;
+}
+
+.icons p {
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+}
+
+/* Welcome text */
+.nav-link-welcome {
+  margin-right: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Logout button */
+.nav-link-button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.nav-link-button:hover {
+  color: #ff5252;
+}
+
+/* Mobile menu icon */
+.menu-icon {
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background-color: #121212;
+    width: 220px;
+    padding: 1rem;
+    border-left: 1px solid #333;
+  }
+
+  .nav-open {
+    display: flex;
+  }
+
+  .menu-icon {
+    display: block;
+  }
+  /* Shrink effect */
+    .header.shrink {
+    padding: 0.4rem 2rem;
+    background-color: #0d0d0d; /* slightly darker when shrinked */
+    transition: all 0.3s ease;
+    }
+
+    .header.shrink .logo {
+    font-size: 1.2rem;
+    }
+
+    .header.shrink .logo-icon {
+    font-size: 1.4rem;
+    }
+
+}

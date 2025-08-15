@@ -1,5 +1,4 @@
-// src/components/Header.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { signOut } from "firebase/auth";
@@ -8,21 +7,19 @@ import { FaChartLine, FaBars, FaTimes } from "react-icons/fa";
 import { IoHome } from "react-icons/io5";
 import { SlSpeech } from "react-icons/sl";
 import { MdContactSupport } from "react-icons/md";
-import { CiBoxList } from "react-icons/ci";
-import { CiLogin } from "react-icons/ci";
-import { CiLogout } from "react-icons/ci";
+import { CiBoxList, CiLogin, CiLogout } from "react-icons/ci";
+import "./Header.css";
 
 const Header = () => {
   const { user: currentUser } = useAuth();
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isShrink, setIsShrink] = useState(false);
 
   const handleLogout = () => {
     signOut(auth);
     setIsMenuOpen(false);
   };
 
-  // Function to close the menu when a link is clicked
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
@@ -32,8 +29,22 @@ const Header = () => {
     return email.split("@")[0];
   };
 
+  // Scroll listener for shrink effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsShrink(true);
+      } else {
+        setIsShrink(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="header">
+    <header className={`header ${isShrink ? "shrink" : ""}`}>
       <div className="header-content">
         <Link to="/" className="logo" onClick={closeMenu}>
           <FaChartLine className="logo-icon" />
@@ -52,26 +63,26 @@ const Header = () => {
             </div>
           </NavLink>
 
-          {/* === ADDED LINKS START HERE === */}
           <NavLink to="/about" className="nav-link" onClick={closeMenu}>
             <div className="icons">
-              <SlSpeech /> <p>About</p>
+              <SlSpeech />
+              <p>About</p>
             </div>
           </NavLink>
+
           <NavLink to="/contact" className="nav-link" onClick={closeMenu}>
             <div className="icons">
               <MdContactSupport />
               <p>Contact</p>
             </div>
           </NavLink>
+
           <NavLink to="/watchlist" className="nav-link" onClick={closeMenu}>
             <div className="icons">
               <CiBoxList />
               <p>My Watchlist</p>
             </div>
           </NavLink>
-
-          {/* === ADDED LINKS END HERE === */}
 
           {currentUser ? (
             <>
