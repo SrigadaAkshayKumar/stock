@@ -10,6 +10,13 @@
 .env.production
 .env.development
 
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
 # testing
 /coverage
 
