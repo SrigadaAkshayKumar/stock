@@ -22,7 +22,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Enable Cross-Origin Resource Sharing for frontend requests
-CORS(app,resources ={r"/*": {"origins": ['https://aistockanalyzer.onrender.com']}})
+CORS(app, resources={r"/*": {"origins": ["https://aistockanalyzer.onrender.com"]}})
 
 # API route for fetching stock data (chart + table + news)
 @app.route('/api/stock', methods=['GET'])
