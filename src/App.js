@@ -1,3 +1,4 @@
+// App.js
 import React from "react";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import StocksList from "./components/StockList";
@@ -7,10 +8,10 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import { AuthProvider } from "./components/AuthContext"; 
+import AboutComponent from "./components/About";
+import { AuthProvider } from "./components/AuthContext";
 import Watchlist from "./pages/Watchlist";
-import ContactForm from "./components/ContactForm"; 
-
+import ContactForm from "./components/ContactForm";
 
 const App = () => {
   return (
@@ -24,15 +25,17 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/stock/:ticker" element={<Stockdata />} />
+              <Route path="/about" element={<AboutComponent />} />
+              <Route path="/stocks" element={<StocksList />} />
               <Route path="/watchlist" element={<Watchlist />} />
               <Route path="/contact" element={<ContactForm />} />
             </Routes>
           </div>
-          <Footer />
         </div>
       </Router>
     </AuthProvider>
   );
 };
+
 
 export default App;
