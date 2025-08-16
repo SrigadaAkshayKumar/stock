@@ -1,0 +1,25 @@
+.back-to-top {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(45deg, #3f51b5, #9c27b0);
+  color: #fff;
+  cursor: pointer;
+  font-size: 22px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.3s ease-in-out;
+}
+
+.back-to-top:hover {
+  opacity: 0.85;
+}
+
+
