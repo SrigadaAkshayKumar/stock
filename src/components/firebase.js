@@ -20,13 +20,6 @@ const hasConfig =
   !!firebaseConfig.projectId &&
   !!firebaseConfig.appId;
 
-console.debug("Firebase config present:", {
-  hasApiKey: !!firebaseConfig.apiKey,
-  hasAuthDomain: !!firebaseConfig.authDomain,
-  hasProjectId: !!firebaseConfig.projectId,
-  hasAppId: !!firebaseConfig.appId,
-});
-
 const app = hasConfig
   ? (!getApps().length ? initializeApp(firebaseConfig) : getApp())
   : null;
