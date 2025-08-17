@@ -21,7 +21,7 @@ const App = () => {
           <Header />
           <div className="content">
             <Routes>
-              <Route path="/" element={<><StocksList /><AboutComponent /><ContactForm /></>} />
+              <Route path="/" element={<StocksList />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/stock/:ticker" element={<Stockdata />} />

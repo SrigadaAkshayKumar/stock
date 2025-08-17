@@ -11,11 +11,17 @@ import { MdContactSupport } from "react-icons/md";
 import { CiBoxList } from "react-icons/ci";
 import { CiLogin } from "react-icons/ci";
 import { CiLogout } from "react-icons/ci";
+import { useEffect } from "react";
 
 const Header = () => {
   const { user: currentUser } = useAuth();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    document.body.classList.toggle("dark", darkMode);
+  }, [darkMode]);
 
   const handleLogout = () => {
     signOut(auth);
@@ -39,6 +45,14 @@ const Header = () => {
           <FaChartLine className="logo-icon" />
           <span className="logo-text">Stock Analyzer</span>
         </Link>
+
+        {/* Dark/Light toggle button */}
+        <button
+          className="theme-toggle-btn"
+          onClick={() => setDarkMode(!darkMode)}
+        >
+          {darkMode ? "🌞" : "🌙"}
+        </button>
 
         <div className="menu-icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <FaTimes /> : <FaBars />}
@@ -70,6 +84,13 @@ const Header = () => {
               <p>My Watchlist</p>
             </div>
           </NavLink>
+
+          {/* <button
+  className="theme-toggle-btn"
+  onClick={() => setDarkMode(!darkMode)}
+>
+  {darkMode ? "🌞" : "🌙"}
+</button> */}
 
           {/* === ADDED LINKS END HERE === */}
 
