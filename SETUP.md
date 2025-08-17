@@ -193,7 +193,7 @@ http://x.x.x.x:10000
         messagingSenderId: "123456789",
         appId: "1:123456789:web:abcdef123456",
         measurementId: "G-ABC123XYZ"
-};
+    };
 ```
 
 These values map 1:1 to the `.env` variables.
