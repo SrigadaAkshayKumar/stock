@@ -10,6 +10,7 @@ const Watchlist = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
 
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);

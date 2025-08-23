@@ -1488,3 +1488,25 @@ strong {
     text-align: center;
   }
 }
+/* Make DatePicker input consistent with search input */
+.react-datepicker-wrapper {
+  display: inline-block;
+  width: auto;
+  margin: 0 0.5rem;
+}
+
+.react-datepicker__input-container input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #ccc);
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+/* Match hover/focus with your search input */
+.react-datepicker__input-container input:focus {
+  border-color: var(--color-primary, #007bff);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+

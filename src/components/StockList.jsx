@@ -2,17 +2,25 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { motion, AnimatePresence } from "framer-motion";
-import { toggleWatchlist } from '../utils/watchlistManager';
+import { toggleWatchlist } from "../utils/watchlistManager";
 import { auth } from "../components/firebase";
 import stockData from "./data/stockData.json";
 import BackToTopBtn from "../components/BackToTopBtn";
 import styles from "./StockList.module.css";
+
+// ⬇️ NEW IMPORTS for react-datepicker
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const StocksList = () => {
   const [stocks, setStocks] = useState([]);
   const [exchange, setExchange] = useState("BSE");
   const [searchTicker, setSearchTicker] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // ⬇️ NEW STATE for selected date
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,7 +42,7 @@ const StocksList = () => {
 
     if (user) {
       try {
-        await toggleWatchlist(stock); 
+        await toggleWatchlist(stock);
         alert(`${stock.symbol} added to your Firebase watchlist!`);
       } catch (err) {
         alert("Failed to add to watchlist.");
@@ -61,9 +69,9 @@ const StocksList = () => {
       transition: {
         duration: 0.6,
         when: "beforeChildren",
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
@@ -71,8 +79,8 @@ const StocksList = () => {
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.5 }
-    }
+      transition: { duration: 0.5 },
+    },
   };
 
   const tableRowVariants = {
@@ -80,22 +88,20 @@ const StocksList = () => {
     visible: {
       x: 0,
       opacity: 1,
-      transition: { duration: 0.3 }
-    }
+      transition: { duration: 0.3 },
+    },
   };
 
   return (
-    <motion.div 
+    <motion.div
       className={styles.stocksList}
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      <motion.h1 variants={itemVariants}>
-        Stocks List
-      </motion.h1>
+      <motion.h1 variants={itemVariants}>Stocks List</motion.h1>
 
-      {/* Search Bar */}
+      {/* Search Bar with DatePicker */}
       <motion.div className={styles.searchContainer} variants={itemVariants}>
         <motion.input
           type="text"
@@ -106,7 +112,16 @@ const StocksList = () => {
           transition={{ duration: 0.2 }}
           className={styles.searchInput}
         />
-        <motion.button 
+
+        {/* ⬇️ NEW DatePicker field */}
+        <DatePicker
+          selected={selectedDate}
+          onChange={(date) => setSelectedDate(date)}
+          dateFormat="yyyy/MM/dd"
+          className={styles.searchInput}
+        />
+
+        <motion.button
           onClick={handleSearch}
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
@@ -124,7 +139,9 @@ const StocksList = () => {
             onClick={() => setExchange(exchangeName)}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className={`${styles.exchangeButton} ${exchange === exchangeName ? styles.activeExchange : ''}`}
+            className={`${styles.exchangeButton} ${
+              exchange === exchangeName ? styles.activeExchange : ""
+            }`}
           >
             {exchangeName}
           </motion.button>
@@ -133,7 +150,7 @@ const StocksList = () => {
 
       <AnimatePresence mode="wait">
         {isLoading ? (
-          <motion.div 
+          <motion.div
             key="loading"
             className={styles.loadingSpinner}
             initial={{ opacity: 0, scale: 0.8 }}
@@ -156,7 +173,7 @@ const StocksList = () => {
             </motion.p>
           </motion.div>
         ) : (
-          <motion.div 
+          <motion.div
             key="table"
             className={styles.tableContainer}
             initial={{ opacity: 0, y: 50 }}
@@ -179,19 +196,27 @@ const StocksList = () => {
                       variants={tableRowVariants}
                       initial="hidden"
                       animate="visible"
-                      whileHover={{ backgroundColor: 'var(--color-card-hover)' }}
+                      whileHover={{
+                        backgroundColor: "var(--color-card-hover)",
+                      }}
                       custom={index}
                       transition={{ delay: index * 0.05 }}
                       className={styles.tableRow}
                     >
-                      <td onClick={() => navigate(`/stock/${stock.symbol}`)} style={{ cursor: 'pointer' }}>
+                      <td
+                        onClick={() => navigate(`/stock/${stock.symbol}`)}
+                        style={{ cursor: "pointer" }}
+                      >
                         {stock.symbol}
                       </td>
-                      <td onClick={() => navigate(`/stock/${stock.symbol}`)} style={{ cursor: 'pointer' }}>
+                      <td
+                        onClick={() => navigate(`/stock/${stock.symbol}`)}
+                        style={{ cursor: "pointer" }}
+                      >
                         {stock.name}
                       </td>
                       <td>
-                        <button 
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAddToWatchlist(stock);
