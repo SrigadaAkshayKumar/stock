@@ -7,6 +7,7 @@ import Prediction from "./Prediction";
 import { ClipLoader } from "react-spinners";
 import { StockMetricsCard } from "./StockMetricsCard";
 
+import Footer from "./Footer.css";
 import SentimentChart from "./SentimentChart";
 
 function Stockdata() {

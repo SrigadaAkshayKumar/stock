@@ -19,26 +19,26 @@ import { AuthProvider } from "./components/AuthContext";
 // Theme
 import { ThemeProvider, useTheme } from "./components/ThemeContext";
 
+// ✅ Backend API URL constant
+export const API_URL = "http://127.0.0.1:10000";
+
 // Global styles for smooth transitions
 const GlobalStyles = () => {
   const { theme } = useTheme();
-  
+
   useEffect(() => {
-    // Remove the no-js class if JavaScript is enabled
-    document.documentElement.classList.remove('no-js');
-    document.documentElement.classList.add('js');
-    
-    // Set theme class on body for easier targeting
+    document.documentElement.classList.remove("no-js");
+    document.documentElement.classList.add("js");
+
     document.body.className = `theme-${theme}`;
-    
-    // Add transition class after initial render
+
     const timer = setTimeout(() => {
-      document.documentElement.classList.add('theme-transition-ready');
+      document.documentElement.classList.add("theme-transition-ready");
     }, 100);
-    
+
     return () => clearTimeout(timer);
   }, [theme]);
-  
+
   return null;
 };
 
@@ -52,14 +52,7 @@ const App = () => {
             <Header />
             <div className="content">
               <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <>
-                      <StocksList />
-                    </>
-                  }
-                />
+                <Route path="/" element={<StocksList />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/stock/:ticker" element={<Stockdata />} />

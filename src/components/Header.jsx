@@ -48,28 +48,28 @@ const Header = () => {
           <div className="nav-section">
             <NavLink to="/" className="nav-link" onClick={closeMenu} end>
               <div className="nav-icon">
-                <IoHome />
+                
                 <span>Home</span>
               </div>
             </NavLink>
 
             <NavLink to="/about" className="nav-link" onClick={closeMenu}>
               <div className="nav-icon">
-                <SlSpeech />
+                
                 <span>About</span>
               </div>
             </NavLink>
 
             <NavLink to="/contact" className="nav-link" onClick={closeMenu}>
               <div className="nav-icon">
-                <MdContactSupport />
+                
                 <span>Contact</span>
               </div>
             </NavLink>
 
             <NavLink to="/watchlist" className="nav-link" onClick={closeMenu}>
               <div className="nav-icon">
-                <CiBoxList />
+                
                 <span>Watchlist</span>
               </div>
             </NavLink>
@@ -90,7 +90,7 @@ const Header = () => {
                   className="logout-button"
                   aria-label="Logout"
                 >
-                  <CiLogout className="logout-icon" />
+                  
                   <span>Logout</span>
                 </button>
               </div>
@@ -100,7 +100,7 @@ const Header = () => {
                 className="login-button"
                 onClick={closeMenu}
               >
-                <CiLogin className="login-icon" />
+                
                 <span>Login</span>
               </NavLink>
             )}

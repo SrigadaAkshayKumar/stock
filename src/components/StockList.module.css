@@ -1,7 +1,8 @@
+
 .stocksList {
   padding: 2rem 1rem;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 100px auto;
   color: var(--color-text);
   min-height: calc(100vh - 200px);
   background-color: var(--color-bg);

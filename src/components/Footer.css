@@ -1,3 +1,6 @@
+.container{
+  margin: 140px auto;
+}
 .footer {
   background-color: var(--color-bg-secondary);
   color: var(--color-text-secondary);
