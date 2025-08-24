@@ -87,7 +87,7 @@
     margin: 0.25rem 0;
     border-radius: var(--radius-md);
   }
-  
+
   .theme-toggle:hover {
     background-color: var(--color-bg-secondary);
   }

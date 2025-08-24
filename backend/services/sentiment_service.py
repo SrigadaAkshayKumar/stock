@@ -307,79 +307,58 @@ class EnhancedSentimentAnalyzer:
 def fetch_stock_news_with_sentiment(ticker: str) -> Dict:
     """
     Fetch news articles for a stock ticker and analyze their sentiment.
-    
-    Args:
-        ticker (str): Stock ticker symbol
-        
-    Returns:
-        Dict: News data with enhanced sentiment analysis
+    No yfinance dependency – ticker itself is used for query.
     """
     try:
-        import yfinance as yf
-        
-        # Get company name from yfinance
-        stock = yf.Ticker(ticker)
-        company_name = stock.info.get("longName", ticker)
-        
-        # Create a more flexible search query
-        if ".BO" in ticker or ".NS" in ticker:
-            # For Indian stocks, use the base ticker name
-            base_ticker = ticker.split('.')[0]
-            search_query = f"{base_ticker} OR {company_name}"
-        else:
-            # For US stocks, use both ticker and company name
-            search_query = f"{ticker} OR {company_name}"
-        
-        # Clean up the search query
+        # Clean ticker for better NewsAPI search
+        search_query = ticker.split(".")[0]  # e.g. RELIANCE.BO -> RELIANCE
         search_query = search_query.replace("&", "and").replace("'", "").replace('"', "")
-        print(f"DEBUG: Company Name: {company_name}")
-        print(f"DEBUG: Final Search Query: {search_query}")
-        
-        # Get news API key from environment
+
+
         NEWS_API_KEY = os.getenv("NEWS_API_KEY")
         if not NEWS_API_KEY:
+            logging.warning("NEWS_API_KEY not set. Returning empty news result.")
             return {
                 "articles": [],
                 "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
             }
-        
+
         # Fetch news from NewsAPI
-        url = f'https://newsapi.org/v2/everything?q={search_query}&apiKey={NEWS_API_KEY}&language=en&sortBy=publishedAt&pageSize=3'
-        print(f"DEBUG: Searching for news with query: {search_query}")
-        print(f"DEBUG: NewsAPI URL: {url}")
+        url = (
+            f'https://newsapi.org/v2/everything?q={search_query}'
+            f'&apiKey={NEWS_API_KEY}&language=en&sortBy=publishedAt&pageSize=5'
+        )
         response = requests.get(url)
         news_data = response.json()
-        print(f"DEBUG: NewsAPI Response Status: {news_data.get('status')}")
-        print(f"DEBUG: NewsAPI Articles Found: {len(news_data.get('articles', []))}")
-        if news_data.get('status') != 'ok':
-            print(f"DEBUG: NewsAPI Error: {news_data.get('message', 'Unknown error')}")
-        
+
+        # Debug logs
+        logging.info(f"NewsAPI query: {search_query}")
+        logging.info(f"NewsAPI response status: {news_data.get('status')}")
+        logging.info(f"NewsAPI articles found: {len(news_data.get('articles', []))}")
+
         if news_data.get("status") == "ok":
             articles = news_data.get("articles", [])
             if articles:
-                # Analyze sentiment for all articles using enhanced analyzer
                 analyzer = EnhancedSentimentAnalyzer()
                 analyzed_articles, sentiment_summary = analyzer.analyze_news_articles(articles)
                 return {
                     "articles": analyzed_articles,
                     "sentiment_summary": sentiment_summary
                 }
-            else:
-                return {
-                    "articles": [],
-                    "sentiment_summary": analyzer._get_empty_sentiment_summary()
-                }
-        else:
-            return {
-                "articles": [],
-                "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
-            }
+
+        # fallback if no articles
+        return {
+            "articles": [],
+            "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
+        }
+
     except Exception as e:
         logging.error(f"Error fetching news: {e}")
         return {
             "articles": [],
             "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
         }
+
 
 # Global instance for reuse
 enhanced_sentiment_analyzer = EnhancedSentimentAnalyzer()

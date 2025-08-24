@@ -1,7 +1,5 @@
-import React, { useState } from "react";
-import BackToTopBtn from "./BackToTopBtn";
+import React, { useState, useEffect } from "react";
 import styles from "./ContactForm.module.css";
-import { FaUser, FaEnvelope, FaComment, FaPaperPlane, FaCheck, FaTimes } from 'react-icons/fa';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -13,23 +11,29 @@ const ContactForm = () => {
 
   const [status, setStatus] = useState("");
   const [errors, setErrors] = useState({});
-  const [showOverlay, setShowOverlay] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1024
+  );
 
-  // Regex patterns
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const nameRegex = /^[a-zA-Z\s]*$/;
   const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   const validateField = (name, value) => {
     let error = "";
-    if (name === "firstName" || name === "lastName") {
-      if (!nameRegex.test(value)) {
-        error = "Only letters and spaces are allowed.";
-      }
-    } else if (name === "email") {
-      if (!emailRegex.test(value)) {
-        error = "Please enter a valid email address (must start with a letter).";
-      }
+    if (
+      (name === "firstName" || name === "lastName") &&
+      !nameRegex.test(value)
+    ) {
+      error = "Only letters and spaces are allowed.";
+    }
+    if (name === "email" && !emailRegex.test(value)) {
+      error = "Please enter a valid email address.";
     }
     setErrors((prev) => ({ ...prev, [name]: error }));
     return error === "";
@@ -43,23 +47,20 @@ const ContactForm = () => {
 
   const validateForm = () => {
     let isValid = true;
-    if (!validateField("firstName", formData.firstName)) isValid = false;
-    if (!validateField("lastName", formData.lastName)) isValid = false;
-    if (!validateField("email", formData.email)) isValid = false;
+    ["firstName", "lastName", "email"].forEach((field) => {
+      if (!validateField(field, formData[field])) isValid = false;
+    });
     return isValid && Object.values(errors).every((e) => e === "");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) {
       setStatus("Please correct the errors in the form.");
       return;
     }
 
-    setIsSubmitting(true);
     setStatus("Sending message...");
-
     const payload = {
       access_key: process.env.REACT_APP_ACCESS_KEY,
       ...formData,
@@ -73,183 +74,124 @@ const ContactForm = () => {
       });
 
       const result = await res.json();
-
       if (result.success) {
         setStatus("Message sent successfully!");
         setFormData({ firstName: "", lastName: "", email: "", message: "" });
         setErrors({});
-        setShowOverlay(true);
-        setTimeout(() => setShowOverlay(false), 5000); // auto hide
       } else {
-        setStatus("Failed to send message. Please try again later.");
+        setStatus("Failed to send message. Please try again.");
       }
     } catch (error) {
       console.error("Error:", error);
-      setStatus("An error occurred. Please check your connection and try again.");
-    } finally {
-      setIsSubmitting(false);
+      setStatus("An error occurred. Please try again.");
     }
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <div className={styles.card}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.sectionTitle}>Contact Us</h2>
+    <div className={styles["contact-container"]}>
+      <div className={styles["contact-main"]}>
+        {/* Left Section */}
+        <div className={styles["contact-left"]}>
+          <h2 className={styles["contact-title"]}>
+            Let's talk about smart investments
+          </h2>
+          <p className={styles["contact-description"]}>
+            Stock Analyzer helps you track, analyze, and understand market
+            trends with ease. Get insights that empower smarter investment
+            decisions.
+          </p>
+          <ul className={styles["contact-info"]}>
+            <li>
+              <span>✉️</span> support@stockanalyzer.com
+            </li>
+            <li>
+              <span>📞</span> +1800-457-5834
+            </li>
+            <li>
+              <span>📍</span> Bhubaneswar, Odisha
+            </li>
+          </ul>
         </div>
 
-        <form onSubmit={handleSubmit} className={styles.contactForm}>
-          <div className={styles.flexContact}>
-            <div className={styles.formGroup}>
-              <label htmlFor="firstName" className={styles.label}>
-                First Name
-              </label>
-              <div className={styles.inputWrapper}>
-                <FaUser className={styles.icon} />
+        {/* Right Section (Form) */}
+        <div className={styles["contact-right"]}>
+          <h2 className={styles["contact-form-title"]}>Request a Callback</h2>
+          <form className={styles["contact-form"]} onSubmit={handleSubmit}>
+            <div className={styles["contact-row"]}>
+              <div className={styles["form-group"]}>
                 <input
-                  id="firstName"
+                  type="text"
                   name="firstName"
+                  placeholder="First Name"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className={`${styles.input} ${errors.firstName ? styles.errorInput : ''}`}
-                  placeholder="Enter your first name"
                   required
-                  aria-required="true"
-                  aria-invalid={!!errors.firstName}
-                  aria-describedby={errors.firstName ? "firstname-error" : undefined}
                 />
+                {errors.firstName && (
+                  <span className={styles["contact-error"]}>
+                    {errors.firstName}
+                  </span>
+                )}
               </div>
-              {errors.firstName && (
-                <span id="firstname-error" className={styles.error}>
-                  {errors.firstName}
-                </span>
-              )}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="lastName" className={styles.label}>
-                Last Name
-              </label>
-              <div className={styles.inputWrapper}>
-                <FaUser className={styles.icon} />
+              <div className={styles["form-group"]}>
                 <input
-                  id="lastName"
+                  type="text"
                   name="lastName"
+                  placeholder="Last Name"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className={`${styles.input} ${errors.lastName ? styles.errorInput : ''}`}
-                  placeholder="Enter your last name"
                   required
-                  aria-required="true"
-                  aria-invalid={!!errors.lastName}
-                  aria-describedby={errors.lastName ? "lastname-error" : undefined}
                 />
+                {errors.lastName && (
+                  <span className={styles["contact-error"]}>
+                    {errors.lastName}
+                  </span>
+                )}
               </div>
-              {errors.lastName && (
-                <span id="lastname-error" className={styles.error}>
-                  {errors.lastName}
-                </span>
-              )}
             </div>
-          </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="email" className={styles.label}>
-              Email Address
-            </label>
-            <div className={styles.inputWrapper}>
-              <FaEnvelope className={styles.icon} />
+            <div className={styles["form-group"]}>
               <input
                 type="email"
-                id="email"
                 name="email"
+                placeholder="Your Email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`${styles.input} ${errors.email ? styles.errorInput : ''}`}
-                placeholder="Enter your email address"
                 required
-                aria-required="true"
-                aria-invalid={!!errors.email}
-                aria-describedby={errors.email ? "email-error" : undefined}
               />
+              {errors.email && (
+                <span className={styles["contact-error"]}>{errors.email}</span>
+              )}
             </div>
-            {errors.email && (
-              <span id="email-error" className={styles.error}>
-                {errors.email}
-              </span>
-            )}
-          </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="message" className={styles.label}>
-              Message
-            </label>
-            <div className={styles.inputWrapper}>
-              <FaComment className={styles.icon} />
+            <div className={styles["form-group"]}>
               <textarea
-                id="message"
                 name="message"
+                rows="6"
+                placeholder="Write your message here"
                 value={formData.message}
                 onChange={handleChange}
-                className={`${styles.textarea} ${errors.message ? styles.errorInput : ''}`}
-                placeholder="Enter your message"
                 required
               />
             </div>
-            {errors.message && (
-              <span id="message-error" className={styles.error}>
-                {errors.message}
-              </span>
-            )}
-          </div>
+
+            <button type="submit" disabled={status === "Sending message..."}>
+              {status === "Sending message..." ? "Sending..." : "Send Message"}
+            </button>
+          </form>
 
           {status && (
-            <div 
-              className={`${styles.statusMessage} ${
-                status.includes('success') ? styles.statusSuccess : 
-                status.includes('error') || status.includes('Failed') ? styles.statusError : ''
+            <div
+              className={`${styles["contact-status"]} ${
+                status.includes("successfully")
+                  ? styles["success"]
+                  : styles["error"]
               }`}
-              role="status"
-              aria-live="polite"
             >
               {status}
             </div>
           )}
-
-          <button
-            type="submit"
-            className={`${styles.button} ${isSubmitting ? styles.buttonLoading : ''}`}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <span className={styles.spinner}></span>
-                Sending...
-              </>
-            ) : (
-              <>
-                <FaPaperPlane className={styles.buttonIcon} />
-                Send Message
-              </>
-            )}
-          </button>
-        </form>
-
-        {showOverlay && (
-          <div className={styles.successOverlay}>
-            <div className={styles.successIcon}>
-              <FaCheck className={styles.icon} style={{ fontSize: '3rem', color: 'var(--color-success)' }} />
-            </div>
-            <h3 className={styles.successTitle}>Thank You!</h3>
-            <p className={styles.successText}>
-              Your message has been sent successfully. We'll get back to you soon!
-            </p>
-            <button onClick={() => setShowOverlay(false)} className={styles.closeBtn}>
-              <FaTimes className={styles.icon} />
-              Close
-            </button>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

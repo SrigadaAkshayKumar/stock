@@ -6,7 +6,7 @@
   -webkit-text-size-adjust: 100%;
   -moz-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  
+
   /* Light Theme (default) */
   --color-bg: #ffffff;
   --color-bg-secondary: #f8f9fa;
@@ -69,8 +69,7 @@
 
 /* Smooth transitions for theme changes */
 * {
-  transition: 
-    background-color var(--transition-speed) ease-in-out,
+  transition: background-color var(--transition-speed) ease-in-out,
     color var(--transition-speed) ease-in-out,
     border-color var(--transition-speed) ease-in-out,
     box-shadow var(--transition-speed) ease-in-out;
@@ -100,7 +99,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   line-height: 1.5;
 }
 
@@ -109,7 +109,7 @@ body {
   html {
     scroll-behavior: smooth;
   }
-  
+
   /* Animations */
   @keyframes pulse {
     0% {
@@ -127,14 +127,20 @@ body {
   }
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   @keyframes progressBar {
-    0% { width: 0%; }
-    100% { width: 100%; }
+    0% {
+      width: 0%;
+    }
+    100% {
+      width: 100%;
+    }
   }
-  
+
   @keyframes fadeInUp {
     from {
       opacity: 0;
@@ -202,7 +208,7 @@ select {
   html:focus-within {
     scroll-behavior: auto;
   }
-  
+
   *,
   *::before,
   *::after {
@@ -248,15 +254,9 @@ html.theme-transition-ready,
 html.theme-transition-ready *,
 html.theme-transition-ready *::before,
 html.theme-transition-ready *::after {
-  transition: 
-    background-color 0.3s ease,
-    border-color 0.3s ease,
-    color 0.3s ease,
-    fill 0.3s ease,
-    stroke 0.3s ease,
-    opacity 0.3s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease, fill 0.3s ease, stroke 0.3s ease, opacity 0.3s ease,
+    box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 /* Focus styles */
@@ -282,7 +282,7 @@ html.theme-transition-ready *::after {
 /* Container */
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 1rem;
 }

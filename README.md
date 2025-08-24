@@ -18,6 +18,8 @@ The **Stock Analyzer** project is a complete stock market analysis tool utilizin
 
 ---
 
+![Open Source Connect India](Images/osconnect.png)
+
 ## Overview
 
 ### Home Page
@@ -40,7 +42,6 @@ The **Stock Analyzer** project is a complete stock market analysis tool utilizin
 - **Flask:** Backend Framework
 - **yfinance:** Stock data extraction
 - **Pandas:** Data manipulation
-- **Scikit-learn:** to load and use the model
 
 ---
 
@@ -122,6 +123,8 @@ Directory structure:
 
 **Stock Analyzer** is currently in the **development stage** and hosted on a free hosting service for testing purposes.
 
+## The latest pulls are merged every Saturday.
+
 ## Future Enhancements
 
 We have a clear roadmap for improvements:
@@ -147,6 +150,8 @@ Please make sure to:
 - Review our [Contribution Guidelines](./CONTRIBUTION.md)
 - Follow the [Setup Instructions](./SETUP.md) to run the project locally
 - Join the [Discord](https://discord.gg/ypQSaPbsDv)
+
+![Open Source Connect India](Images/osconnect.png)
 
 ## License
 

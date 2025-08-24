@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { motion, AnimatePresence } from "framer-motion";
-import { toggleWatchlist } from '../utils/watchlistManager';
+import { toggleWatchlist } from "../utils/watchlistManager";
 import { auth } from "../components/firebase";
 import stockData from "./data/stockData.json";
 import BackToTopBtn from "../components/BackToTopBtn";
@@ -34,7 +34,7 @@ const StocksList = () => {
 
     if (user) {
       try {
-        await toggleWatchlist(stock); 
+        await toggleWatchlist(stock);
         alert(`${stock.symbol} added to your Firebase watchlist!`);
       } catch (err) {
         alert("Failed to add to watchlist.");
@@ -54,159 +54,82 @@ const StocksList = () => {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        when: "beforeChildren",
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.5 }
-    }
-  };
-
-  const tableRowVariants = {
-    hidden: { x: -20, opacity: 0 },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: { duration: 0.3 }
-    }
-  };
-
   return (
-    <motion.div 
+    <motion.div
       className={styles.stocksList}
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
     >
-      <motion.h1 variants={itemVariants}>
-        Stocks List
-      </motion.h1>
+      
+      {/* 🚀 Hero Section */}
+      <section className={styles.hero}>
+        <h1>Welcome to Stock Analyzer!</h1>
+        <p>Track, analyze, and manage your favorite stocks with ease.</p>
+      </section>
 
-      {/* Search Bar */}
-      <motion.div className={styles.searchContainer} variants={itemVariants}>
-        <motion.input
+      {/* 🔍 Modern Search Bar */}
+      <div className={styles.searchContainer}>
+        <input
           type="text"
-          placeholder="Enter stock ticker"
+          placeholder="Search for stocks..."
           value={searchTicker}
           onChange={(e) => setSearchTicker(e.target.value)}
-          whileFocus={{ scale: 1.01 }}
-          transition={{ duration: 0.2 }}
           className={styles.searchInput}
         />
-        <motion.button 
-          onClick={handleSearch}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          className={styles.searchButton}
-        >
+        <button onClick={handleSearch} className={styles.searchButton}>
           Search
-        </motion.button>
-      </motion.div>
+        </button>
+      </div>
 
-      {/* Exchange Buttons */}
-      <motion.div className={styles.exchangeButtons} variants={itemVariants}>
+      {/* 🏦 Exchange Toggle */}
+      <div className={styles.exchangeButtons}>
         {["BSE", "NSE"].map((exchangeName) => (
-          <motion.button
+          <button
             key={exchangeName}
             onClick={() => setExchange(exchangeName)}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className={`${styles.exchangeButton} ${exchange === exchangeName ? styles.activeExchange : ''}`}
+            className={`${styles.exchangeButton} ${
+              exchange === exchangeName ? styles.activeExchange : ""
+            }`}
           >
             {exchangeName}
-          </motion.button>
+          </button>
         ))}
-      </motion.div>
+      </div>
 
+      {/* 📊 Stocks as Cards */}
       <AnimatePresence mode="wait">
         {isLoading ? (
-          <motion.div 
-            key="loading"
-            className={styles.loadingSpinner}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div className={styles.loadingSpinner}>
             <ClipLoader color="var(--color-primary)" size={50} />
-            <motion.p
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              Please wait while loading...
-            </motion.p>
-            <motion.p
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              It takes less than a minute
-            </motion.p>
-          </motion.div>
+            <p>Loading stocks...</p>
+          </div>
         ) : (
-          <motion.div 
-            key="table"
-            className={styles.tableContainer}
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <table>
-              <thead>
-                <tr>
-                  <th>Symbol</th>
-                  <th>Name</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <AnimatePresence>
-                  {stocks.map((stock, index) => (
-                    <motion.tr
-                      key={`${stock.symbol}-${index}`}
-                      variants={tableRowVariants}
-                      initial="hidden"
-                      animate="visible"
-                      whileHover={{ backgroundColor: 'var(--color-card-hover)' }}
-                      custom={index}
-                      transition={{ delay: index * 0.05 }}
-                      className={styles.tableRow}
-                    >
-                      <td onClick={() => navigate(`/stock/${stock.symbol}`)} style={{ cursor: 'pointer' }}>
-                        {stock.symbol}
-                      </td>
-                      <td onClick={() => navigate(`/stock/${stock.symbol}`)} style={{ cursor: 'pointer' }}>
-                        {stock.name}
-                      </td>
-                      <td>
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddToWatchlist(stock);
-                          }}
-                          className={styles.actionButton}
-                        >
-                          + Watchlist
-                        </button>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </tbody>
-            </table>
-          </motion.div>
+          <div className={styles.cardsContainer}>
+            {stocks.map((stock, index) => (
+              <motion.div
+                key={stock.symbol}
+                className={styles.stockCard}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => navigate(`/stock/${stock.symbol}`)}
+              >
+                <div className={styles.stockIcon}>
+                  📈
+                </div>
+                <h3>{stock.symbol}</h3>
+                <p>{stock.name}</p>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToWatchlist(stock);
+                  }}
+                  className={styles.watchlistButton}
+                >
+                  + Add to Watchlist
+                </button>
+              </motion.div>
+            ))}
+          </div>
         )}
       </AnimatePresence>
 

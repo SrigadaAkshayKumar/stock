@@ -54,14 +54,7 @@
   width: 1.25rem;
   height: 1.25rem;
   transition: all 0.3s ease;
-}
-
-.theme-icon.sun {
-  color: #f6e05e;
-}
-
-.theme-icon.moon {
-  color: #4a5568;
+  color: currentColor;
 }
 
 /* For reduced motion preferences */

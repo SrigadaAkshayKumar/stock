@@ -9,6 +9,7 @@ certifi==2025.8.3
 cffi==1.17.1
 charset-normalizer==3.4.3
 click==8.2.1
+<<<<<<< HEAD
 colorama==0.4.6
 cryptography==45.0.6
 curl_cffi==0.13.0
@@ -21,6 +22,11 @@ filelock==3.18.0
 firebase_admin==7.1.0
 Flask==3.1.2
 Flask-Caching==2.3.1
+=======
+curl_cffi==0.12.0
+dotenv
+Flask==3.1.1
+>>>>>>> upstream/main
 flask-cors==6.0.1
 Flask-Limiter==3.12
 frozendict==2.4.6

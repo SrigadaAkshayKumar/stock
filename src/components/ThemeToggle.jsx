@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTheme } from './ThemeContext';
-import { FaMoon, FaSun } from 'react-icons/fa';
+import { LuMoon, LuSun } from 'react-icons/lu';
 import './ThemeToggle.css';
 
 const ThemeToggle = () => {
@@ -25,24 +25,19 @@ const ThemeToggle = () => {
 
   return (
     <button 
-      className="theme-toggle" 
-      onClick={toggleTheme}
-      aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-      aria-live="polite"
-    >
-      <span className="sr-only">
-        {isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      </span>
-      <div className="theme-toggle-track">
-        <div className="theme-toggle-thumb">
-          {isDark ? (
-            <FaSun className="theme-icon sun" />
-          ) : (
-            <FaMoon className="theme-icon moon" />
-          )}
-        </div>
-      </div>
-    </button>
+  className="theme-toggle" 
+  onClick={toggleTheme}
+  aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+>
+  <span className="sr-only">
+    {isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+  </span>
+  {isDark ? (
+    <LuSun className="theme-icon" />
+  ) : (
+    <LuMoon className="theme-icon" />
+  )}
+</button>
   );
 };
 

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Prediction from "./Prediction";
 import { ClipLoader } from "react-spinners";
 import { StockMetricsCard } from "./StockMetricsCard";
+import BackToTopBtn from "./BackToTopBtn";
 
 import SentimentChart from "./SentimentChart";
 
@@ -47,7 +48,7 @@ function Stockdata() {
     setIsLoading(true);
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/stock?ticker=${ticker}&chart_period=${chartPeriod}&table_period=${tablePeriod}`
+        `${process.env.REACT_APP_API_URL}/api/stock/${ticker}?chart_period=${chartPeriod}&table_period=${tablePeriod}`
       );
 
       setStockData(res.data.stock_data);
@@ -124,7 +125,7 @@ function Stockdata() {
       initial="hidden"
       animate="visible"
     >
-      <h1 variants={itemVariants}>Stock Analyzer</h1>
+      <h1 variants={itemVariants}></h1>
       {isLoading ? (
         <motion.div
           key="loading"
@@ -177,7 +178,9 @@ function Stockdata() {
                   low={stockInfo.low}
                   previousClose={stockData[0]?.Close}
                 />
-                <h1 className="exchange-badge">Exchange : {stockInfo.exchange || "N/A"}</h1>
+                {/* <h1 className="exchange-badge">
+                  Exchange : {stockInfo.exchange || "N/A"}
+                </h1> */}
               </div>
 
               <div className="period-buttons" variants={itemVariants}>
@@ -251,7 +254,7 @@ function Stockdata() {
               >
                 Latest news about {ticker}
               </h2>
-              
+
               {/* Sentiment Analysis Charts */}
               {news.length > 0 && sentimentSummary && (
                 <motion.div
@@ -263,7 +266,7 @@ function Stockdata() {
                   <SentimentChart sentimentSummary={sentimentSummary} />
                 </motion.div>
               )}
-              
+
               <AnimatePresence>
                 {news.length > 0 ? (
                   news.map((article, index) => (
@@ -275,13 +278,13 @@ function Stockdata() {
                       transition={{ delay: index * 0.1, duration: 0.5 }}
                       whileHover={{ scale: 1.02 }}
                       style={{
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '8px',
-                        padding: '14px',
-                        marginBottom: '12px',
-                        background: 'white',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-                        position: 'relative'
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "8px",
+                        padding: "14px",
+                        marginBottom: "12px",
+                        background: "white",
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+                        position: "relative",
                       }}
                     >
                       {/* Sentiment Tag */}
@@ -289,80 +292,89 @@ function Stockdata() {
                         <motion.div
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: index * 0.1 + 0.2, duration: 0.3 }}
+                          transition={{
+                            delay: index * 0.1 + 0.2,
+                            duration: 0.3,
+                          }}
                           style={{
-                            position: 'absolute',
-                            top: '10px',
-                            right: '10px',
-                            padding: '4px 8px',
-                            borderRadius: '12px',
-                            fontSize: '10px',
-                            fontWeight: '600',
-                            color: 'white',
-                            background: article.sentiment === 'positive' ? '#10B981' :
-                                       article.sentiment === 'negative' ? '#EF4444' : '#6B7280',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                            position: "absolute",
+                            top: "10px",
+                            right: "10px",
+                            padding: "4px 8px",
+                            borderRadius: "12px",
+                            fontSize: "10px",
+                            fontWeight: "600",
+                            color: "white",
+                            background:
+                              article.sentiment === "positive"
+                                ? "#10B981"
+                                : article.sentiment === "negative"
+                                ? "#EF4444"
+                                : "#6B7280",
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                           }}
                         >
-                          {article.sentiment?.charAt(0).toUpperCase() + article.sentiment?.slice(1)}
+                          {article.sentiment?.charAt(0).toUpperCase() +
+                            article.sentiment?.slice(1)}
                         </motion.div>
                       )}
-                      
+
                       <h3
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        style={{ 
-                          margin: '0 0 8px 0', 
-                          fontSize: '16px',
-                          color: '#1f2937',
-                          paddingRight: article.sentiment ? '70px' : '0',
-                          lineHeight: '1.3'
+                        style={{
+                          margin: "0 0 8px 0",
+                          fontSize: "16px",
+                          color: "#1f2937",
+                          paddingRight: article.sentiment ? "70px" : "0",
+                          lineHeight: "1.3",
                         }}
                       >
                         {article.title}
                       </h3>
-                      
-                      <div style={{ 
-                        display: 'flex', 
-                        gap: '12px', 
-                        marginBottom: '8px',
-                        fontSize: '12px',
-                        color: '#6b7280'
-                      }}>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "12px",
+                          marginBottom: "8px",
+                          fontSize: "12px",
+                          color: "#6b7280",
+                        }}
+                      >
                         <span>
-                          <strong>Source:</strong> {article.source?.name || "N/A"}
+                          <strong>Source:</strong>{" "}
+                          {article.source?.name || "N/A"}
                         </span>
                         <span>
                           <strong>Date:</strong> {article.publishedAt || "N/A"}
                         </span>
                       </div>
-                      
+
                       <p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.3 }}
                         style={{
-                          margin: '0 0 12px 0',
-                          lineHeight: '1.4',
-                          color: '#374151',
-                          fontSize: '13px',
-                          maxHeight: '50px',
-                          overflow: 'hidden',
-                          display: '-webkit-box',
-                          WebkitLineClamp: '2',
-                          WebkitBoxOrient: 'vertical'
+                          margin: "0 0 12px 0",
+                          lineHeight: "1.4",
+                          color: "#374151",
+                          fontSize: "13px",
+                          maxHeight: "50px",
+                          overflow: "hidden",
+                          display: "-webkit-box",
+                          WebkitLineClamp: "2",
+                          WebkitBoxOrient: "vertical",
                         }}
                       >
-                        {article.description ? 
-                          (article.description.length > 100 ? 
-                            article.description.substring(0, 100) + '...' : 
-                            article.description
-                          ) : 
-                          "No summary available."
-                        }
+                        {article.description
+                          ? article.description.length > 100
+                            ? article.description.substring(0, 100) + "..."
+                            : article.description
+                          : "No summary available."}
                       </p>
-                      
+
                       <a
                         href={article.url}
                         target="_blank"
@@ -370,15 +382,15 @@ function Stockdata() {
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         style={{
-                          display: 'inline-block',
-                          padding: '6px 12px',
-                          background: '#3b82f6',
-                          color: 'white',
-                          textDecoration: 'none',
-                          borderRadius: '6px',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          transition: 'all 0.2s ease'
+                          display: "inline-block",
+                          padding: "6px 12px",
+                          background: "#3b82f6",
+                          color: "white",
+                          textDecoration: "none",
+                          borderRadius: "6px",
+                          fontSize: "12px",
+                          fontWeight: "500",
+                          transition: "all 0.2s ease",
                         }}
                       >
                         Read more
@@ -497,6 +509,7 @@ function Stockdata() {
           )}
         </div>
       )}
+      <BackToTopBtn />
     </div>
   );
 }
