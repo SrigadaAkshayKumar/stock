@@ -4,7 +4,7 @@ import { MdOutlineDesignServices } from "react-icons/md";
 import { FiRefreshCcw } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import "../App.css";
-import BackToTopBtn from "../components/BackToTopBtn";
+import BackToTopBtn from "./BackToTopBtn";
 
 const AboutComponent = () => {
   const iconColor = "var(--color-primary)";

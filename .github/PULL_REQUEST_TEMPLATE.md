@@ -4,7 +4,7 @@
 
 #### Issue Title
 
-**Please enter the title of the issue related to your pull request.**  
+**Please enter the title of the issue related to your pull request.**
 _Example: Add Linear Regression model for stock prediction_
 
 #### Contributor Details
@@ -18,12 +18,12 @@ _Example: Add Linear Regression model for stock prediction_
 
 #### Closes
 
-**Mention the issue number that your PR fixes.**  
+**Mention the issue number that your PR fixes.**
 _Example: Closes #15_
 
 #### Describe Your Changes
 
-**What have you added or modified in this pull request?**  
+**What have you added or modified in this pull request?**
 _Be clear and specific. Example: "Integrated Decision Tree model in backend to support stock predictions."_
 
 #### Screenshots
@@ -45,7 +45,7 @@ describe how to test this update
 _Select all that apply:_
 
 - [ ] Bug fix (fixes an existing issue)
-- [ ] New feature (adds new functionality)
+- [X] New feature (adds new functionality)
 - [ ] Code style update (formatting, refactoring)
 - [ ] Breaking change (may affect existing features)
 - [ ] Documentation update
@@ -54,13 +54,13 @@ _Select all that apply:_
 
 #### Checklist
 
-- [ ] My code follows the project’s guidelines and best practices.
-- [ ] I have performed a self-review of my code.
-- [ ] I have added meaningful comments where necessary.
-- [ ] I have updated documentation wherever applicable.
-- [ ] My changes do not generate any new warnings or errors.
-- [ ] I have included screenshots, graphs, or test logs (if applicable).
-- [ ] Any dependent changes have been merged and documented.
+- [X] My code follows the project’s guidelines and best practices.
+- [X] I have performed a self-review of my code.
+- [X] I have added meaningful comments where necessary.
+- [X] I have updated documentation wherever applicable.
+- [X] My changes do not generate any new warnings or errors.
+- [X] I have included screenshots, graphs, or test logs (if applicable).
+- [X] Any dependent changes have been merged and documented.
 
 ---
 

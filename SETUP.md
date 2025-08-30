@@ -109,6 +109,22 @@ pip install -r requirements.txt
 bash
 python app.py
 
+### Optional: Enable API response caching (Redis or in-memory)
+
+Set the following environment variables (e.g., in a `.env` next to `backend/app.py`):
+
+```
+CACHE_ENABLED=true
+REDIS_URL=redis://localhost:6379/0
+CACHE_TTL_STOCK=900   # seconds for stock data
+CACHE_TTL_PRED=3600   # seconds for prediction endpoint
+```
+
+- If Redis is reachable, it will be used.
+- If Redis is not reachable, the app falls back to a safe in-memory cache.
+- Force refresh any endpoint with `?refresh=true`.
+- Cache headers: the API adds `X-Cache: HIT|MISS|BYPASS` to responses.
+
 
 The app will be available at http://x.x.x.x:10000. (you will find the correct url in the server console)
 copy the server url to use in frontend

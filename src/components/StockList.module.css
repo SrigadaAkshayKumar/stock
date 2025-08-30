@@ -3,7 +3,6 @@
   max-width: 1200px;
   margin: 0 auto;
   color: var(--color-text);
-  min-height: calc(100vh - 200px);
   background-color: var(--color-bg);
   transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
@@ -199,6 +198,14 @@ tr:hover {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .stocksList {
+    padding: 1.5rem 0.75rem;
+  }
+  
+  .cardsContainer {
+    margin-bottom: 1.5rem; /* Reasonable bottom margin on mobile */
+  }
+  
   .searchContainer {
     flex-direction: column;
     align-items: center;
@@ -243,6 +250,7 @@ tr:hover {
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
   margin-top: 2rem;
+  margin-bottom: 2rem; /* Reasonable bottom margin */
 }
 .stockCard {
   background: var(--color-card-bg);
@@ -252,6 +260,8 @@ tr:hover {
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: center;
+  position: relative;
+  z-index: 1; /* Ensure cards don't overlap footer */
 }
 .stockCard:hover {
   background: var(--color-card-hover);
@@ -272,8 +282,11 @@ tr:hover {
   cursor: pointer;
   font-weight: bold;
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 2; /* Ensure button stays above other elements */
 }
 .watchlistButton:hover {
   background-color: #e64a19;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }

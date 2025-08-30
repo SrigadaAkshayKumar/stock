@@ -40,7 +40,6 @@ const SentimentChart = ({ sentimentSummary }) => {
   }
 
   const { 
-    sentiment_distribution = { positive: 0, negative: 0, neutral: 0 }, 
     sentiment_percentages = { positive: 0, negative: 0, neutral: 0 }, 
     overall_sentiment = 'neutral', 
     sentiment_index = 0 

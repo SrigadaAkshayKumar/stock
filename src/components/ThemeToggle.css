@@ -15,19 +15,46 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
   background-color: var(--color-bg-secondary);
   color: var(--color-text);
+  border: 2px solid var(--color-border);
 }
 
 .theme-toggle:hover {
   transform: scale(1.1);
   background-color: var(--color-bg-tertiary);
+  border-color: var(--color-primary);
 }
 
 .theme-toggle:focus {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-primary-transparent);
+}
+
+.theme-toggle.dark {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+}
+
+.theme-toggle.light {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-warning);
+}
+
+.theme-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: all 0.3s ease;
+  color: currentColor;
+}
+
+.sun-icon {
+  color: #fbbf24;
+}
+
+.moon-icon {
+  color: #60a5fa;
 }
 
 .theme-toggle-track {

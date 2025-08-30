@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { motion, AnimatePresence } from "framer-motion";
 import { toggleWatchlist } from "../utils/watchlistManager";
-import { auth } from "../components/firebase";
+import { auth } from "./firebase";
 import stockData from "./data/stockData.json";
-import BackToTopBtn from "../components/BackToTopBtn";
+import BackToTopBtn from "./BackToTopBtn";
 import styles from "./StockList.module.css";
 
 const StocksList = () => {

@@ -4,7 +4,7 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
 } from "firebase/auth";
-import { auth } from "../components/firebase";
+import { auth } from "./firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { syncLocalToFirebase } from "../utils/watchlistManager";
 import "./Login.css";

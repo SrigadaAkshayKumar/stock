@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { getWatchlist, removeStockFromWatchlist } from "../utils/watchlistManager";
-import { auth } from "../components/firebase";
+import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import BackToTopBtn from "../components/BackToTopBtn";
+import BackToTopBtn from "./BackToTopBtn";
 import styles from "./Watchlist.module.css";
 
 const Watchlist = () => {
   const [watchlist, setWatchlist] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-
       getWatchlist().then((data) => {
         setWatchlist(data);
         setLoading(false);

@@ -4,13 +4,13 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
 } from "firebase/auth";
-import { auth, realtimeDb as database } from "../components/firebase"; // सही import path जांच लें
+import { auth, realtimeDb as database } from "./firebase";
 import { ref, set } from "firebase/database";
 import { useNavigate, Link } from "react-router-dom";
 import { syncLocalToFirebase } from "../utils/watchlistManager";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useAuth } from "../components/AuthContext"; // AuthContext अगर आप यूज कर रहे हैं तो
+import { useAuth } from "./AuthContext";
 import "./Signup.css";
 
 const Signup = () => {

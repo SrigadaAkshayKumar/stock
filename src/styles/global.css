@@ -6,8 +6,23 @@
   -webkit-text-size-adjust: 100%;
   -moz-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  
+  /* Transition speed for theme changes */
+  --transition-speed: 0.3s;
+  --form-border-radius: 8px;
+  --form-padding: 0.75rem 1rem;
+}
 
-  /* Light Theme (default) */
+/* Light Theme (default) */
+:root,
+html,
+body,
+html.light,
+body.light,
+html.theme-light,
+body.theme-light,
+html[data-theme="light"],
+body[data-theme="light"] {
   --color-bg: #ffffff;
   --color-bg-secondary: #f8f9fa;
   --color-bg-tertiary: #e9ecef;
@@ -15,8 +30,10 @@
   --color-text-secondary: #6c757d;
   --color-primary: #4fd1c5;
   --color-primary-hover: #38b2ac;
+  --color-primary-transparent: rgba(79, 209, 197, 0.2);
   --color-border: #dee2e6;
   --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-shadow-hover: rgba(0, 0, 0, 0.15);
   --color-card-bg: #ffffff;
   --color-card-hover: #f8f9fa;
   --color-danger: #dc3545;
@@ -30,15 +47,17 @@
   --input-focus: #86b7fe;
   --input-placeholder: #6c757d;
   --input-hover-border: #adb5bd;
-  --color-bg-footer: #f5f5f5; /* Light mode footer background */
+  --color-bg-footer: #f5f5f5;
   --color-border-footer: #ddd;
-  --transition-speed: 0.3s;
-  --form-border-radius: 8px;
-  --form-padding: 0.75rem 1rem;
 }
 
 /* Dark Theme */
-[data-theme="dark"],
+html.dark,
+body.dark,
+html.theme-dark,
+body.theme-dark,
+html[data-theme="dark"],
+body[data-theme="dark"],
 .theme-dark {
   --color-bg: #1a202c;
   --color-bg-secondary: #2d3748;
@@ -47,32 +66,40 @@
   --color-text-secondary: #a0aec0;
   --color-primary: #4fd1c5;
   --color-primary-hover: #81e6d9;
+  --color-primary-transparent: rgba(79, 209, 197, 0.2);
   --color-border: #4a5568;
   --color-shadow: rgba(0, 0, 0, 0.3);
   --color-shadow-hover: rgba(0, 0, 0, 0.5);
   --color-card-bg: #2d3748;
   --color-card-hover: #4a5568;
-  --input-bg: #2d3748;
-  --input-text: #e2e8f0;
-  --input-border: #4a5568;
-  --color-bg-footer: #1c1c1c; /* Dark mode footer background */
-  --color-border-footer: #333; /* Dark mode footer border */
-  --input-focus: #4fd1c5;
-  --color-danger: #dc3545;
+  --color-danger: #fc8181;
   --color-danger-hover: #ff6b6b;
-  --color-success: #20c997;
-  --color-warning: #ffd43b;
-  --color-info: #3bc9db;
+  --color-success: #68d391;
+  --color-warning: #fbd38d;
+  --color-info: #63b3ed;
   --input-bg: #2d3748;
   --input-text: #e2e8f0;
   --input-border: #4a5568;
   --input-focus: #4fd1c5;
   --input-placeholder: #a0aec0;
   --input-hover-border: #718096;
+  --color-bg-footer: #1a1a1a;
+  --color-border-footer: #333;
+}
+
+/* Apply dark theme to body and all elements */
+html.dark,
+body.dark,
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 /* Smooth transitions for theme changes */
-* {
+*,
+*::before,
+*::after {
   transition: background-color var(--transition-speed) ease-in-out,
     color var(--transition-speed) ease-in-out,
     border-color var(--transition-speed) ease-in-out,
@@ -84,6 +111,16 @@
 .theme-initial *::before,
 .theme-initial *::after {
   transition: none !important;
+}
+
+/* Apply theme colors to body */
+body {
+  background-color: var(--color-bg) !important;
+  color: var(--color-text) !important;
+  min-height: 100vh;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  line-height: 1.6;
 }
 
 /* Box sizing rules */

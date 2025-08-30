@@ -4,49 +4,70 @@ const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState('light');
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize theme from localStorage or system preference
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-    setTheme(initialTheme);
-    
-    // Set initial theme class without transition
-    const root = document.documentElement;
-    root.classList.add('theme-initial');
-    root.setAttribute('data-theme', initialTheme);
-    
-    // Remove initial class after first render to enable transitions
-    const timer = setTimeout(() => {
-      root.classList.remove('theme-initial');
-    }, 0);
-    
-    return () => clearTimeout(timer);
+    try {
+      const savedTheme = localStorage.getItem('theme');
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+      setTheme(initialTheme);
+      
+      // Apply theme immediately
+      applyTheme(initialTheme);
+      setIsInitialized(true);
+      
+    } catch (error) {
+      console.warn('Could not initialize theme:', error);
+      setTheme('light');
+      applyTheme('light');
+      setIsInitialized(true);
+    }
   }, []);
 
   // Apply theme class and save preference
   useEffect(() => {
-    if (!theme) return;
+    if (!isInitialized) return;
+    
+    applyTheme(theme);
     
     try {
-      const root = document.documentElement;
-      // Remove all theme classes first
-      root.classList.remove('light', 'dark');
-      // Add the current theme class
-      root.classList.add(theme);
-      // Also set data-theme attribute for CSS variables
-      root.setAttribute('data-theme', theme);
-      // Save to localStorage
       localStorage.setItem('theme', theme);
     } catch (e) {
       console.warn('Could not save theme preference:', e);
     }
-  }, [theme]);
+  }, [theme, isInitialized]);
+
+  const applyTheme = (themeName) => {
+    try {
+      const root = document.documentElement;
+      const body = document.body;
+      
+      // Remove existing theme classes
+      root.classList.remove('light', 'dark', 'theme-light', 'theme-dark');
+      body.classList.remove('light', 'dark', 'theme-light', 'theme-dark');
+      
+      // Add new theme classes
+      root.classList.add(themeName, `theme-${themeName}`);
+      body.classList.add(themeName, `theme-${themeName}`);
+      
+      // Set data-theme attribute for CSS selectors
+      root.setAttribute('data-theme', themeName);
+      body.setAttribute('data-theme', themeName);
+      
+      // Force re-computation of CSS variables
+      root.style.setProperty('--current-theme', themeName);
+      
+    } catch (error) {
+      console.warn('Could not apply theme:', error);
+    }
+  };
 
   const toggleTheme = () => {
-    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
   };
 
   return (

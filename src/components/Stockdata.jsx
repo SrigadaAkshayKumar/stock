@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Plot from "react-plotly.js";
 import { useParams } from "react-router-dom";
@@ -14,7 +14,6 @@ function Stockdata() {
   const { ticker } = useParams();
   const [stockData, setStockData] = useState([]);
   const [graphData1, setGraphData1] = useState({});
-  const [graphData2, setGraphData2] = useState({});
   const [stockInfo, setStockInfo] = useState({});
   const [news, setNews] = useState([]);
   const [sentimentSummary, setSentimentSummary] = useState({});
@@ -38,13 +37,7 @@ function Stockdata() {
     "max",
   ];
 
-  useEffect(() => {
-    fetchStockInfo();
-  }, [ticker, chartPeriod, tablePeriod]);
-
-  console.log("Stock Data:", stockData);
-
-  const fetchStockInfo = async () => {
+  const fetchStockInfo = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await axios.get(
@@ -53,7 +46,6 @@ function Stockdata() {
 
       setStockData(res.data.stock_data);
       setGraphData1(JSON.parse(res.data.graph_data1));
-      setGraphData2(JSON.parse(res.data.graph_data2));
       setStockInfo(res.data.stock_info);
       setNews(Array.isArray(res.data.stock_news) ? res.data.stock_news : []);
       setSentimentSummary(res.data.sentiment_summary || {});
@@ -62,7 +54,13 @@ function Stockdata() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [ticker, chartPeriod, tablePeriod]);
+
+  useEffect(() => {
+    fetchStockInfo();
+  }, [fetchStockInfo]);
+
+  console.log("Stock Data:", stockData);
 
   const handleShowMore = () => {
     setShowMore(!showMore);
@@ -125,7 +123,7 @@ function Stockdata() {
       initial="hidden"
       animate="visible"   
     >
-      <h1 variants={itemVariants}></h1>
+      <h1 variants={itemVariants}>{ticker} Stock Analysis</h1>
       {isLoading ? (
         <motion.div
           key="loading"

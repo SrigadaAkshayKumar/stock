@@ -37,7 +37,7 @@ const BackToTopBtn = ({
   useEffect(() => {
     window.addEventListener('scroll', toggleVisibility);
     return () => window.removeEventListener('scroll', toggleVisibility);
-  }, []);
+  }, [toggleVisibility]);
 
   // Smooth scroll to top with animation state
   const scrollToTop = () => {

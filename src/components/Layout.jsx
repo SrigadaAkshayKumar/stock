@@ -1,9 +1,9 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import { ThemeProvider } from "./components/ThemeContext";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import "./theme.css"; // global theme tokens
+import { ThemeProvider } from "./ThemeContext";
+import Header from "./Header";
+import Footer from "./Footer";
+import "../styles/global.css"; // global theme tokens
 
 
 export default function Layout() {
