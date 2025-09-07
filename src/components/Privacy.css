@@ -1,0 +1,58 @@
+.privacy-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: var(--background);
+  padding: 2rem;
+}
+
+.privacy-box {
+  max-width: 800px;
+  width: 100%;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  color: var(--text); /* base text color */
+}
+
+/* Apply theme text to all content */
+.privacy-box p,
+.privacy-box li,
+.privacy-box a,
+.privacy-box span {
+  color: var(--text);
+}
+
+/* Headings */
+.privacy-content h1,
+.privacy-content h2,
+.privacy-content h3,
+.privacy-box h1,
+.privacy-box h2,
+.privacy-box h3 {
+  color: var(--text);
+}
+
+/* Muted info */
+.meta {
+  color: var(--muted);
+}
+
+/* Print button */
+.print-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background-color: var(--text);
+  color: var(--card);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.print-btn:hover {
+  opacity: 0.85;
+}
