@@ -95,7 +95,7 @@ Note: run python --version before creating a virtual environment. The modules in
 
 If you're using higher versions, consider creating the virtual environement in the following way:
 bash
-    python -3.11 -m venv venv
+    py -3.11 -m venv venv
 
 Visit official website of python to download version 3.11.*
 

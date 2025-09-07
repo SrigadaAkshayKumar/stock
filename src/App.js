@@ -15,6 +15,8 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Watchlist from "./components/Watchlist";
 import { AuthProvider } from "./components/AuthContext";
+import TermsOfService from "./components/TermsOfService";
+import PrivacyPolicy from "./components/PrivacyPolicy";
 
 // Theme
 import { ThemeProvider, useTheme } from "./components/ThemeContext";
@@ -67,6 +69,14 @@ const App = () => {
                 <Route path="/stocks" element={<StocksList />} />
                 <Route path="/watchlist" element={<Watchlist />} />
                 <Route path="/contact" element={<ContactForm />} />
+                <Route path="/terms" element={<TermsOfService 
+                  appName="Stock Analyzer"
+                  effectiveDate="October 1, 2024"
+                  lastUpdated="October 1, 2029"
+                  jurisdiction="California, USA"
+                  contactEmail="support@stockanalyzer.com"
+                />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
               </Routes>
             </div>
             <Footer />
