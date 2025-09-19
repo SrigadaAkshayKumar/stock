@@ -4,6 +4,7 @@ import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 import { getFirestore } from "firebase/firestore";
 
+
 // ✅ Use .env variables (set these in your .env file)
 // If no Firebase config is provided, use dummy config for development
 const firebaseConfig = {

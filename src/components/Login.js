@@ -95,7 +95,7 @@ const Login = () => {
             required
             disabled={loading}
           />
-          <input
+          <input 
             type="password"
             placeholder="Password"
             value={password}
@@ -108,6 +108,12 @@ const Login = () => {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+       <p style={{ marginTop: "10px", textAlign: "center" }}>
+          <Link to="/forgot-password" style={{ color: "#007bff", textDecoration: "none" }}>
+            Forgot Password?
+          </Link>
+        </p>
 
         <p>
           Don't have an account? <Link to="/signup">Signup</Link>
