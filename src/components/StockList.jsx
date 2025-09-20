@@ -8,6 +8,7 @@ import stockData from "./data/stockData.json";
 import BackToTopBtn from "./BackToTopBtn";
 import styles from "./StockList.module.css";
 import stockBg2 from "./images/bg.png";
+import {toast} from "react-hot-toast"
 
 const StocksList = () => {
   const [stocks, setStocks] = useState([]);
@@ -35,9 +36,9 @@ const StocksList = () => {
     if (user) {
       try {
         await toggleWatchlist(stock);
-        alert(`${stock.symbol} added to your Firebase watchlist!`);
+        toast.success(`${stock.symbol} added to your Firebase watchlist!`);
       } catch (err) {
-        alert("Failed to add to watchlist.");
+        toast.error("Failed to add to watchlist.");
         console.error(err);
       }
     } else {
