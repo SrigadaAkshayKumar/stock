@@ -1,3 +1,4 @@
+// src/components/Login.jsx
 import React, { useState } from "react";
 import {
   signInWithEmailAndPassword,
@@ -13,12 +14,14 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess(false);
     setLoading(true);
 
     try {
@@ -32,7 +35,11 @@ const Login = () => {
       // Sync local data to Firebase after login
       await syncLocalToFirebase(userCredential.user);
 
-      navigate("/"); // redirect to home page
+      // Show success message
+      setSuccess(true);
+
+      // Redirect after short delay to allow user to see the message
+      setTimeout(() => navigate("/"), 1500);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -42,23 +49,26 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     setError("");
+    setSuccess(false);
     setLoading(true);
 
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
+
       // Sync local data to Firebase after Google login
       await syncLocalToFirebase(result.user);
-      navigate("/"); // redirect to home page
+
+      setSuccess(true);
+
+      // Redirect after short delay
+      setTimeout(() => navigate("/"), 1500);
     } catch (err) {
       const errorCode = err.code;
-
       if (errorCode === "auth/popup-closed-by-user") {
         setError("Sign-in cancelled by user");
       } else if (errorCode === "auth/popup-blocked") {
-        setError(
-          "Popup blocked by browser. Please allow popups and try again."
-        );
+        setError("Popup blocked by browser. Please allow popups.");
       } else {
         setError(err.message);
       }
@@ -104,10 +114,20 @@ const Login = () => {
             disabled={loading}
           />
           {error && <p className="login-error">{error}</p>}
+          {success && <p className="login-success">Login successful 🎉</p>}
           <button type="submit" disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        <p style={{ marginTop: "10px", textAlign: "center" }}>
+          <Link
+            to="/forgot-password"
+            style={{ color: "#007bff", textDecoration: "none" }}
+          >
+            Forgot Password?
+          </Link>
+        </p>
 
         <p>
           Don't have an account? <Link to="/signup">Signup</Link>
