@@ -176,6 +176,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaTwitter, FaLinkedin, FaGithub, FaChartLine } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import "./Footer.css";
 
 const Footer = () => {
@@ -221,7 +222,7 @@ const Footer = () => {
                 aria-label="Twitter"
                 className="social-link"
               >
-                <FaTwitter aria-hidden="true" />
+                <FaXTwitter aria-hidden="true" />
               </a>
               <a
                 href="https://linkedin.com/company/stockanalyzer"
