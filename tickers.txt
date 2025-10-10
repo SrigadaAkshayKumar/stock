@@ -1,0 +1,18 @@
+# Sample tickers file - one ticker per line
+# Lines starting with # are comments and will be ignored
+
+# Big Tech
+AAPL
+MSFT
+GOOGL
+AMZN
+META
+
+# Other Popular Stocks
+TSLA
+NVDA
+JPM
+UNH
+V
+
+# Add your own tickers below:
