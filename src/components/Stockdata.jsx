@@ -41,7 +41,7 @@ function Stockdata() {
     setIsLoading(true);
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/stock/${ticker}?chart_period=${chartPeriod}&table_period=${tablePeriod}`
+        `${process.env.REACT_APP_API_URL}/api/stock/${ticker}?chart_period=${chartPeriod}&table_period=${tablePeriod}`,
       );
 
       setStockData(res.data.stock_data);
@@ -61,6 +61,7 @@ function Stockdata() {
   }, [fetchStockInfo]);
 
   console.log("Stock Data:", stockData);
+  console.log("API Call sent successfully");
 
   const handleShowMore = () => {
     setShowMore(!showMore);
@@ -121,7 +122,7 @@ function Stockdata() {
       className="container"
       variants={containerVariants}
       initial="hidden"
-      animate="visible"   
+      animate="visible"
     >
       <h1 variants={itemVariants}>{ticker} Stock Analysis</h1>
       {isLoading ? (
@@ -307,8 +308,8 @@ function Stockdata() {
                               article.sentiment === "positive"
                                 ? "#10B981"
                                 : article.sentiment === "negative"
-                                ? "#EF4444"
-                                : "#6B7280",
+                                  ? "#EF4444"
+                                  : "#6B7280",
                             boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                           }}
                         >
