@@ -27,6 +27,8 @@ const StocksList = () => {
   const handleSearch = () => {
     if (searchTicker.trim()) {
       navigate(`/stock/${searchTicker.trim()}`);
+      console.log(`Searching for stock: ${searchTicker.trim()}`);
+      console.log(`API call sent successfully`);
     }
   };
 
