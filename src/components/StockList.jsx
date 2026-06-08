@@ -27,6 +27,8 @@ const StocksList = () => {
   const handleSearch = () => {
     if (searchTicker.trim()) {
       navigate(`/stock/${searchTicker.trim()}`);
+      console.log(`Searching for stock: ${searchTicker.trim()}`);
+      console.log(`API call sent successfully`);
     }
   };
 
@@ -57,10 +59,8 @@ const StocksList = () => {
       <section
         className={styles.hero}
         style={{
-          backgroundImage: `linear-gradient(135deg, rgba(33,84,214,0.63), rgba(29,30,41,0.46)), url(${stockBg2})`,
-          backgroundSize: "contain", // CHANGED from 'cover' to 'contain'
-          backgroundPosition: "center bottom", // Focus lower part (the phone/hand)
-          backgroundRepeat: "no-repeat",
+          background:
+            "linear-gradient(135deg, rgba(33,84,214,0.63), rgba(29,30,41,0.46))",
         }}
       >
         <h1>Welcome to Stock Analyzer!</h1>
