@@ -61,6 +61,8 @@ function Stockdata() {
   }, [fetchStockInfo]);
 
   console.log("Stock Data:", stockData);
+  console.log("API Call sent successfully");
+
   console.log(`API call sent successfully`);
   const handleShowMore = () => {
     setShowMore(!showMore);
