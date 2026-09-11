@@ -74,6 +74,7 @@ const StocksList = () => {
           placeholder="Search for stocks..."
           value={searchTicker}
           onChange={(e) => setSearchTicker(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           className={styles.searchInput}
         />
         <button onClick={handleSearch} className={styles.searchButton}>
