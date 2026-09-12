@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 from routes.stock_routes import stock_routes
 from dotenv import load_dotenv
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 # Load env
 load_dotenv()
