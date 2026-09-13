@@ -24,7 +24,7 @@ jobs:
 
             const message = isPR
             ? `Thanks for opening this Pull Request! A maintainer will review it shortly. Please make sure you've followed all [contribution guidelines](https://github.com/SrigadaAkshayKumar/stock/blob/main/CONTRIBUTION.md).\n\n Join our [Whatsapp Community](https://chat.whatsapp.com/CNiFekAmXmVGwyFsVMcncM?s=sh&p=a&mlu=4&ilr=4) for discussions, questions, and real-time collaboration!`
-            : `Thanks for addressing the issue! We’ll review it and get back to you shortly. If it’s a feature request, consider adding screenshots or a demo video for clarity.\n\n Join our [Discord Community](https://discord.gg/ypQSaPbsDv) for discussions, questions, and real-time collaboration!`;
+            : `Thanks for addressing the issue! We’ll review it and get back to you shortly. If it’s a feature request, consider adding screenshots or a demo video for clarity.\n\n Join our [Whatsapp Community](https://chat.whatsapp.com/CNiFekAmXmVGwyFsVMcncM?s=sh&p=a&mlu=4&ilr=4) for discussions, questions, and real-time collaboration!`;
 
             github.rest.issues.createComment({
               issue_number: issueOrPR.number,
