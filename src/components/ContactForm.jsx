@@ -13,7 +13,7 @@ const ContactForm = () => {
   const [errors, setErrors] = useState({});
 
   const nameRegex = /^[a-zA-Z\s]*$/;
-  const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const emailRegex = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   const validateField = (name, value) => {
     let error = "";
