@@ -2,6 +2,8 @@ import React, { act } from "react";
 import { createRoot } from "react-dom/client";
 import ContactForm from "./ContactForm";
 
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
 const renderContactForm = () => {
   const container = document.createElement("div");
   document.body.appendChild(container);
@@ -15,8 +17,13 @@ const renderContactForm = () => {
 };
 
 const changeInput = (input, value) => {
+  const valueSetter = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    "value"
+  ).set;
+
   act(() => {
-    input.value = value;
+    valueSetter.call(input, value);
     input.dispatchEvent(new Event("input", { bubbles: true }));
   });
 };
