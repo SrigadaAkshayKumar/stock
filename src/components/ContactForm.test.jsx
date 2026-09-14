@@ -1,45 +1,72 @@
-import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import React, { act } from "react";
+import { createRoot } from "react-dom/client";
 import ContactForm from "./ContactForm";
 
-const getEmailInput = () => screen.getByPlaceholderText("Your Email");
+const renderContactForm = () => {
+  const container = document.createElement("div");
+  document.body.appendChild(container);
+  const root = createRoot(container);
 
-const changeEmail = (value) => {
-  fireEvent.change(getEmailInput(), { target: { name: "email", value } });
+  act(() => {
+    root.render(<ContactForm />);
+  });
+
+  return { container, root };
 };
+
+const changeInput = (input, value) => {
+  act(() => {
+    input.value = value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+};
+
+afterEach(() => {
+  document.body.innerHTML = "";
+});
 
 describe("ContactForm email validation", () => {
   test("accepts a valid email address beginning with a digit", () => {
-    render(<ContactForm />);
+    const { container, root } = renderContactForm();
+    const emailInput = container.querySelector('input[name="email"]');
 
-    changeEmail("1alice@example.com");
+    changeInput(emailInput, "1alice@example.com");
 
-    expect(screen.queryByText("Please enter a valid email address.")).toBeNull();
+    expect(container.textContent).not.toContain("Please enter a valid email address.");
+
+    act(() => root.unmount());
   });
 
   test("accepts a valid email address beginning with a letter", () => {
-    render(<ContactForm />);
+    const { container, root } = renderContactForm();
+    const emailInput = container.querySelector('input[name="email"]');
 
-    changeEmail("alice1@example.com");
+    changeInput(emailInput, "alice1@example.com");
 
-    expect(screen.queryByText("Please enter a valid email address.")).toBeNull();
+    expect(container.textContent).not.toContain("Please enter a valid email address.");
+
+    act(() => root.unmount());
   });
 
   test("rejects a malformed email address", () => {
-    render(<ContactForm />);
+    const { container, root } = renderContactForm();
+    const emailInput = container.querySelector('input[name="email"]');
 
-    changeEmail("1alice@");
+    changeInput(emailInput, "1alice@");
 
-    expect(screen.getByText("Please enter a valid email address.")).toBeInTheDocument();
+    expect(container.textContent).toContain("Please enter a valid email address.");
+
+    act(() => root.unmount());
   });
 
   test("keeps existing name validation unchanged", () => {
-    render(<ContactForm />);
+    const { container, root } = renderContactForm();
+    const firstNameInput = container.querySelector('input[name="firstName"]');
 
-    fireEvent.change(screen.getByPlaceholderText("First Name"), {
-      target: { name: "firstName", value: "Ayan123" },
-    });
+    changeInput(firstNameInput, "Ayan123");
 
-    expect(screen.getByText("Only letters and spaces are allowed.")).toBeInTheDocument();
+    expect(container.textContent).toContain("Only letters and spaces are allowed.");
+
+    act(() => root.unmount());
   });
 });
