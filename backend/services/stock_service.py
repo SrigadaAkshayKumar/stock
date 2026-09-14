@@ -8,6 +8,8 @@ from flask import jsonify
 from .sentiment_service import fetch_stock_news_with_sentiment
 
 DATA_FOLDER = os.path.join(os.path.dirname(__file__), "data")
+SUPPORTED_PERIODS = {"1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"}
+
 
 def normalize_symbol(symbol: str) -> str:
     """
@@ -15,12 +17,43 @@ def normalize_symbol(symbol: str) -> str:
     """
     return symbol.replace(".NS", "").replace(".BO", "")
 
+
+def filter_stock_data(df: pd.DataFrame, period: str) -> pd.DataFrame:
+    """Return the rows covered by a supported stock-data period."""
+    if period not in SUPPORTED_PERIODS:
+        raise ValueError(f"Unsupported period: {period}")
+
+    if period == "max":
+        return df.copy()
+
+    if period in {"1d", "5d"}:
+        row_count = 1 if period == "1d" else 5
+        return df.tail(row_count).copy()
+
+    latest_date = df["Date"].max()
+    if period == "ytd":
+        start_date = pd.Timestamp(year=latest_date.year, month=1, day=1)
+    elif period.endswith("mo"):
+        months = int(period[:-2])
+        start_date = latest_date - pd.DateOffset(months=months)
+    else:
+        years = int(period[:-1])
+        start_date = latest_date - pd.DateOffset(years=years)
+
+    return df.loc[df["Date"] >= start_date].copy()
+
+
 def get_stock_data_handler(symbol, chart_period="1mo", table_period="1mo"):
     """
     Handles GET request for stock data from local CSV files.
     Returns price chart, table, news with sentiment, and stock info in JSON format.
     """
     try:
+        if chart_period not in SUPPORTED_PERIODS or table_period not in SUPPORTED_PERIODS:
+            return jsonify({
+                "error": "Unsupported period. Choose from: " + ", ".join(sorted(SUPPORTED_PERIODS))
+            }), 400
+
         # Normalize symbol to match CSV filename
         clean_symbol = normalize_symbol(symbol)
 
@@ -60,9 +93,17 @@ def get_stock_data_handler(symbol, chart_period="1mo", table_period="1mo"):
             "dividend_yield": 0
         }
 
-        # For now, using same data for chart & table
-        chart_data = df.copy()
-        table_data = df.copy()
+        chart_data = filter_stock_data(df, chart_period)
+        table_data = filter_stock_data(df, table_period)
+
+        if chart_data.empty:
+            return jsonify({
+                "error": f"No stock data available for chart period '{chart_period}'"
+            }), 404
+        if table_data.empty:
+            return jsonify({
+                "error": f"No stock data available for table period '{table_period}'"
+            }), 404
 
         # Format date for frontend
         chart_data["Date"] = chart_data["Date"].dt.strftime("%d-%m-%Y")
