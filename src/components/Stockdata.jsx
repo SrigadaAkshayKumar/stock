@@ -176,7 +176,7 @@ function Stockdata() {
                   close={stockInfo.close}
                   high={stockInfo.high}
                   low={stockInfo.low}
-                  previousClose={stockData[0]?.Close}
+                  previousClose={stockInfo.previous_close}
                 />
                 {/* <h1 className="exchange-badge">
                   Exchange : {stockInfo.exchange || "N/A"}
