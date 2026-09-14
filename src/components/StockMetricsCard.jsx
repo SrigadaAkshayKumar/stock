@@ -14,7 +14,7 @@ export const StockMetricsCard = ({
   const High = high ?? "N/A";
 
   // Formatting the value
-  const formatValue = (value) => `$${Number(value).toFixed(2)}`;
+  const formatValue = (value) => `₹${Number(value).toFixed(2)}`;
 
   // Arrow indicator to check trends
   const getTrend = (current, compareWith) => {
