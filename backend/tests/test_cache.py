@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from utils import cache
 
@@ -30,11 +30,14 @@ class InMemoryCacheTests(unittest.TestCase):
             self.assertEqual(cache.get_cache("third"), "3")
 
     def test_expired_entries_are_removed_before_size_eviction(self):
+        current_time = Mock(return_value=100.0)
         with patch.object(cache, "MEMORY_CACHE_MAX_SIZE", 2), patch.object(
-            cache.time, "time", side_effect=[100.0, 100.0, 103.0, 103.0, 103.0]
+            cache.time, "time", current_time
         ):
             cache.set_cache("expired", "old", ttl=2)
             cache.set_cache("live", "new", ttl=10)
+
+            current_time.return_value = 103.0
             cache.set_cache("next", "value", ttl=10)
 
             self.assertEqual(len(cache._memory_cache), 2)
