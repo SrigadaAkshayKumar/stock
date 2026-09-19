@@ -14,6 +14,7 @@ import ContactForm from "./components/ContactForm";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Watchlist from "./components/Watchlist";
+import StockCompare from "./components/StockCompare";
 import { AuthProvider } from "./components/AuthContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -64,6 +65,7 @@ const App = () => {
                   <Route path="/about" element={<AboutComponent />} />
                   <Route path="/stocks" element={<StocksList />} />
                   <Route path="/watchlist" element={<Watchlist />} />
+                  <Route path="/compare" element={<StockCompare />} />
                   <Route path="/contact" element={<ContactForm />} />
                 </Routes>
               </div>

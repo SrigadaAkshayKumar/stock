@@ -9,6 +9,7 @@ import {
   LuInfo,
   LuMail,
   LuClipboardList,
+  LuGitCompare,
   LuLogIn,
   LuLogOut,
   LuMenu,
@@ -64,6 +65,9 @@ const Header = () => {
           <div className="nav-section">
             <NavLink to="/" className="nav-link" onClick={closeMenu} end>
               <div className="nav-icon"><LuLayoutDashboard /><span>Home</span></div>
+            </NavLink>
+            <NavLink to="/compare" className="nav-link" onClick={closeMenu}>
+              <div className="nav-icon"><LuGitCompare /><span>Compare</span></div>
             </NavLink>
             <NavLink to="/about" className="nav-link" onClick={closeMenu}>
               <div className="nav-icon"><LuInfo /><span>About</span></div>
@@ -129,6 +133,9 @@ const Header = () => {
 
           <NavLink to="/" className="nav-link" onClick={closeMenu} end>
             <div className="nav-icon"><LuLayoutDashboard /><span>Home</span></div>
+          </NavLink>
+          <NavLink to="/compare" className="nav-link" onClick={closeMenu}>
+            <div className="nav-icon"><LuGitCompare /><span>Compare</span></div>
           </NavLink>
           <NavLink to="/about" className="nav-link" onClick={closeMenu}>
             <div className="nav-icon"><LuInfo /><span>About</span></div>

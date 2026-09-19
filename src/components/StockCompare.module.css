@@ -1,0 +1,157 @@
+.container {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: var(--color-text);
+  min-height: calc(100vh - 200px);
+  background-color: var(--color-bg);
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+}
+
+.heading {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--color-text-secondary);
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.selectorsRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.selectorGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.selectorGroup label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.selectInput {
+  padding: 0.6rem 1rem;
+  border-radius: var(--form-border-radius);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+  font-size: 1rem;
+  min-width: 220px;
+  cursor: pointer;
+}
+
+.vsBadge {
+  font-size: 1.2rem;
+  font-weight: 800;
+  padding: 0.4rem 0.8rem;
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+  margin-top: 1.2rem;
+}
+
+.periodRow {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.periodBtn {
+  padding: 0.4rem 1rem;
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all var(--transition-speed) ease;
+}
+
+.activePeriodBtn {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metricCard {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--form-border-radius);
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px var(--color-shadow);
+}
+
+.stockTitle {
+  margin: 0 0 0.25rem 0;
+  color: var(--color-primary);
+  font-size: 1.3rem;
+}
+
+.stockSub {
+  margin: 0 0 1rem 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.metricDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.metricItem {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed var(--color-border);
+  font-size: 0.95rem;
+}
+
+.chartContainer {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--form-border-radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px var(--color-shadow);
+}
+
+.chartContainer h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.loadingSpinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  gap: 1rem;
+  color: var(--color-text);
+}
