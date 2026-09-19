@@ -13,8 +13,21 @@ const StocksList = () => {
   const [stocks, setStocks] = useState([]);
   const [exchange, setExchange] = useState("BSE");
   const [searchTicker, setSearchTicker] = useState("");
+  const [selectedSector, setSelectedSector] = useState("All");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const sectors = [
+    "All",
+    "Technology",
+    "Finance",
+    "Consumer Goods",
+    "Healthcare",
+    "Automobile",
+    "Infrastructure",
+    "Telecom",
+    "Energy",
+  ];
 
   useEffect(() => {
     setIsLoading(true);
@@ -48,6 +61,16 @@ const StocksList = () => {
       });
     }
   };
+
+  const filteredStocks = stocks.filter((stock) => {
+    const matchesSector =
+      selectedSector === "All" || stock.sector === selectedSector;
+    const matchesSearch =
+      !searchTicker.trim() ||
+      stock.symbol.toLowerCase().includes(searchTicker.trim().toLowerCase()) ||
+      stock.name.toLowerCase().includes(searchTicker.trim().toLowerCase());
+    return matchesSector && matchesSearch;
+  });
 
   return (
     <motion.div
@@ -96,6 +119,21 @@ const StocksList = () => {
         ))}
       </div>
 
+      {/* 🏷️ Sector Filters */}
+      <div className={styles.sectorFilters}>
+        {sectors.map((sectorName) => (
+          <button
+            key={sectorName}
+            onClick={() => setSelectedSector(sectorName)}
+            className={`${styles.sectorTab} ${
+              selectedSector === sectorName ? styles.activeSectorTab : ""
+            }`}
+          >
+            {sectorName}
+          </button>
+        ))}
+      </div>
+
       {/* 📊 Stocks as Cards */}
       <AnimatePresence mode="wait">
         {isLoading ? (
@@ -105,7 +143,7 @@ const StocksList = () => {
           </div>
         ) : (
           <div className={styles.cardsContainer}>
-            {stocks.map((stock, index) => (
+            {filteredStocks.map((stock, index) => (
               <motion.div
                 key={stock.symbol}
                 className={styles.stockCard}
@@ -113,7 +151,12 @@ const StocksList = () => {
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/stock/${stock.symbol}`)}
               >
-                <div className={styles.stockIcon}>📈</div>
+                <div className={styles.stockCardTop}>
+                  <div className={styles.stockIcon}>📈</div>
+                  {stock.sector && (
+                    <span className={styles.sectorBadge}>{stock.sector}</span>
+                  )}
+                </div>
                 <h3>{stock.symbol}</h3>
                 <p>{stock.name}</p>
                 <button
