@@ -1,0 +1,133 @@
+/* --- Offers BG Section --- */
+.offers-bg-section {
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  min-width: 100vw;
+  margin-left: -50vw;
+  margin-right: 0;
+  margin-top: 44px;
+  margin-bottom: 48px;
+  padding: 72px 0 80px 0;
+  border-radius: 0; /* Edge to edge */
+  overflow: hidden;
+  min-height: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #132750;
+  box-sizing: border-box;
+}
+
+/* Blur effect using an overlay with the local image */
+.offers-bg-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(to bottom, rgba(15,35,75,0.56), rgba(33,84,214,0.12)),
+    url("../Images/stock.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(12px) brightness(0.90) saturate(0.8);
+  opacity: 0.83;
+  pointer-events: none;
+}
+
+/* Ensure foreground content sits above blur */
+.offers-bg-section > * {
+  position: relative;
+  z-index: 2;
+}
+
+.offers-bg-section h2 {
+  color: #fff !important;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 32px;
+  font-size: 2.2rem;
+  text-shadow: 0 2px 16px #014aaa44, 0 1px 0 #00121a;
+}
+
+.offers-bg-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 48px 64px;
+  padding: 0 18px;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.offers-emoji-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 152px;
+  min-height: 110px;
+  padding: 27px 16px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 18px;
+  box-shadow: 0 2.5px 12px rgba(32,84,214,0.19);
+  margin: 0 5px;
+  transition: background .23s, transform .17s;
+}
+.offers-emoji-title:hover {
+  background: rgba(255,255,255,0.28);
+  transform: translateY(-2px) scale(1.04);
+}
+
+.offer-emoji {
+  font-size: 2.65rem;
+  margin-bottom: 13px;
+  line-height: 1.1;
+}
+.offer-title {
+  color: #fff;
+  font-size: 1.18rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: .01em;
+  text-shadow: 0 2px 7px #014aaa33, 0 1px 0 #00121a;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .offers-bg-content {
+    max-width: 98vw;
+    gap: 36px 20px;
+  }
+}
+@media (max-width: 950px) {
+  .offers-bg-content {
+    gap: 24px 14px;
+    max-width: 99vw;
+  }
+  .offers-emoji-title {
+    min-width: 120px;
+    min-height: 70px;
+    padding: 14px 7px;
+  }
+  .offers-bg-section {
+    padding: 46px 0 45px 0;
+    min-height: 250px;
+  }
+}
+@media (max-width: 650px) {
+  .offers-bg-section {
+    padding: 32px 0 38px 0;
+    min-height: 180px;
+  }
+  .offers-emoji-title {
+    font-size: 0.98rem;
+  }
+  .offer-title {
+    font-size: 0.99rem;
+  }
+}
