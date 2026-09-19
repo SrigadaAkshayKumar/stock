@@ -1,0 +1,311 @@
+.stocksList {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+}
+
+.stocksList h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--color-text);
+  font-size: 2rem;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.stocksList h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--color-primary);
+  border-radius: 2px;
+}
+
+/* Search Bar */
+.searchContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+}
+
+.searchContainer input {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--input-border);
+  border-radius: var(--form-border-radius);
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  font-size: 1rem;
+  width: 300px;
+  max-width: 100%;
+  height: 44px; /* Fixed height to match button */
+  box-sizing: border-box; /* Include padding in height calculation */
+  transition: all var(--transition-speed) ease;
+}
+
+.searchContainer input:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 0.2rem rgba(79, 209, 197, 0.25);
+  outline: none;
+}
+
+.searchContainer button {
+  padding: 0 1.5rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--form-border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  height: 44px; /* Fixed height to match input */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-speed) ease;
+}
+
+.searchContainer button:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+/* Exchange Buttons */
+.exchangeButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.exchangeButtons button {
+  padding: 0.5rem 1.5rem;
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--form-border-radius);
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+}
+
+.exchangeButtons button:hover {
+  background-color: var(--color-card-hover);
+}
+
+.exchangeButtons button[style*="#0056b3"] {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* Table */
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1rem 0;
+  border-radius: var(--form-border-radius);
+  box-shadow: 0 2px 10px var(--color-shadow);
+  background-color: var(--color-bg-secondary);
+  transition: all var(--transition-speed) ease;
+  border: 1px solid var(--color-border);
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: var(--color-card-bg);
+  border-radius: var(--form-border-radius);
+  overflow: hidden;
+}
+
+table tr:nth-child(even) {
+  background-color: var(--color-bg-tertiary);
+}
+
+table tr:nth-child(odd) {
+  background-color: var(--color-card-bg);
+}
+
+th, td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  transition: background-color var(--transition-speed) ease;
+}
+
+th {
+  background-color: var(--color-bg-secondary);
+  font-weight: 600;
+}
+
+tr {
+  transition: background-color var(--transition-speed) ease;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover {
+  background-color: var(--color-card-hover);
+}
+
+/* Action Buttons */
+.actionButton {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--form-border-radius);
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all var(--transition-speed) ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.actionButton:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.actionButton:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading Spinner */
+.loadingSpinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  gap: 1rem;
+  color: var(--color-text);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stocksList {
+    padding: 1.5rem 0.75rem;
+  }
+  
+  .cardsContainer {
+    margin-bottom: 1.5rem; /* Reasonable bottom margin on mobile */
+  }
+  
+  .searchContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .searchContainer input {
+    width: 100%;
+  }
+  
+  .exchangeButtons {
+    flex-wrap: wrap;
+  }
+  
+  th, td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 5rem 1.5rem 7rem 1.5rem; /* Increased: Top=5rem, Bottom=7rem */
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: white;
+  border-radius: 20px;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  transition: padding 0.21s, border-radius 0.21s;
+}
+
+.hero h1 {
+  font-size: 3.2rem;          /* Larger heading */
+  margin-bottom: 1.3rem;
+  font-weight: 700;
+}
+
+.hero p {
+  font-size: 1.35rem;         /* Slightly larger subheading */
+  opacity: 0.95;
+  color:white;
+}
+@media (max-width: 700px) {
+  .hero {
+    padding: 2.4rem 0.6rem 3.2rem 0.6rem;
+    border-radius: 13px;
+  }
+  .hero h1 {
+    font-size: 2rem;
+  }
+  .hero p {
+    font-size: 1rem;
+  }
+}
+
+/* Cards Layout */
+.cardsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem; /* Reasonable bottom margin */
+}
+.stockCard {
+  background: var(--color-card-bg);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  position: relative;
+  z-index: 1; /* Ensure cards don't overlap footer */
+}
+.stockCard:hover {
+  background: var(--color-card-hover);
+}
+.stockIcon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Watchlist Button */
+.watchlistButton {
+  margin-top: 1rem;
+  background: linear-gradient(90deg, #062261 0%, #1846bb 100%);
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 0.6rem 1.6rem;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.03rem;
+  box-shadow: 0 2px 8px rgba(32,84,214,0.11);
+  transition: background 0.21s, transform 0.15s, box-shadow 0.14s;
+}
+.watchlistButton:hover,
+.watchlistButton:focus {
+  background: linear-gradient(90deg, #0a194a 0%, #2154d6 100%);
+  transform: translateY(-2px) scale(1.04);
+  outline: none;
+  box-shadow: 0 5px 16px rgba(32, 84, 214, 0.18);
+}

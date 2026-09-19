@@ -1,0 +1,34 @@
+name: Auto Comment Bot
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target: # <-- Changed from pull_request for correct permissions on forked PRs
+    types: [opened]
+
+permissions: # <-- Added recommended permissions for commenting
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add Comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueOrPR = context.payload.issue || context.payload.pull_request;
+            const isPR = !!context.payload.pull_request;
+
+            const message = isPR
+            ? `Thanks for opening this Pull Request! A maintainer will review it shortly. Please make sure you've followed all [contribution guidelines](https://github.com/SrigadaAkshayKumar/stock/blob/main/CONTRIBUTION.md).\n\n Join our [Whatsapp Community](https://chat.whatsapp.com/CNiFekAmXmVGwyFsVMcncM?s=sh&p=a&mlu=4&ilr=4) for discussions, questions, and real-time collaboration!`
+            : `Thanks for addressing the issue! We’ll review it and get back to you shortly. If it’s a feature request, consider adding screenshots or a demo video for clarity.\n\n Join our [Whatsapp Community](https://chat.whatsapp.com/CNiFekAmXmVGwyFsVMcncM?s=sh&p=a&mlu=4&ilr=4) for discussions, questions, and real-time collaboration!`;
+
+            github.rest.issues.createComment({
+              issue_number: issueOrPR.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });

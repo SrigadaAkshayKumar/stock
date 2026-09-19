@@ -1,0 +1,226 @@
+.container {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: var(--color-text);
+  min-height: calc(100vh - 200px);
+  background-color: var(--color-bg);
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+}
+
+.heading {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--color-text);
+  font-size: 2rem;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.heading::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--color-primary);
+  border-radius: 2px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 3rem 1rem;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--form-border-radius);
+  border: 1px dashed var(--color-border);
+}
+
+.empty::before {
+  content: '📋';
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+}
+
+.card {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+  padding: 1.5rem;
+  border-radius: var(--form-border-radius);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 10px var(--color-shadow);
+  transition: all var(--transition-speed) ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px var(--color-shadow-hover);
+  background-color: var(--color-card-hover);
+}
+
+.card h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--color-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.card p {
+  margin: 0 0 1rem 0;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.alertBannerHigh {
+  background-color: rgba(16, 185, 129, 0.18);
+  color: #065F46;
+  border: 1px solid #10B981;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.alertBannerLow {
+  background-color: rgba(239, 68, 68, 0.18);
+  color: #991B1B;
+  border: 1px solid #EF4444;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.alertSummaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.5rem 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.activeAlertsText {
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.noAlertsText {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.setAlertBtn {
+  padding: 4px 10px;
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+}
+
+.setAlertBtn:hover {
+  background-color: var(--color-card-hover);
+}
+
+.alertEditor {
+  background-color: var(--color-bg-tertiary);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.alertInputGroup {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.alertInput {
+  width: 100px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+  font-size: 0.8rem;
+}
+
+.alertEditorBtns {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.saveAlertBtn {
+  padding: 4px 10px;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.cancelAlertBtn {
+  padding: 4px 10px;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.removeBtn {
+  margin-top: 10px;
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--form-border-radius);
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.removeBtn:hover {
+  background-color: var(--color-danger-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+}
+
+.removeBtn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
