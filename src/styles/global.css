@@ -1,0 +1,432 @@
+/* Base styles and resets */
+:root {
+  /* Set base font size for rem units */
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  
+  /* Transition speed for theme changes */
+  --transition-speed: 0.3s;
+  --form-border-radius: 8px;
+  --form-padding: 0.75rem 1rem;
+}
+
+/* Light Theme (default) */
+:root,
+html,
+body,
+html.light,
+body.light,
+html.theme-light,
+body.theme-light,
+html[data-theme="light"],
+body[data-theme="light"] {
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f8f9fa;
+  --color-bg-tertiary: #e9ecef;
+  --color-text: #212529;
+  --color-text-secondary: #6c757d;
+  --color-primary: #4fd1c5;
+  --color-primary-hover: #38b2ac;
+  --color-primary-transparent: rgba(79, 209, 197, 0.2);
+  --color-border: #dee2e6;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-shadow-hover: rgba(0, 0, 0, 0.15);
+  --color-card-bg: #ffffff;
+  --color-card-hover: #f8f9fa;
+  --color-danger: #dc3545;
+  --color-danger-hover: #bb2d3b;
+  --color-success: #198754;
+  --color-warning: #ffc107;
+  --color-info: #0dcaf0;
+  --input-bg: #ffffff;
+  --input-text: #212529;
+  --input-border: #ced4da;
+  --input-focus: #86b7fe;
+  --input-placeholder: #6c757d;
+  --input-hover-border: #adb5bd;
+  --color-bg-footer: #f5f5f5;
+  --color-border-footer: #ddd;
+}
+
+/* Dark Theme */
+html.dark,
+body.dark,
+html.theme-dark,
+body.theme-dark,
+html[data-theme="dark"],
+body[data-theme="dark"],
+.theme-dark {
+  --color-bg: #1a202c;
+  --color-bg-secondary: #2d3748;
+  --color-bg-tertiary: #4a5568;
+  --color-text: #e2e8f0;
+  --color-text-secondary: #a0aec0;
+  --color-primary: #4fd1c5;
+  --color-primary-hover: #81e6d9;
+  --color-primary-transparent: rgba(79, 209, 197, 0.2);
+  --color-border: #4a5568;
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  --color-shadow-hover: rgba(0, 0, 0, 0.5);
+  --color-card-bg: #2d3748;
+  --color-card-hover: #4a5568;
+  --color-danger: #fc8181;
+  --color-danger-hover: #ff6b6b;
+  --color-success: #68d391;
+  --color-warning: #fbd38d;
+  --color-info: #63b3ed;
+  --input-bg: #2d3748;
+  --input-text: #e2e8f0;
+  --input-border: #4a5568;
+  --input-focus: #4fd1c5;
+  --input-placeholder: #a0aec0;
+  --input-hover-border: #718096;
+  --color-bg-footer: #1a1a1a;
+  --color-border-footer: #333;
+}
+
+/* Apply dark theme to body and all elements */
+html.dark,
+body.dark,
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Smooth transitions for theme changes */
+*,
+*::before,
+*::after {
+  transition: background-color var(--transition-speed) ease-in-out,
+    color var(--transition-speed) ease-in-out,
+    border-color var(--transition-speed) ease-in-out,
+    box-shadow var(--transition-speed) ease-in-out;
+}
+
+/* Disable transitions for initial page load */
+.theme-initial *,
+.theme-initial *::before,
+.theme-initial *::after {
+  transition: none !important;
+}
+
+/* Apply theme colors to body */
+body {
+  background-color: var(--color-bg) !important;
+  color: var(--color-text) !important;
+  min-height: 100vh;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  line-height: 1.6;
+}
+
+/* Box sizing rules */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Set core body defaults */
+body {
+  min-height: 100vh;
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  line-height: 1.5;
+}
+
+/* Smooth scrolling for users that don't prefer reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Animations */
+  @keyframes pulse {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7);
+    }
+    70% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 10px rgba(25, 135, 84, 0);
+    }
+    100% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes progressBar {
+    0% {
+      width: 0%;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Screen reader only utility class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Remove default margin and padding */
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove list styles on ul, ol elements */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Make images easier to work with */
+img,
+picture {
+  max-width: 100%;
+  display: block;
+}
+
+/* Inherit fonts for inputs and buttons */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Remove all animations, transitions and smooth scroll for people that prefer not to see them */
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Theme transitions */
+html {
+  /* Set initial theme before JavaScript loads */
+  color-scheme: light;
+  --color-bg: #ffffff;
+  --color-text: #111827;
+  --color-primary: #2563eb;
+  --color-border: #e5e7eb;
+}
+
+/* Apply dark theme if user prefers it and no theme is set */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg: #0f172a;
+    --color-text: #f8fafc;
+    --color-primary: #60a5fa;
+    --color-border: #334155;
+  }
+}
+
+/* Apply theme when JavaScript sets data-theme */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #0f172a;
+  --color-text: #f8fafc;
+  --color-primary: #60a5fa;
+  --color-border: #334155;
+}
+
+/* Smooth transitions for theme changes */
+html.theme-transition-ready,
+html.theme-transition-ready *,
+html.theme-transition-ready *::before,
+html.theme-transition-ready *::after {
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease, fill 0.3s ease, stroke 0.3s ease, opacity 0.3s ease,
+    box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Utility classes */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Links */
+/* Form Elements */
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--input-text);
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--form-border-radius);
+  padding: var(--form-padding);
+  transition: all var(--transition-speed) ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 0.25rem rgba(79, 209, 197, 0.25);
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: var(--input-hover-border);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--input-placeholder);
+  opacity: 1;
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  font-weight: 600;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--form-border-radius);
+  transition: all var(--transition-speed) ease;
+  position: relative;
+  overflow: hidden;
+}
+
+button:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px var(--color-shadow);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px var(--color-shadow);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+button.primary {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+button.primary:hover {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}

@@ -1,0 +1,112 @@
+.container {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: var(--color-text);
+  min-height: calc(100vh - 200px);
+  background-color: var(--color-bg);
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+}
+
+.heading {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--color-text);
+  font-size: 2rem;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.heading::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--color-primary);
+  border-radius: 2px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 3rem 1rem;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--form-border-radius);
+  border: 1px dashed var(--color-border);
+}
+
+.empty::before {
+  content: '📋';
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+}
+
+.card {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+  padding: 1.5rem;
+  border-radius: var(--form-border-radius);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 10px var(--color-shadow);
+  transition: all var(--transition-speed) ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px var(--color-shadow-hover);
+  background-color: var(--color-card-hover);
+}
+
+.card h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--color-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.card p {
+  margin: 0 0 1rem 0;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.removeBtn {
+  margin-top: 10px;
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--form-border-radius);
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.removeBtn:hover {
+  background-color: var(--color-danger-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+}
+
+.removeBtn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
