@@ -3,6 +3,7 @@ import {
   collection,
   addDoc,
   deleteDoc,
+  updateDoc,
   query,
   where,
   getDocs,
@@ -123,3 +124,39 @@ export const removeStockFromWatchlist = async (symbol) => {
     localStorage.setItem("watchlist", JSON.stringify(updated));
   }
 };
+
+export const updateStockAlerts = async (symbol, targetHigh, targetLow) => {
+  const user = auth.currentUser;
+
+  if (user) {
+    const q = query(
+      collection(firestoreDb, "watchlist"),
+      where("uid", "==", user.uid),
+      where("symbol", "==", symbol)
+    );
+    const snapshot = await getDocs(q);
+
+    await Promise.all(
+      snapshot.docs.map((docSnap) =>
+        updateDoc(doc(firestoreDb, "watchlist", docSnap.id), {
+          targetHigh: targetHigh !== "" ? Number(targetHigh) : null,
+          targetLow: targetLow !== "" ? Number(targetLow) : null,
+        })
+      )
+    );
+  } else {
+    const stored = JSON.parse(localStorage.getItem("watchlist")) || [];
+    const updated = stored.map((s) => {
+      if (s.symbol === symbol) {
+        return {
+          ...s,
+          targetHigh: targetHigh !== "" ? Number(targetHigh) : null,
+          targetLow: targetLow !== "" ? Number(targetLow) : null,
+        };
+      }
+      return s;
+    });
+    localStorage.setItem("watchlist", JSON.stringify(updated));
+  }
+};
+
