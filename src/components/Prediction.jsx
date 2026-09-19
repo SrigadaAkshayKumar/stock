@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Plot from "react-plotly.js";
 import { ClipLoader } from "react-spinners"; // Import ClipLoader
@@ -11,17 +11,11 @@ function Prediction({ ticker }) {
   const [returns, setReturns] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (ticker) {
-      fetchPredictionData();
-    }
-  }, [ticker]);
-
-  const fetchPredictionData = async () => {
+  const fetchPredictionData = useCallback(async () => {
     setIsLoading(true); // Start loading
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/stock/predict?ticker=${ticker}`
+        `${process.env.REACT_APP_API_URL}/api/stock/${ticker}/predict` //${process.env.REACT_APP_API_URL}
       );
       setPredictedData(res.data.predictions || []);
       setPredictedDates(res.data.predicted_dates || []); // Updated
@@ -33,7 +27,13 @@ function Prediction({ ticker }) {
     } finally {
       setIsLoading(false); // Stop loading
     }
-  };
+  }, [ticker]);
+
+  useEffect(() => {
+    if (ticker) {
+      fetchPredictionData();
+    }
+  }, [ticker, fetchPredictionData]);
 
   return (
     <div className="predict">
