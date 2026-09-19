@@ -7,6 +7,7 @@ import Prediction from "./Prediction";
 import { ClipLoader } from "react-spinners";
 import { StockMetricsCard } from "./StockMetricsCard";
 import BackToTopBtn from "./BackToTopBtn";
+import { exportToCSV } from "../utils/exportCSV";
 
 import SentimentChart from "./SentimentChart";
 
@@ -430,7 +431,27 @@ function Stockdata() {
             ))}
           </div>
 
-          <h2 variants={itemVariants}>Stock Data</h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "20px 0 10px 0" }}>
+            <h2 variants={itemVariants} style={{ margin: 0 }}>Stock Data</h2>
+            <button
+              onClick={() => exportToCSV(stockData, `${ticker}_historical_data.csv`, ["Date", "Open", "High", "Low", "Close", "Volume"])}
+              style={{
+                padding: "8px 16px",
+                background: "#10B981",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: "600",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "14px"
+              }}
+            >
+              📥 Export Historical CSV
+            </button>
+          </div>
 
           <div className="table" variants={itemVariants}>
             <div

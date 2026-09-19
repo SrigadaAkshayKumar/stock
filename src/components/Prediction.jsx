@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Plot from "react-plotly.js";
 import { ClipLoader } from "react-spinners"; // Import ClipLoader
+import { exportToCSV } from "../utils/exportCSV";
 
 function Prediction({ ticker }) {
   const [predictedData, setPredictedData] = useState([]);
@@ -35,6 +36,16 @@ function Prediction({ ticker }) {
     }
   }, [ticker, fetchPredictionData]);
 
+  const handleExportPredictions = () => {
+    const rows = predictedDates.map((date, idx) => ({
+      Date: date,
+      PredictedPrice: predictedData[idx] !== undefined ? predictedData[idx] : "",
+      ActualDate: actualDates[idx] || "",
+      ActualPrice: actualData[idx] !== undefined ? actualData[idx] : "",
+    }));
+    exportToCSV(rows, `${ticker}_predictions.csv`, ["Date", "PredictedPrice", "ActualDate", "ActualPrice"]);
+  };
+
   return (
     <div className="predict">
       <div className="predict12">
@@ -46,7 +57,27 @@ function Prediction({ ticker }) {
         ) : (
           <>
             <div className="predict1">
-              <h2>Predicted vs Actual Stock Prices for {ticker}</h2>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
+                <h2 style={{ margin: 0 }}>Predicted vs Actual Stock Prices for {ticker}</h2>
+                <button
+                  onClick={handleExportPredictions}
+                  style={{
+                    padding: "8px 16px",
+                    background: "#3B82F6",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    fontSize: "14px"
+                  }}
+                >
+                  📥 Export Prediction CSV
+                </button>
+              </div>
               <Plot
                 data={[
                   {
