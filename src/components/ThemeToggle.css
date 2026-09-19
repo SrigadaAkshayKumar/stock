@@ -1,0 +1,107 @@
+/* Theme Toggle Switch */
+.theme-toggle {
+  --toggle-size: 2.5rem;
+  --toggle-padding: 0.25rem;
+  --thumb-size: calc(var(--toggle-size) - (var(--toggle-padding) * 2));
+  
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: var(--toggle-size);
+  height: var(--toggle-size);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+  border: 2px solid var(--color-border);
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-primary);
+}
+
+.theme-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-transparent);
+}
+
+.theme-toggle.dark {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-primary);
+}
+
+.theme-toggle.light {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-warning);
+}
+
+.theme-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: all 0.3s ease;
+  color: currentColor;
+}
+
+.sun-icon {
+  color: #fbbf24;
+}
+
+.moon-icon {
+  color: #60a5fa;
+}
+
+.theme-toggle-track {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.theme-toggle-thumb {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.theme-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: all 0.3s ease;
+  color: currentColor;
+}
+
+/* For reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .theme-toggle-thumb,
+  .theme-icon {
+    transition: none;
+  }
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

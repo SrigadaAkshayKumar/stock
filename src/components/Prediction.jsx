@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Plot from "react-plotly.js";
 import { ClipLoader } from "react-spinners"; // Import ClipLoader
+import { exportToCSV } from "../utils/exportCSV";
 
 function Prediction({ ticker }) {
   const [predictedData, setPredictedData] = useState([]);
@@ -11,17 +12,11 @@ function Prediction({ ticker }) {
   const [returns, setReturns] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (ticker) {
-      fetchPredictionData();
-    }
-  }, [ticker]);
-
-  const fetchPredictionData = async () => {
+  const fetchPredictionData = useCallback(async () => {
     setIsLoading(true); // Start loading
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/stock/predict?ticker=${ticker}`
+        `${process.env.REACT_APP_API_URL}/api/stock/${ticker}/predict` //${process.env.REACT_APP_API_URL}
       );
       setPredictedData(res.data.predictions || []);
       setPredictedDates(res.data.predicted_dates || []); // Updated
@@ -33,6 +28,22 @@ function Prediction({ ticker }) {
     } finally {
       setIsLoading(false); // Stop loading
     }
+  }, [ticker]);
+
+  useEffect(() => {
+    if (ticker) {
+      fetchPredictionData();
+    }
+  }, [ticker, fetchPredictionData]);
+
+  const handleExportPredictions = () => {
+    const rows = predictedDates.map((date, idx) => ({
+      Date: date,
+      PredictedPrice: predictedData[idx] !== undefined ? predictedData[idx] : "",
+      ActualDate: actualDates[idx] || "",
+      ActualPrice: actualData[idx] !== undefined ? actualData[idx] : "",
+    }));
+    exportToCSV(rows, `${ticker}_predictions.csv`, ["Date", "PredictedPrice", "ActualDate", "ActualPrice"]);
   };
 
   return (
@@ -46,7 +57,27 @@ function Prediction({ ticker }) {
         ) : (
           <>
             <div className="predict1">
-              <h2>Predicted vs Actual Stock Prices for {ticker}</h2>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
+                <h2 style={{ margin: 0 }}>Predicted vs Actual Stock Prices for {ticker}</h2>
+                <button
+                  onClick={handleExportPredictions}
+                  style={{
+                    padding: "8px 16px",
+                    background: "#3B82F6",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    fontSize: "14px"
+                  }}
+                >
+                  📥 Export Prediction CSV
+                </button>
+              </div>
               <Plot
                 data={[
                   {

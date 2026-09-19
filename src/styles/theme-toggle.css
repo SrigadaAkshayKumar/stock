@@ -1,0 +1,94 @@
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin: 0 0.5rem;
+}
+
+.theme-toggle:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.theme-toggle:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.theme-toggle-track {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 1.5rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-bg-secondary);
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  left: 0.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background-color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.4, 0.03, 0.25, 1);
+  transform: translateX(0);
+  color: var(--color-bg);
+}
+
+[data-theme="dark"] .theme-toggle-thumb {
+  transform: translateX(1rem);
+  background-color: var(--color-primary);
+  color: var(--color-bg);
+}
+
+.theme-icon {
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+}
+
+.theme-toggle-label {
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .theme-toggle-thumb,
+  .theme-toggle-track {
+    transition: none;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .theme-toggle {
+    width: 100%;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0;
+    border-radius: var(--radius-md);
+  }
+
+  .theme-toggle:hover {
+    background-color: var(--color-bg-secondary);
+  }
+}

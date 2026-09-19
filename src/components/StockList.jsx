@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
-import stockData from "./data/stockData.json"; // Adjust path if stored elsewhere
+import { motion, AnimatePresence } from "framer-motion";
+import { toggleWatchlist } from "../utils/watchlistManager";
+import { auth } from "./firebase";
+import stockData from "./data/stockData.json";
+import BackToTopBtn from "./BackToTopBtn";
+import styles from "./StockList.module.css";
+import stockBg2 from "./images/bg.png";
 
 const StocksList = () => {
   const [stocks, setStocks] = useState([]);
@@ -12,71 +18,121 @@ const StocksList = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    // Simulate loading delay
     setTimeout(() => {
       setStocks(stockData[exchange] || []);
       setIsLoading(false);
-    }, 500); // 0.5 sec delay
+    }, 500);
   }, [exchange]);
 
   const handleSearch = () => {
     if (searchTicker.trim()) {
       navigate(`/stock/${searchTicker.trim()}`);
+      console.log(`Searching for stock: ${searchTicker.trim()}`);
+      console.log(`API call sent successfully`);
+    }
+  };
+
+  const handleAddToWatchlist = async (stock) => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        await toggleWatchlist(stock);
+        alert(`${stock.symbol} added to your Firebase watchlist!`);
+      } catch (err) {
+        alert("Failed to add to watchlist.");
+        console.error(err);
+      }
+    } else {
+      navigate("/login", {
+        state: { message: "Please log in to use the watchlist." },
+      });
     }
   };
 
   return (
-    <div className="stocks-list">
-      <h1>Stocks List</h1>
+    <motion.div
+      className={styles.stocksList}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      {/* 🚀 Hero Section */}
+      <section
+        className={styles.hero}
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(33,84,214,0.63), rgba(29,30,41,0.46))",
+        }}
+      >
+        <h1>Welcome to Stock Analyzer!</h1>
+        <p>Track, analyze, and manage your favorite stocks with ease.</p>
+      </section>
 
-      {/* Search Bar */}
-      <div>
+      {/* 🔍 Modern Search Bar */}
+      <div className={styles.searchContainer}>
         <input
           type="text"
-          placeholder="Enter stock ticker"
+          placeholder="Search for stocks..."
           value={searchTicker}
           onChange={(e) => setSearchTicker(e.target.value)}
+          className={styles.searchInput}
         />
-        <button onClick={handleSearch}>Search</button>
+        <button onClick={handleSearch} className={styles.searchButton}>
+          Search
+        </button>
       </div>
 
-      {/* Exchange Buttons */}
-      <div className="exchange-buttons">
-        <button onClick={() => setExchange("BSE")}>BSE</button>
-        <button onClick={() => setExchange("NSE")}>NSE</button>
+      {/* 🏦 Exchange Toggle */}
+      <div className={styles.exchangeButtons}>
+        {["BSE", "NSE"].map((exchangeName) => (
+          <button
+            key={exchangeName}
+            onClick={() => setExchange(exchangeName)}
+            className={`${styles.exchangeButton} ${
+              exchange === exchangeName ? styles.activeExchange : ""
+            }`}
+          >
+            {exchangeName}
+          </button>
+        ))}
       </div>
 
-      {isLoading ? (
-        <div className="loading-spinner">
-          <ClipLoader color="#36d7b7" size={50} />
-          <p>please wait while Loading...</p>
-          <p>It takes less than a minute</p>
-        </div>
-      ) : (
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Symbol</th>
-                <th>Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stocks.map((stock, index) => (
-                <tr
-                  key={index}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => navigate(`/stock/${stock.symbol}`)}
+      {/* 📊 Stocks as Cards */}
+      <AnimatePresence mode="wait">
+        {isLoading ? (
+          <div className={styles.loadingSpinner}>
+            <ClipLoader color="var(--color-primary)" size={50} />
+            <p>Loading stocks...</p>
+          </div>
+        ) : (
+          <div className={styles.cardsContainer}>
+            {stocks.map((stock, index) => (
+              <motion.div
+                key={stock.symbol}
+                className={styles.stockCard}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+                onClick={() => navigate(`/stock/${stock.symbol}`)}
+              >
+                <div className={styles.stockIcon}>📈</div>
+                <h3>{stock.symbol}</h3>
+                <p>{stock.name}</p>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddToWatchlist(stock);
+                  }}
+                  className={styles.watchlistButton}
                 >
-                  <td>{stock.symbol}</td>
-                  <td>{stock.name}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+                  + Add to Watchlist
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </AnimatePresence>
+
+      <BackToTopBtn />
+    </motion.div>
   );
 };
 
