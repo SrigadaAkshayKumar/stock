@@ -13,13 +13,18 @@ def normalize_symbol(symbol: str) -> str:
     """
     Removes NSE (.NS) and BSE (.BO) suffixes to match CSV filenames.
     """
-    return symbol.replace(".NS", "").replace(".BO", "")
+    if not symbol:
+        return ""
+    return symbol.upper().replace(".NS", "").replace(".BO", "")
 
 def get_stock_data_handler(symbol, chart_period="1mo", table_period="1mo"):
     """
     Handles GET request for stock data from local CSV files.
     Returns price chart, table, news with sentiment, and stock info in JSON format.
     """
+    if not symbol or not str(symbol).strip():
+        return jsonify({"error": "Ticker parameter is required"}), 400
+
     try:
         # Normalize symbol to match CSV filename
         clean_symbol = normalize_symbol(symbol)

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { motion, AnimatePresence } from "framer-motion";
 import { toggleWatchlist } from "../utils/watchlistManager";
+import { validateStockTicker } from "../utils/stockValidation";
 import { auth } from "./firebase";
 import stockData from "./data/stockData.json";
 import BackToTopBtn from "./BackToTopBtn";
@@ -13,6 +14,7 @@ const StocksList = () => {
   const [stocks, setStocks] = useState([]);
   const [exchange, setExchange] = useState("BSE");
   const [searchTicker, setSearchTicker] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -25,11 +27,23 @@ const StocksList = () => {
   }, [exchange]);
 
   const handleSearch = () => {
-    if (searchTicker.trim()) {
-      navigate(`/stock/${searchTicker.trim()}`);
-      console.log(`Searching for stock: ${searchTicker.trim()}`);
-      console.log(`API call sent successfully`);
+    const query = searchTicker.trim();
+    if (!query) {
+      return;
     }
+
+    const validation = validateStockTicker(query);
+    if (!validation.isValid) {
+      if (validation.error) {
+        setErrorMessage(validation.error);
+      }
+      return;
+    }
+
+    setErrorMessage("");
+    navigate(`/stock/${query}`);
+    console.log(`Searching for stock: ${query}`);
+    console.log(`API call sent successfully`);
   };
 
   const handleAddToWatchlist = async (stock) => {
@@ -73,13 +87,29 @@ const StocksList = () => {
           type="text"
           placeholder="Search for stocks..."
           value={searchTicker}
-          onChange={(e) => setSearchTicker(e.target.value)}
+          onChange={(e) => {
+            setSearchTicker(e.target.value);
+            if (errorMessage) {
+              setErrorMessage("");
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
           className={styles.searchInput}
         />
         <button onClick={handleSearch} className={styles.searchButton}>
           Search
         </button>
       </div>
+
+      {errorMessage && (
+        <p className={styles.errorMessage} role="alert">
+          {errorMessage}
+        </p>
+      )}
 
       {/* 🏦 Exchange Toggle */}
       <div className={styles.exchangeButtons}>

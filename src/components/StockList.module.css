@@ -78,6 +78,15 @@
   transform: translateY(-1px);
 }
 
+.errorMessage {
+  color: var(--color-danger, #dc3545);
+  text-align: center;
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
 /* Exchange Buttons */
 .exchangeButtons {
   display: flex;
