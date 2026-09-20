@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Plot from "react-plotly.js";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Prediction from "./Prediction";
 import { ClipLoader } from "react-spinners";
@@ -20,6 +20,7 @@ function Stockdata() {
   const [chartPeriod, setChartPeriod] = useState("1mo");
   const [tablePeriod, setTablePeriod] = useState("1mo");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [showMore, setShowMore] = useState(false);
   const [showPrediction, setShowPrediction] = useState(false);
 
@@ -39,6 +40,7 @@ function Stockdata() {
 
   const fetchStockInfo = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const res = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/stock/${ticker}?chart_period=${chartPeriod}&table_period=${tablePeriod}`,
@@ -49,8 +51,12 @@ function Stockdata() {
       setStockInfo(res.data.stock_info);
       setNews(Array.isArray(res.data.stock_news) ? res.data.stock_news : []);
       setSentimentSummary(res.data.sentiment_summary || {});
-    } catch (error) {
-      console.error("Error fetching stock data:", error);
+    } catch (err) {
+      console.error("Error fetching stock data:", err);
+      const msg =
+        err.response?.data?.error ||
+        "Ticker not found. Please select a valid stock symbol.";
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
@@ -126,7 +132,27 @@ function Stockdata() {
       animate="visible"
     >
       <h1 variants={itemVariants}>{ticker} Stock Analysis</h1>
-      {isLoading ? (
+      {error ? (
+        <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
+          <h2 style={{ color: "var(--color-danger, #dc3545)", marginBottom: "1.5rem" }}>
+            {error}
+          </h2>
+          <Link
+            to="/"
+            style={{
+              display: "inline-block",
+              padding: "0.5rem 1.5rem",
+              backgroundColor: "var(--color-primary, #4fd1c5)",
+              color: "white",
+              borderRadius: "var(--form-border-radius, 8px)",
+              textDecoration: "none",
+              fontWeight: "500",
+            }}
+          >
+            Back to Stocks
+          </Link>
+        </div>
+      ) : isLoading ? (
         <motion.div
           key="loading"
           className="loading-spinner"
