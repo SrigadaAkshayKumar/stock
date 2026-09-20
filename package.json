@@ -24,6 +24,7 @@
   },
   "scripts": {
     "start": "node start-dev.js",
+    "dev": "node start-dev.js",
     "start:original": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

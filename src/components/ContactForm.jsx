@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import styles from "./ContactForm.module.css";
+import mailIcon from "./images/mail.png";
+import telephoneIcon from "./images/telephone.png";
+import locationIcon from "./images/location.png";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -93,13 +96,16 @@ const ContactForm = () => {
           </p>
           <ul className={styles["contact-info"]}>
             <li>
-              <span>✉️</span> support@stockanalyzer.com
+              <img src={mailIcon} alt="Email" className={styles["contact-icon"]} />
+              support@stockanalyzer.com
             </li>
             <li>
-              <span>📞</span> +1800-457-5834
+              <img src={telephoneIcon} alt="Phone" className={styles["contact-icon"]} />
+              +1800-457-5834
             </li>
             <li>
-              <span>📍</span> Bhubaneswar, Odisha
+              <img src={locationIcon} alt="Location" className={styles["contact-icon"]} />
+              Bhubaneswar, Odisha
             </li>
           </ul>
         </div>

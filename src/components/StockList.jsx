@@ -7,7 +7,7 @@ import { auth } from "./firebase";
 import stockData from "./data/stockData.json";
 import BackToTopBtn from "./BackToTopBtn";
 import styles from "./StockList.module.css";
-import stockBg2 from "./images/bg.png";
+import trendIcon from "./images/trend.png";
 
 const StocksList = () => {
   const [stocks, setStocks] = useState([]);
@@ -113,7 +113,9 @@ const StocksList = () => {
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/stock/${stock.symbol}`)}
               >
-                <div className={styles.stockIcon}>📈</div>
+                <div className={styles.stockIcon}>
+                  <img src={trendIcon} alt="Stock Trend" className={styles.stockTrendIcon} />
+                </div>
                 <h3>{stock.symbol}</h3>
                 <p>{stock.name}</p>
                 <button

@@ -286,6 +286,18 @@ tr:hover {
 .stockIcon {
   font-size: 2rem;
   margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.stockTrendIcon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+.stockCard:hover .stockTrendIcon {
+  transform: scale(1.08);
 }
 
 /* Watchlist Button */

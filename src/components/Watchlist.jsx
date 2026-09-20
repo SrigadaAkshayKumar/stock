@@ -3,6 +3,7 @@ import { getWatchlist, removeStockFromWatchlist } from "../utils/watchlistManage
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import BackToTopBtn from "./BackToTopBtn";
+import watchlistIcon from "./images/watchlist.png";
 import styles from "./Watchlist.module.css";
 
 const Watchlist = () => {
@@ -38,10 +39,13 @@ const Watchlist = () => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.heading}>📈 My Watchlist</h2>
+      <h2 className={styles.heading}>
+        <img src={watchlistIcon} alt="Watchlist Icon" className={styles.headingIcon} />
+        My Watchlist
+      </h2>
       {watchlist.length === 0 ? (
         <p className={styles.empty}>
-          <span className={styles.emptyIcon}>📋</span>
+          <span className={styles.emptyIcon}></span>
           No stocks added yet.
         </p>
       ) : (

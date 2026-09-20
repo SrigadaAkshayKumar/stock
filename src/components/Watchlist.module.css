@@ -16,6 +16,17 @@
   font-weight: 600;
   position: relative;
   padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.headingIcon {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  vertical-align: middle;
 }
 
 .heading::after {
@@ -40,10 +51,20 @@
 }
 
 .empty::before {
-  content: '📋';
-  font-size: 2rem;
+  content: '';
   display: block;
-  margin-bottom: 1rem;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 1rem auto;
+  background-image: url('./images/form.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+:global([data-theme="light"]) .empty::before,
+:global(html.light) .empty::before {
+  filter: invert(0.65);
 }
 
 .grid {
