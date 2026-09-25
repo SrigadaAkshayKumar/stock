@@ -154,18 +154,14 @@ bash
 npm install
 
 
-Add server url to frontend Stockdata.jsx and Predict.jsx page
+Configure the backend API URL using an environment variable.
 
-from
+Create a `.env` file in the project root and add:
 
-bash
-${process.env.REACT_APP_API_URL}
+```bash
+REACT_APP_API_URL=http://127.0.0.1:10000
+```
 
-
-to
-
-bash
-http://x.x.x.x:10000
 
 
 ## Create a .env and add the following:
