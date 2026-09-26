@@ -7,7 +7,7 @@ import { auth } from "./firebase";
 import stockData from "./data/stockData.json";
 import BackToTopBtn from "./BackToTopBtn";
 import styles from "./StockList.module.css";
-import stockBg2 from "./images/bg.png";
+
 
 const StocksList = () => {
   const [stocks, setStocks] = useState([]);
