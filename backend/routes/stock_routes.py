@@ -82,9 +82,19 @@ def get_stock_data(symbol):
 # GET /api/stock/<symbol>/predict
 @stock_routes.route('/stock/<symbol>/predict', methods=['GET'])
 def predict(symbol):
+    import os
     refresh = request.args.get("refresh", "false").lower() in ("1", "true", "yes", "on")
 
-    key = cache_key_from(f"/api/stock/{symbol}/predict", {})
+    # Tie cache key to underlying CSV so new data invalidates old predictions
+    clean = symbol.split(".")[0].upper()
+    data_path = os.path.join(os.path.dirname(__file__), "..", "services", "data", f"{clean}.csv")
+    try:
+        stat = os.stat(data_path)
+        data_version = f"{int(stat.st_mtime)}-{stat.st_size}"
+    except OSError:
+        data_version = "missing"
+
+    key = cache_key_from(f"/api/stock/{symbol}/predict", {"data_version": data_version})
 
     if is_cache_enabled() and not refresh:
         cached = get_cache(key)
