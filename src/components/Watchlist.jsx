@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { FaChartLine, FaClipboardList, FaTimes } from "react-icons/fa";
 import { getWatchlist, removeStockFromWatchlist } from "../utils/watchlistManager";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -38,10 +39,10 @@ const Watchlist = () => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.heading}>📈 My Watchlist</h2>
+      <h2 className={styles.heading}><FaChartLine style={{ marginRight: "0.5rem" }} /> My Watchlist</h2>
       {watchlist.length === 0 ? (
         <p className={styles.empty}>
-          <span className={styles.emptyIcon}>📋</span>
+          <span className={styles.emptyIcon}><FaClipboardList /></span>
           No stocks added yet.
         </p>
       ) : (
@@ -54,7 +55,7 @@ const Watchlist = () => {
                 className={styles.removeBtn}
                 onClick={() => handleRemove(stock.symbol)}
               >
-                ❌ Remove
+                <FaTimes style={{ marginRight: "0.4rem" }} /> Remove
               </button>
             </div>
           ))}
