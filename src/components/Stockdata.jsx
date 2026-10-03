@@ -68,6 +68,22 @@ function Stockdata() {
     setShowMore(!showMore);
   };
 
+  const handleExportCsv = () => {
+    if (!stockData || stockData.length === 0) return;
+    const header = ["Date", "Open", "High", "Low", "Close", "Volume"];
+    const rows = stockData.map((r) =>
+      [r.Date, r.Open, r.High, r.Low, r.Close, r.Volume].join(",")
+    );
+    const csv = [header.join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${ticker || "stock"}_history.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -431,6 +447,11 @@ function Stockdata() {
           </div>
 
           <h2 variants={itemVariants}>Stock Data</h2>
+          <div style={{ marginBottom: "0.75rem" }}>
+            <button type="button" onClick={handleExportCsv} disabled={stockData.length === 0}>
+              Export to CSV
+            </button>
+          </div>
 
           <div className="table" variants={itemVariants}>
             <div
