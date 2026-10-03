@@ -9,6 +9,7 @@ function Prediction({ ticker }) {
   const [actualData, setActualData] = useState([]);
   const [actualDates, setActualDates] = useState([]);
   const [returns, setReturns] = useState([]);
+  const [evaluation, setEvaluation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchPredictionData = useCallback(async () => {
@@ -22,6 +23,7 @@ function Prediction({ ticker }) {
       setActualData(res.data.actual || []);
       setActualDates(res.data.actual_dates || []); // Updated
       setReturns(res.data.returns || []);
+      setEvaluation(res.data.evaluation || res.data.metrics || null);
     } catch (error) {
       console.error("Error fetching prediction data:", error);
     } finally {
@@ -45,6 +47,33 @@ function Prediction({ ticker }) {
           </div>
         ) : (
           <>
+            {evaluation && (
+              <div className="predict1">
+                <h2>Model Evaluation</h2>
+                <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+                  <div><strong>MAE:</strong> {evaluation.mae}</div>
+                  <div><strong>RMSE:</strong> {evaluation.rmse}</div>
+                  <div><strong>R2:</strong> {evaluation.r2}</div>
+                  <div><strong>Error:</strong> {evaluation.error_pct}%</div>
+                  <div>
+                    <strong>Confidence:</strong>{" "}
+                    <span style={{
+                      padding: "2px 10px",
+                      borderRadius: "12px",
+                      color: "#fff",
+                      background:
+                        evaluation.confidence === "High"
+                          ? "#15803d"
+                          : evaluation.confidence === "Medium"
+                            ? "#b45309"
+                            : "#6b7280",
+                    }}>
+                      {evaluation.confidence}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="predict1">
               <h2>Predicted vs Actual Stock Prices for {ticker}</h2>
               <Plot

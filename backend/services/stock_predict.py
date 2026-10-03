@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from datetime import datetime, timedelta
 from flask import jsonify
 import pandas as pd
@@ -38,7 +39,45 @@ def predict_stock_handler(symbol):
         X = data.index.map(datetime.toordinal).values.reshape(-1, 1)
         y = data['Close'].values.flatten()
 
-        # Train model
+        n = len(y)
+        split = int(n * 0.8)
+        if n >= 10 and split < n:
+            check = LinearRegression()
+            check.fit(X[:split], y[:split])
+            holdout = check.predict(X[split:])
+            mae = float(mean_absolute_error(y[split:], holdout))
+            rmse = float(np.sqrt(mean_squared_error(y[split:], holdout)))
+            try:
+                r2 = float(r2_score(y[split:], holdout))
+            except Exception:
+                r2 = 0.0
+            mean_price = float(np.mean(y[split:])) if len(y[split:]) else 0.0
+            err_pct = round((mae / mean_price * 100) if mean_price else 0.0, 2)
+            if r2 >= 0.7 and err_pct <= 5:
+                confidence = "High"
+            elif r2 >= 0.4 and err_pct <= 10:
+                confidence = "Medium"
+            else:
+                confidence = "Low"
+            evaluation = {
+                "mae": round(mae, 2),
+                "rmse": round(rmse, 2),
+                "r2": round(r2, 3),
+                "error_pct": err_pct,
+                "confidence": confidence,
+                "test_size": int(n - split),
+            }
+        else:
+            evaluation = {
+                "mae": 0.0,
+                "rmse": 0.0,
+                "r2": 0.0,
+                "error_pct": 0.0,
+                "confidence": "Low",
+                "test_size": 0,
+            }
+
+        # Train final model on full history
         model = LinearRegression()
         model.fit(X, y)
 
@@ -67,7 +106,8 @@ def predict_stock_handler(symbol):
             'predicted_dates': predicted_dates,
             'actual': y.tolist(),
             'actual_dates': data.index.strftime('%Y-%m-%d').tolist(),
-            'returns': returns
+            'returns': returns,
+            'evaluation': evaluation
         })
 
     except Exception as e:
