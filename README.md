@@ -106,10 +106,10 @@ Directory structure:
 
 ## API Endpoints
 
-| **Endpoint**            | **Method** | **Description**             |
-| ----------------------- | ---------- | --------------------------- |
-| `/api/stocks/<ticker>`  | GET        | Fetch historical stock data |
-| `/api/predict/<ticker>` | GET        | Predict future stock prices |
+| **Endpoint**                  | **Method** | **Description**                                   |
+| ----------------------------- | ---------- | ------------------------------------------------- |
+| `/api/stock/<symbol>`         | GET        | Fetch historical stock data, supports `?chart_period=`, `?table_period=` and `?refresh=true` |
+| `/api/stock/<symbol>/predict` | GET        | Predict future stock prices, supports `?refresh=true` |
 
 ---
 
