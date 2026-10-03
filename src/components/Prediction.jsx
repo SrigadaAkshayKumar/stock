@@ -9,6 +9,7 @@ function Prediction({ ticker }) {
   const [actualData, setActualData] = useState([]);
   const [actualDates, setActualDates] = useState([]);
   const [returns, setReturns] = useState([]);
+  const [metrics, setMetrics] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchPredictionData = useCallback(async () => {
@@ -22,6 +23,7 @@ function Prediction({ ticker }) {
       setActualData(res.data.actual || []);
       setActualDates(res.data.actual_dates || []); // Updated
       setReturns(res.data.returns || []);
+      setMetrics(res.data.metrics || null);
     } catch (error) {
       console.error("Error fetching prediction data:", error);
     } finally {
@@ -45,6 +47,13 @@ function Prediction({ ticker }) {
           </div>
         ) : (
           <>
+            {metrics && (
+              <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+                <div><strong>MAE:</strong> {metrics.mae}</div>
+                <div><strong>RMSE:</strong> {metrics.rmse}</div>
+                <div><strong>R2:</strong> {metrics.r2}</div>
+              </div>
+            )}
             <div className="predict1">
               <h2>Predicted vs Actual Stock Prices for {ticker}</h2>
               <Plot

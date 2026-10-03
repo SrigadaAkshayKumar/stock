@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from datetime import datetime, timedelta
 from flask import jsonify
 import pandas as pd
@@ -38,7 +39,29 @@ def predict_stock_handler(symbol):
         X = data.index.map(datetime.toordinal).values.reshape(-1, 1)
         y = data['Close'].values.flatten()
 
-        # Train model
+        # Holdout evaluation on last 20 percent
+        n = len(y)
+        split = int(n * 0.8)
+        if n >= 10 and split < n:
+            eval_model = LinearRegression()
+            eval_model.fit(X[:split], y[:split])
+            test_pred = eval_model.predict(X[split:])
+            mae = float(mean_absolute_error(y[split:], test_pred))
+            rmse = float(np.sqrt(mean_squared_error(y[split:], test_pred)))
+            try:
+                r2 = float(r2_score(y[split:], test_pred))
+            except Exception:
+                r2 = 0.0
+            metrics = {
+                "mae": round(mae, 2),
+                "rmse": round(rmse, 2),
+                "r2": round(r2, 3),
+                "test_size": int(n - split),
+            }
+        else:
+            metrics = {"mae": 0.0, "rmse": 0.0, "r2": 0.0, "test_size": 0}
+
+        # Train final model on full history
         model = LinearRegression()
         model.fit(X, y)
 
@@ -67,7 +90,8 @@ def predict_stock_handler(symbol):
             'predicted_dates': predicted_dates,
             'actual': y.tolist(),
             'actual_dates': data.index.strftime('%Y-%m-%d').tolist(),
-            'returns': returns
+            'returns': returns,
+            'metrics': metrics
         })
 
     except Exception as e:
