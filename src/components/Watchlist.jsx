@@ -8,13 +8,20 @@ import styles from "./Watchlist.module.css";
 const Watchlist = () => {
   const [watchlist, setWatchlist] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      getWatchlist().then((data) => {
-        setWatchlist(data);
-        setLoading(false);
-      });
+      getWatchlist()
+        .then((data) => {
+          setWatchlist(Array.isArray(data) ? data : []);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Watchlist load failed:", err);
+          setLoadError("Could not load your watchlist. Please refresh and try again.");
+          setLoading(false);
+        });
     });
 
     return () => unsubscribe();
@@ -39,6 +46,7 @@ const Watchlist = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.heading}>📈 My Watchlist</h2>
+      {loadError && <p className={styles.empty}>{loadError}</p>}
       {watchlist.length === 0 ? (
         <p className={styles.empty}>
           <span className={styles.emptyIcon}>📋</span>
