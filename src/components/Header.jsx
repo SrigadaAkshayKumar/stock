@@ -80,7 +80,11 @@ const Header = () => {
           <div className="nav-actions" ref={dropdownRef}>
             <ThemeToggle className="toggle-theme" />
             <div className="user-dashboard">
-              <FaRegUserCircle onClick={() => setDashBoardOpen(prev => !prev)} />
+              <FaRegUserCircle
+                onClick={() => setDashBoardOpen(prev => !prev)}
+                title="Account"
+                aria-label="Account menu"
+              />
             </div>
             <div className={`user-section ${dashBoardOpen ? "show" : ""}`}>
               {currentUser ? (
@@ -116,7 +120,14 @@ const Header = () => {
         {/* Mobile Navigation */}
         <div className="mobile-nav">
           <ThemeToggle />
-          <div className="menu-icon" onClick={toggleMenu}>
+          <div
+            className="menu-icon"
+            onClick={toggleMenu}
+            title={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            role="button"
+            tabIndex={0}
+          >
             {isMenuOpen ? <LuX /> : <LuMenu />}
           </div>
         </div>
