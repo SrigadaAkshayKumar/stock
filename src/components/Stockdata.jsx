@@ -22,6 +22,7 @@ function Stockdata() {
   const [isLoading, setIsLoading] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [showPrediction, setShowPrediction] = useState(false);
+  const [fetchError, setFetchError] = useState("");
 
   const periods = [
     "1d",
@@ -39,9 +40,17 @@ function Stockdata() {
 
   const fetchStockInfo = useCallback(async () => {
     setIsLoading(true);
+    setFetchError("");
+    const baseUrl = process.env.REACT_APP_API_URL;
+    if (!baseUrl) {
+      setStockData([]);
+      setFetchError("Backend API URL is not configured. Set REACT_APP_API_URL in your .env and restart.");
+      setIsLoading(false);
+      return;
+    }
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/stock/${ticker}?chart_period=${chartPeriod}&table_period=${tablePeriod}`,
+        `${baseUrl}/api/stock/${ticker}?chart_period=${chartPeriod}&table_period=${tablePeriod}`,
       );
 
       setStockData(res.data.stock_data);
@@ -51,6 +60,8 @@ function Stockdata() {
       setSentimentSummary(res.data.sentiment_summary || {});
     } catch (error) {
       console.error("Error fetching stock data:", error);
+      setStockData([]);
+      setFetchError("Could not load stock data. Check that the backend is running and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -126,6 +137,9 @@ function Stockdata() {
       animate="visible"
     >
       <h1 variants={itemVariants}>{ticker} Stock Analysis</h1>
+      {fetchError && !isLoading && (
+        <p style={{ color: "#c53030", marginBottom: "1rem" }}>{fetchError}</p>
+      )}
       {isLoading ? (
         <motion.div
           key="loading"
