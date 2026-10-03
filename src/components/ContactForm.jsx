@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 import styles from "./ContactForm.module.css";
 
 const ContactForm = () => {
@@ -93,13 +94,13 @@ const ContactForm = () => {
           </p>
           <ul className={styles["contact-info"]}>
             <li>
-              <span>✉️</span> support@stockanalyzer.com
+              <span><FaEnvelope /></span> support@stockanalyzer.com
             </li>
             <li>
-              <span>📞</span> +1800-457-5834
+              <span><FaPhone /></span> +1800-457-5834
             </li>
             <li>
-              <span>📍</span> Bhubaneswar, Odisha
+              <span><FaMapMarkerAlt /></span> Bhubaneswar, Odisha
             </li>
           </ul>
         </div>

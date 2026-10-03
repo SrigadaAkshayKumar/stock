@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaChartLine } from "react-icons/fa";
 import { toggleWatchlist } from "../utils/watchlistManager";
 import { auth } from "./firebase";
 import stockData from "./data/stockData.json";
@@ -113,7 +114,7 @@ const StocksList = () => {
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/stock/${stock.symbol}`)}
               >
-                <div className={styles.stockIcon}>📈</div>
+                <div className={styles.stockIcon}><FaChartLine /></div>
                 <h3>{stock.symbol}</h3>
                 <p>{stock.name}</p>
                 <button
