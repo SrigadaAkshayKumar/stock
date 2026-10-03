@@ -14,6 +14,7 @@ const StocksList = () => {
   const [exchange, setExchange] = useState("BSE");
   const [searchTicker, setSearchTicker] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [searchError, setSearchError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,11 +26,25 @@ const StocksList = () => {
   }, [exchange]);
 
   const handleSearch = () => {
-    if (searchTicker.trim()) {
-      navigate(`/stock/${searchTicker.trim()}`);
-      console.log(`Searching for stock: ${searchTicker.trim()}`);
-      console.log(`API call sent successfully`);
+    const query = searchTicker.trim();
+    if (!query) {
+      return;
     }
+    const upper = query.toUpperCase();
+    const allStocks = [...(stockData.BSE || []), ...(stockData.NSE || [])];
+    const found = allStocks.some(
+      (s) =>
+        s.symbol.toUpperCase() === upper ||
+        s.symbol.toUpperCase().split(".")[0] === upper
+    );
+    if (!found) {
+      setSearchError("Ticker not found. Please select a valid stock symbol.");
+      return;
+    }
+    setSearchError("");
+    navigate(`/stock/${query}`);
+    console.log(`Searching for stock: ${query}`);
+    console.log(`API call sent successfully`);
   };
 
   const handleAddToWatchlist = async (stock) => {
@@ -73,13 +88,21 @@ const StocksList = () => {
           type="text"
           placeholder="Search for stocks..."
           value={searchTicker}
-          onChange={(e) => setSearchTicker(e.target.value)}
+          onChange={(e) => {
+            setSearchTicker(e.target.value);
+            if (searchError) setSearchError("");
+          }}
           className={styles.searchInput}
         />
         <button onClick={handleSearch} className={styles.searchButton}>
           Search
         </button>
       </div>
+      {searchError && (
+        <p style={{ color: "#c53030", textAlign: "center", marginTop: "-1rem", marginBottom: "1rem" }}>
+          {searchError}
+        </p>
+      )}
 
       {/* 🏦 Exchange Toggle */}
       <div className={styles.exchangeButtons}>
