@@ -22,6 +22,7 @@ import os
 import time
 import json
 import logging
+from collections import OrderedDict
 from typing import Optional, Dict, Any
 
 try:
@@ -42,9 +43,22 @@ CACHE_ENABLED: bool = _str2bool(os.getenv("CACHE_ENABLED"), True)
 REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 DEFAULT_TTL_STOCK: int = int(os.getenv("CACHE_TTL_STOCK", "900"))
 DEFAULT_TTL_PRED: int = int(os.getenv("CACHE_TTL_PRED", "3600"))
+try:
+    MAX_MEMORY_ENTRIES: int = int(os.getenv("CACHE_MEMORY_MAX_ENTRIES", "500"))
+except ValueError:
+    MAX_MEMORY_ENTRIES = 500
+if MAX_MEMORY_ENTRIES < 1:
+    MAX_MEMORY_ENTRIES = 1
 
 _redis_client = None
-_memory_cache: Dict[str, Any] = {}
+_memory_cache: "OrderedDict[str, Any]" = OrderedDict()
+
+
+def _prune_expired_memory_cache() -> None:
+    now = time.time()
+    dead = [k for k, (_, exp) in _memory_cache.items() if exp is not None and now > exp]
+    for k in dead:
+        _memory_cache.pop(k, None)
 
 
 def is_cache_enabled() -> bool:
@@ -94,6 +108,8 @@ def get_cache(key: str) -> Optional[str]:
         # Expired; remove
         _memory_cache.pop(key, None)
         return None
+    # Mark as recently used
+    _memory_cache.move_to_end(key)
     return value
 
 
@@ -115,6 +131,12 @@ def set_cache(key: str, value: str, ttl: Optional[int] = None) -> bool:
 
     # Fallback: in-memory
     expires_at = (time.time() + ttl) if ttl else None
+    if key in _memory_cache:
+        _memory_cache.pop(key, None)
+    else:
+        _prune_expired_memory_cache()
+        while len(_memory_cache) >= MAX_MEMORY_ENTRIES:
+            _memory_cache.popitem(last=False)
     _memory_cache[key] = (value, expires_at)
     return True
 
