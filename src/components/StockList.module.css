@@ -283,6 +283,16 @@ tr:hover {
 .stockCard:hover {
   background: var(--color-card-hover);
 }
+.stockCard h3,
+.stockCard p {
+  color: var(--color-text);
+  opacity: 1;
+}
+.stockCard:hover h3,
+.stockCard:hover p {
+  color: var(--color-text);
+  opacity: 1;
+}
 .stockIcon {
   font-size: 2rem;
   margin-bottom: 1rem;
