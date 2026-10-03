@@ -32,6 +32,13 @@ const StocksList = () => {
     }
   };
 
+  const handleSearchKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch();
+    }
+  };
+
   const handleAddToWatchlist = async (stock) => {
     const user = auth.currentUser;
     if (user) {
@@ -74,9 +81,14 @@ const StocksList = () => {
           placeholder="Search for stocks..."
           value={searchTicker}
           onChange={(e) => setSearchTicker(e.target.value)}
+          onKeyDown={handleSearchKeyDown}
           className={styles.searchInput}
         />
-        <button onClick={handleSearch} className={styles.searchButton}>
+        <button
+          type="button"
+          onClick={handleSearch}
+          className={styles.searchButton}
+        >
           Search
         </button>
       </div>
