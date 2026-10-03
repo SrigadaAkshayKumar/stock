@@ -22,6 +22,7 @@ function Stockdata() {
   const [isLoading, setIsLoading] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [showPrediction, setShowPrediction] = useState(false);
+  const [loadError, setLoadError] = useState("");
 
   const periods = [
     "1d",
@@ -39,10 +40,17 @@ function Stockdata() {
 
   const fetchStockInfo = useCallback(async () => {
     setIsLoading(true);
+    setLoadError("");
     try {
       const res = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/stock/${ticker}?chart_period=${chartPeriod}&table_period=${tablePeriod}`,
       );
+
+      if (!res.data || !res.data.stock_data || res.data.stock_data.length === 0) {
+        setStockData([]);
+        setLoadError("No stock data found for this ticker. Please try another symbol.");
+        return;
+      }
 
       setStockData(res.data.stock_data);
       setGraphData1(JSON.parse(res.data.graph_data1));
@@ -51,6 +59,8 @@ function Stockdata() {
       setSentimentSummary(res.data.sentiment_summary || {});
     } catch (error) {
       console.error("Error fetching stock data:", error);
+      setStockData([]);
+      setLoadError("No stock data found for this ticker. Please try another symbol.");
     } finally {
       setIsLoading(false);
     }
@@ -126,6 +136,9 @@ function Stockdata() {
       animate="visible"
     >
       <h1 variants={itemVariants}>{ticker} Stock Analysis</h1>
+      {loadError && !isLoading && (
+        <p style={{ color: "#c53030", marginBottom: "1rem" }}>{loadError}</p>
+      )}
       {isLoading ? (
         <motion.div
           key="loading"
