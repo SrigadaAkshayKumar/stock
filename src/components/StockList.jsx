@@ -14,7 +14,33 @@ const StocksList = () => {
   const [exchange, setExchange] = useState("BSE");
   const [searchTicker, setSearchTicker] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [sector, setSector] = useState("All");
   const navigate = useNavigate();
+
+  const sectorMap = {
+    RELIANCE: "Energy",
+    TCS: "Technology",
+    INFY: "Technology",
+    WIPRO: "Technology",
+    HDFCBANK: "Finance",
+    KOTAKBANK: "Finance",
+    AXISBANK: "Finance",
+    SBIN: "Finance",
+    BAJFINANCE: "Finance",
+    ITC: "Consumer Goods",
+    HINDUNILVR: "Consumer Goods",
+    SUNPHARMA: "Healthcare",
+    MARUTI: "Automobile",
+    BHARTIARTL: "Telecom",
+    LT: "Infrastructure",
+  };
+
+  const getSector = (symbol) => {
+    const base = symbol.split(".")[0].toUpperCase();
+    return sectorMap[base] || "Other";
+  };
+
+  const sectors = ["All", "Technology", "Finance", "Consumer Goods", "Healthcare", "Automobile", "Energy", "Telecom", "Infrastructure"];
 
   useEffect(() => {
     setIsLoading(true);
@@ -96,6 +122,20 @@ const StocksList = () => {
         ))}
       </div>
 
+      <div className={styles.exchangeButtons} style={{ flexWrap: "wrap" }}>
+        {sectors.map((s) => (
+          <button
+            key={s}
+            onClick={() => setSector(s)}
+            className={`${styles.exchangeButton} ${
+              sector === s ? styles.activeExchange : ""
+            }`}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
       {/* 📊 Stocks as Cards */}
       <AnimatePresence mode="wait">
         {isLoading ? (
@@ -105,7 +145,9 @@ const StocksList = () => {
           </div>
         ) : (
           <div className={styles.cardsContainer}>
-            {stocks.map((stock, index) => (
+            {stocks
+              .filter((stock) => sector === "All" || getSector(stock.symbol) === sector)
+              .map((stock, index) => (
               <motion.div
                 key={stock.symbol}
                 className={styles.stockCard}
@@ -116,6 +158,7 @@ const StocksList = () => {
                 <div className={styles.stockIcon}>📈</div>
                 <h3>{stock.symbol}</h3>
                 <p>{stock.name}</p>
+                <p style={{ fontSize: "0.8rem", opacity: 0.8 }}>{getSector(stock.symbol)}</p>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
