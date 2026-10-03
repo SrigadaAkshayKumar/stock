@@ -30,6 +30,23 @@ const Signup = () => {
     }
   }, [user, navigate]);
 
+  const getSignupError = (err) => {
+    const code = err?.code || "";
+    if (code.includes("api-key-not-valid") || code.includes("invalid-api-key")) {
+      return "Signup is unavailable right now because the Firebase API key is missing or invalid. Please check your .env setup and try again.";
+    }
+    if (code === "auth/email-already-in-use") {
+      return "An account already exists with this email. Try logging in instead.";
+    }
+    if (code === "auth/weak-password") {
+      return "Password should be at least 6 characters.";
+    }
+    if (code === "auth/invalid-email") {
+      return "Please enter a valid email address.";
+    }
+    return err.message;
+  };
+
   const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
@@ -57,7 +74,7 @@ const Signup = () => {
       toast.success("Signup successful!");
       navigate("/"); // Signup के बाद home page पर redirect करें
     } catch (err) {
-      setError(err.message);
+      setError(getSignupError(err));
       console.error("Signup error:", err);
     } finally {
       setLoading(false);
