@@ -228,23 +228,23 @@ tr:hover {
 /* Hero Section */
 .hero {
   text-align: center;
-  padding: 5rem 1.5rem 7rem 1.5rem; /* Increased: Top=5rem, Bottom=7rem */
+  padding: 4rem 1.5rem 5rem 1.5rem;
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
   color: white;
   border-radius: 20px;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   transition: padding 0.21s, border-radius 0.21s;
 }
 
 .hero h1 {
-  font-size: 3.2rem;          /* Larger heading */
-  margin-bottom: 1.3rem;
+  font-size: 2.8rem;
+  margin-bottom: 1rem;
   font-weight: 700;
 }
 
 .hero p {
-  font-size: 1.35rem;         /* Slightly larger subheading */
+  font-size: 1.2rem;
   opacity: 0.95;
   color:white;
 }
@@ -285,7 +285,17 @@ tr:hover {
 }
 .stockIcon {
   font-size: 2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+}
+.stockCard h3 {
+  font-size: 1.1rem;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.stockCard p {
+  font-size: 0.92rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 0.75rem;
 }
 
 /* Watchlist Button */
