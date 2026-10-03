@@ -64,6 +64,23 @@ const Signup = () => {
     }
   };
 
+  const getGoogleError = (err) => {
+    const code = err?.code || "";
+    if (code === "auth/unauthorized-domain") {
+      return "Google sign-in is blocked because this domain is not authorized in Firebase. Add it under Firebase console > Authentication > Settings > Authorized domains.";
+    }
+    if (code === "auth/popup-closed-by-user") {
+      return "Sign-up cancelled by user";
+    }
+    if (code === "auth/popup-blocked") {
+      return "Popup blocked by browser. Please allow popups and try again.";
+    }
+    if (code === "auth/account-exists-with-different-credential") {
+      return "An account already exists with this email. Try signing in instead.";
+    }
+    return err.message;
+  };
+
   const handleGoogleSignup = async () => {
     setError("");
     setLoading(true);
@@ -85,17 +102,7 @@ const Signup = () => {
       toast.success("Signup successful with Google!");
       navigate("/"); // Google signup के बाद redirect
     } catch (err) {
-      const errorCode = err.code;
-
-      if (errorCode === "auth/popup-closed-by-user") {
-        setError("Sign-up cancelled by user");
-      } else if (errorCode === "auth/popup-blocked") {
-        setError("Popup blocked by browser. Please allow popups and try again.");
-      } else if (errorCode === "auth/account-exists-with-different-credential") {
-        setError("An account already exists with this email. Try signing in instead.");
-      } else {
-        setError(err.message);
-      }
+      setError(getGoogleError(err));
       console.error("Google Signup error:", err);
     } finally {
       setLoading(false);
