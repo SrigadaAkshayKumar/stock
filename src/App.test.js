@@ -1,8 +1,13 @@
 import { render, screen } from '@testing-library/react';
-import App from './App';
+import { MemoryRouter } from 'react-router-dom';
+import StocksList from './components/StockList';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+test('shows home heading and search box', () => {
+  render(
+    <MemoryRouter>
+      <StocksList />
+    </MemoryRouter>
+  );
+  expect(screen.getByText(/Welcome to Stock Analyzer!/i)).toBeInTheDocument();
+  expect(screen.getByPlaceholderText(/Search for stocks/i)).toBeInTheDocument();
 });
