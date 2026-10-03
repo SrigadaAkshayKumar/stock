@@ -9,6 +9,24 @@ from .sentiment_service import fetch_stock_news_with_sentiment
 
 DATA_FOLDER = os.path.join(os.path.dirname(__file__), "data")
 
+VALID_PERIODS = {"1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"}
+
+def _filter_by_period(df, period):
+    if period == "max":
+        return df
+    latest = df["Date"].max()
+    if period == "ytd":
+        cutoff = pd.Timestamp(year=latest.year, month=1, day=1)
+    elif period.endswith("d"):
+        cutoff = latest - pd.Timedelta(days=int(period[:-1]))
+    elif period.endswith("mo"):
+        cutoff = latest - pd.DateOffset(months=int(period[:-2]))
+    elif period.endswith("y"):
+        cutoff = latest - pd.DateOffset(years=int(period[:-1]))
+    else:
+        return df
+    return df[df["Date"] >= cutoff]
+
 def normalize_symbol(symbol: str) -> str:
     """
     Removes NSE (.NS) and BSE (.BO) suffixes to match CSV filenames.
@@ -45,6 +63,11 @@ def get_stock_data_handler(symbol, chart_period="1mo", table_period="1mo"):
         if df.empty:
             return jsonify({"error": f"No valid rows found in {clean_symbol}.csv"}), 500
 
+        if chart_period not in VALID_PERIODS:
+            return jsonify({"error": f"Unsupported chart_period {chart_period}"}), 400
+        if table_period not in VALID_PERIODS:
+            return jsonify({"error": f"Unsupported table_period {table_period}"}), 400
+
         # Extract latest row for stock info
         latest = df.iloc[-1]
         stock_basic_info = {
@@ -60,9 +83,9 @@ def get_stock_data_handler(symbol, chart_period="1mo", table_period="1mo"):
             "dividend_yield": 0
         }
 
-        # For now, using same data for chart & table
-        chart_data = df.copy()
-        table_data = df.copy()
+        # Apply periods independently using latest dataset date as reference
+        chart_data = _filter_by_period(df, chart_period).copy()
+        table_data = _filter_by_period(df, table_period).copy()
 
         # Format date for frontend
         chart_data["Date"] = chart_data["Date"].dt.strftime("%d-%m-%Y")
