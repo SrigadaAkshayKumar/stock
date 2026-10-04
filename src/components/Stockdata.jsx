@@ -9,6 +9,9 @@ import { StockMetricsCard } from "./StockMetricsCard";
 import BackToTopBtn from "./BackToTopBtn";
 
 import SentimentChart from "./SentimentChart";
+import AnalysisDashboard from "./AnalysisDashboard";
+import AgentChat from "./AgentChat";
+import Disclaimer from "./Disclaimer";
 
 function Stockdata() {
   const { ticker } = useParams();
@@ -60,10 +63,6 @@ function Stockdata() {
     fetchStockInfo();
   }, [fetchStockInfo]);
 
-  console.log("Stock Data:", stockData);
-  console.log("API Call sent successfully");
-
-  console.log(`API call sent successfully`);
   const handleShowMore = () => {
     setShowMore(!showMore);
   };
@@ -126,6 +125,7 @@ function Stockdata() {
       animate="visible"
     >
       <h1 variants={itemVariants}>{ticker} Stock Analysis</h1>
+      <Disclaimer compact />
       {isLoading ? (
         <motion.div
           key="loading"
@@ -406,6 +406,9 @@ function Stockdata() {
             </div>
           </section>
 
+          <AnalysisDashboard ticker={ticker} />
+          <AgentChat ticker={ticker} />
+
           <div className="period-buttons" variants={itemVariants}>
             <h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               Select Period:
@@ -509,6 +512,7 @@ function Stockdata() {
           )}
         </div>
       )}
+      <Disclaimer />
       <BackToTopBtn />
     </div>
   );

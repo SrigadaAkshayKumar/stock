@@ -1,0 +1,5 @@
+{
+  "TCS": {"name": "Tata Consultancy Services", "exchange": "NSE/BSE", "sector": "Information Technology", "industry": "IT Services & Consulting"},
+  "INFY": {"name": "Infosys", "exchange": "NSE/BSE", "sector": "Information Technology", "industry": "IT Services & Consulting"},
+  "RELIANCE": {"name": "Reliance Industries", "exchange": "NSE/BSE", "sector": "Energy / Conglomerate", "industry": "Oil & Gas, Retail, Telecom"}
+}

@@ -6,6 +6,7 @@ import plotly
 import logging
 from flask import jsonify
 from .sentiment_service import fetch_stock_news_with_sentiment
+from .market_data_service import filter_period
 
 DATA_FOLDER = os.path.join(os.path.dirname(__file__), "data")
 
@@ -60,9 +61,9 @@ def get_stock_data_handler(symbol, chart_period="1mo", table_period="1mo"):
             "dividend_yield": 0
         }
 
-        # For now, using same data for chart & table
-        chart_data = df.copy()
-        table_data = df.copy()
+        # Apply the requested periods (previously ignored)
+        chart_data = filter_period(df, chart_period).copy()
+        table_data = filter_period(df, table_period).copy()
 
         # Format date for frontend
         chart_data["Date"] = chart_data["Date"].dt.strftime("%d-%m-%Y")
