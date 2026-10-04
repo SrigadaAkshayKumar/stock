@@ -31,7 +31,7 @@ def predict_stock_handler(symbol):
             return jsonify({'error': 'CSV must contain Date and Close columns'}), 400
 
         # Preprocess
-        data['Date'] = pd.to_datetime(data['Date'])
+        data['Date'] = pd.to_datetime(data['Date'], dayfirst=True)  # CSV dates are DD-MM-YYYY
         data = data.sort_values('Date')
         data.set_index('Date', inplace=True)
 

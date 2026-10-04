@@ -512,3 +512,6 @@ dist/
 *~
 .DS_Store
 Thumbs.db
+
+# Local development database, vector data and generated reports
+backend/storage/

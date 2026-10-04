@@ -1,0 +1,51 @@
+# Local, production-like stack: frontend + API + Redis cache (+ PostgreSQL for the
+# upcoming Postgres repository). Run: docker compose up --build
+services:
+  api:
+    build: ./backend
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      CORS_ORIGINS: http://localhost:3000
+      STORAGE_DIR: /app/storage
+    ports:
+      - "10000:10000"
+    volumes:
+      - api-storage:/app/storage
+    depends_on:
+      - redis
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        REACT_APP_API_URL: http://localhost:10000
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_DB: stock
+      POSTGRES_USER: stock
+      POSTGRES_PASSWORD: stock
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - pg-data:/var/lib/postgresql/data
+
+volumes:
+  api-storage:
+  pg-data:

@@ -1,6 +1,6 @@
 # AI Stock Analyzer
 
-The **Stock Analyzer** project is a complete stock market analysis tool utilizing ML models. It allows users to input stock symbols, select date ranges, view historical stock trends, and see future stock price predictions via interactive charts.
+The **Stock Analyzer** project is an AI-powered stock market analysis platform. Pick a stock to see its price history, technical indicators, fundamentals, ML predictions with backtested accuracy, recent news and sentiment, and risk metrics in one place. You can also ask an **AI analyst** questions about the stock and download a complete **PDF analysis report**.
 
 <div align = "center"
     
@@ -34,6 +34,23 @@ OSCI 2026 contributors Please Follow this link to join [WhatsApp group](https://
 
 ## ![Stock prediction](Images/prediction.png)
 
+## Platform Features
+
+| Module | What it does |
+|---|---|
+| Stock dashboard | Price, chart, volume, technical indicators, fundamentals, news, AI analysis |
+| Market data | Local historical dataset with optional live data via yfinance |
+| ML prediction | Feature engineering, model selection, 1- and 5-day direction and price forecasts, walk-forward backtesting, prediction tracking |
+| RAG | News and company-document ingestion, chunking, embeddings, relevance × freshness retrieval with source grounding |
+| AI agent | Stock-specific chat that picks tools (price, indicators, fundamentals, news, documents, ML, risk, report) and returns evidence-backed answers with sources |
+| Reports | Downloadable 14-section PDF analysis report |
+| Risk & disclaimer | Volatility, drawdown, VaR, model-confidence warnings and an educational-use disclaimer |
+| Scalability | Caching, background jobs, rate limiting, Docker, CI |
+
+Design documentation: [HLD](docs/HLD.md) · [LLD](docs/LLD.md) · [API](docs/API.md) · [Database](docs/DATABASE.md) · [Model lifecycle](docs/MODEL_LIFECYCLE.md) · [AWS deployment](docs/DEPLOYMENT_AWS.md) · [Roadmap & status](docs/ROADMAP.md)
+
+> ⚠ **Disclaimer:** This platform provides AI-generated market analysis for educational and informational purposes only. Predictions are probabilistic and may be inaccurate. It is not personalized investment advice.
+
 ## Technologies Used
 
 - **React:** User Interface
@@ -42,6 +59,11 @@ OSCI 2026 contributors Please Follow this link to join [WhatsApp group](https://
 - **Flask:** Backend Framework
 - **yfinance:** Stock data extraction
 - **Pandas:** Data manipulation
+- **scikit-learn:** ML prediction and backtesting; hashed n-gram embeddings for RAG
+- **Claude API (optional):** natural-language synthesis of agent answers
+- **reportlab:** PDF reports
+- **openpyxl:** Excel development database (PostgreSQL schema for production)
+- **Redis (optional), Docker, GitHub Actions:** caching, containers, CI
 
 ---
 

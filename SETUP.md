@@ -130,21 +130,35 @@ The app will be available at http://x.x.x.x:10000. (you will find the correct ur
 copy the server url to use in frontend
 make sure the app in the testing during the code editing
 
-Change the following:
+For local testing, allow your frontend origin with the `CORS_ORIGINS` environment variable
+(comma-separated, default `http://localhost:3000,https://aistockanalyzer.onrender.com`).
+You no longer need to edit `app.py`.
 
-bash
-app = Flask(__name__)
-CORS(app, ....)
+### Optional: AI platform configuration
 
+Copy `backend/.env.example` to `backend/.env`. Every key is optional. Without any keys the platform
+runs offline on the bundled CSV data, and the AI agent uses rule-based answers.
 
-to
+| Variable | Effect |
+|---|---|
+| `NEWS_API_KEY` | Enables latest news, sentiment and news ingestion into the RAG layer |
+| `ANTHROPIC_API_KEY` | The AI agent writes natural-language answers with Claude (`ANTHROPIC_MODEL`, default `claude-opus-5-5`) |
+| `LIVE_MARKET_DATA=true` | Uses yfinance for live prices and fundamentals, falling back to the CSV data |
+| `DB_BACKEND=excel` | Development database: `backend/storage/dev_database.xlsx` (created automatically) |
 
-bash
-app = Flask(__name__)
-CORS(app)
+### Run the backend tests
 
+```bash
+cd backend
+pip install -r requirements-dev.txt
+python -m pytest -q tests
+```
 
-for testing environment
+### Run everything with Docker
+
+```bash
+docker compose up --build   # frontend http://localhost:3000, API http://localhost:10000
+```
 
 ## Frontend Setup (React)
 
