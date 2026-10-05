@@ -328,8 +328,21 @@ def fetch_stock_news_with_sentiment(ticker: str) -> Dict:
             f'https://newsapi.org/v2/everything?q={search_query}'
             f'&apiKey={NEWS_API_KEY}&language=en&sortBy=publishedAt&pageSize=5'
         )
-        response = requests.get(url)
-        news_data = response.json()
+        try:
+            response = requests.get(url, timeout=(5, 10))
+            news_data = response.json()
+        except requests.Timeout:
+            logging.warning("NewsAPI request timed out, returning empty news result.")
+            return {
+                "articles": [],
+                "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
+            }
+        except requests.RequestException as e:
+            logging.warning(f"NewsAPI request failed ({e}), returning empty news result.")
+            return {
+                "articles": [],
+                "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
+            }
 
         # Debug logs
         logging.info(f"NewsAPI query: {search_query}")
