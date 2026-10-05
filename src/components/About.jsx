@@ -37,7 +37,7 @@ const AboutComponent = () => {
           <div className="vision">
             <h2 style={headingStyle}>Our Vision</h2>
             <p>
-              To be recognized as a leading global platform for stock market analysis - where innovation, trust, and accessibility come together to help evry individual and organization achieve long-term financial success.
+              To be recognized as a leading global platform for stock market analysis - where innovation, trust, and accessibility come together to help every individual and organization achieve long-term financial success.
             </p>
           </div>
         </div>
