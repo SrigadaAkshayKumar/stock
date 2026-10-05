@@ -9,6 +9,26 @@ import {
   doc,
 } from "firebase/firestore";
 
+export const getLocalWatchlist = () => {
+  try {
+    const raw = localStorage.getItem("watchlist");
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+    try {
+      localStorage.removeItem("watchlist");
+    } catch (_) {}
+    return [];
+  } catch (error) {
+    try {
+      localStorage.removeItem("watchlist");
+    } catch (_) {}
+    return [];
+  }
+};
+
 export const toggleWatchlist = async (stock) => {
   const user = auth.currentUser;
 
@@ -34,7 +54,7 @@ export const toggleWatchlist = async (stock) => {
       });
     }
   } else {
-    const stored = JSON.parse(localStorage.getItem("watchlist")) || [];
+    const stored = getLocalWatchlist();
     const exists = stored.find((s) => s.symbol === stock.symbol);
 
     if (exists) {
@@ -54,7 +74,7 @@ export const getWatchlistSymbols = async () => {
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => doc.data().symbol);
   } else {
-    const stored = JSON.parse(localStorage.getItem("watchlist")) || [];
+    const stored = getLocalWatchlist();
     return stored.map((stock) => stock.symbol);
   }
 };
@@ -64,7 +84,7 @@ export const syncLocalToFirebase = async () => {
 
   if (!user) return;
 
-  const localWatchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
+  const localWatchlist = getLocalWatchlist();
 
   const q = query(
     collection(firestoreDb, "watchlist"),
@@ -96,7 +116,7 @@ export const getWatchlist = async () => {
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => doc.data());
   } else {
-    const stored = JSON.parse(localStorage.getItem("watchlist")) || [];
+    const stored = getLocalWatchlist();
     return stored;
   }
 };
@@ -118,7 +138,7 @@ export const removeStockFromWatchlist = async (symbol) => {
       )
     );
   } else {
-    const stored = JSON.parse(localStorage.getItem("watchlist")) || [];
+    const stored = getLocalWatchlist();
     const updated = stored.filter((s) => s.symbol !== symbol);
     localStorage.setItem("watchlist", JSON.stringify(updated));
   }
