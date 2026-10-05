@@ -323,13 +323,27 @@ def fetch_stock_news_with_sentiment(ticker: str) -> Dict:
                 "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
             }
 
-        # Fetch news from NewsAPI
+        # Fetch news from NewsAPI with bounded connect/read timeouts.
         url = (
             f'https://newsapi.org/v2/everything?q={search_query}'
             f'&apiKey={NEWS_API_KEY}&language=en&sortBy=publishedAt&pageSize=5'
         )
-        response = requests.get(url)
-        news_data = response.json()
+        try:
+            response = requests.get(url, timeout=(3, 10))
+            response.raise_for_status()
+            news_data = response.json()
+        except requests.exceptions.Timeout:
+            logging.warning(f"NewsAPI request timed out for {search_query}")
+            return {
+                "articles": [],
+                "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
+            }
+        except requests.exceptions.RequestException as e:
+            logging.warning(f"NewsAPI request failed for {search_query}: {e}")
+            return {
+                "articles": [],
+                "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
+            }
 
         # Debug logs
         logging.info(f"NewsAPI query: {search_query}")
