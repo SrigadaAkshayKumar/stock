@@ -57,7 +57,28 @@ const Signup = () => {
       toast.success("Signup successful!");
       navigate("/"); // Signup के बाद home page पर redirect करें
     } catch (err) {
-      setError(err.message);
+      const errorCode = err.code;
+
+      if (errorCode?.startsWith("auth/api-key-not-valid")) {
+        setError(
+          "Firebase is not configured correctly. Please check the Firebase configuration."
+        );
+      } else if (errorCode === "auth/email-already-in-use") {
+        setError(
+          "An account already exists with this email. Please try logging in."
+        );
+      } else if (errorCode === "auth/invalid-email") {
+        setError("Please enter a valid email address.");
+      } else if (errorCode === "auth/weak-password") {
+        setError("Password should be at least 6 characters.");
+      } else if (errorCode === "auth/network-request-failed") {
+        setError(
+          "Network error. Please check your internet connection and try again."
+        );
+      } else {
+        setError("Unable to create your account. Please try again.");
+      }
+
       console.error("Signup error:", err);
     } finally {
       setLoading(false);
