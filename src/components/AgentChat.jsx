@@ -19,7 +19,7 @@ function AgentChat({ ticker }) {
   const [input, setInput] = useState("");
   const [sessionId, setSessionId] = useState(null);
   const [busy, setBusy] = useState(false);
-  const endRef = useRef(null);
+  const messagesRef = useRef(null);
 
   // A new stock starts a new conversation: the selected stock is the agent's context.
   useEffect(() => {
@@ -27,8 +27,10 @@ function AgentChat({ ticker }) {
     setSessionId(null);
   }, [ticker]);
 
+  // Scroll only the message list (not the page) when a new message arrives.
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const el = messagesRef.current;
+    if (el && messages.length) el.scrollTop = el.scrollHeight;
   }, [messages, busy]);
 
   const ask = async (question) => {
@@ -63,7 +65,7 @@ function AgentChat({ ticker }) {
         for {ticker}, and shows the sources behind its answer.
       </p>
 
-      <div className={styles.messages}>
+      <div className={styles.messages} ref={messagesRef}>
         {messages.length === 0 && (
           <div className={styles.suggestions}>
             {SUGGESTIONS.map((s) => (
@@ -108,7 +110,6 @@ function AgentChat({ ticker }) {
           </div>
         ))}
         {busy && <div className={styles.agentMsg}>Analysing {ticker}…</div>}
-        <div ref={endRef} />
       </div>
 
       <form
