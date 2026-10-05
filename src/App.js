@@ -16,6 +16,8 @@ import Signup from "./components/Signup";
 import Watchlist from "./components/Watchlist";
 import { AuthProvider } from "./components/AuthContext";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Theme
 import { ThemeProvider, useTheme } from "./components/ThemeContext";
@@ -68,6 +70,7 @@ const App = () => {
                 </Routes>
               </div>
               <Footer />
+              <ToastContainer position="bottom-right" autoClose={3000} />
             </div>
           </Router>
         </AuthProvider>

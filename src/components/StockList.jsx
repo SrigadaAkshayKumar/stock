@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
 import { toggleWatchlist } from "../utils/watchlistManager";
 import { auth } from "./firebase";
 import stockData from "./data/stockData.json";
@@ -36,10 +37,14 @@ const StocksList = () => {
     const user = auth.currentUser;
     if (user) {
       try {
-        await toggleWatchlist(stock);
-        alert(`${stock.symbol} added to your Firebase watchlist!`);
+        const action = await toggleWatchlist(stock);
+        if (action === "removed") {
+          toast.info(`${stock.symbol} removed from watchlist`);
+        } else {
+          toast.success(`${stock.symbol} added to watchlist`);
+        }
       } catch (err) {
-        alert("Failed to add to watchlist.");
+        toast.error("Failed to update watchlist.");
         console.error(err);
       }
     } else {

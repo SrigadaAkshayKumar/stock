@@ -26,12 +26,14 @@ export const toggleWatchlist = async (stock) => {
           deleteDoc(doc(firestoreDb, "watchlist", docSnap.id))
         )
       );
+      return "removed";
     } else {
       await addDoc(collection(firestoreDb, "watchlist"), {
         uid: user.uid,
         symbol: stock.symbol,
         name: stock.name,
       });
+      return "added";
     }
   } else {
     const stored = JSON.parse(localStorage.getItem("watchlist")) || [];
@@ -40,8 +42,10 @@ export const toggleWatchlist = async (stock) => {
     if (exists) {
       const updated = stored.filter((s) => s.symbol !== stock.symbol);
       localStorage.setItem("watchlist", JSON.stringify(updated));
+      return "removed";
     } else {
       localStorage.setItem("watchlist", JSON.stringify([...stored, stock]));
+      return "added";
     }
   }
 };
