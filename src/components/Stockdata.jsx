@@ -130,6 +130,9 @@ function Stockdata() {
         <motion.div
           key="loading"
           className="loading-spinner"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
@@ -140,7 +143,7 @@ function Stockdata() {
             animate={{ y: [0, -10, 0] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            please wait while Loading...
+            Loading stock data...
           </p>
           <p
             animate={{ opacity: [0.5, 1, 0.5] }}
