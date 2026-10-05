@@ -282,10 +282,25 @@ tr:hover {
 }
 .stockCard:hover {
   background: var(--color-card-hover);
+  /* Ensure text stays readable against the lighter hover background in dark mode */
+  color: var(--color-text);
 }
 .stockIcon {
   font-size: 2rem;
   margin-bottom: 1rem;
+}
+
+/* Stock card text — explicit theme-aware colors so the company
+   subtitle (stock name) remains readable on hover in dark mode */
+.stockCard h3 {
+  color: var(--color-text);
+}
+.stockCard p {
+  color: var(--color-text-secondary);
+}
+.stockCard:hover p,
+.stockCard:hover h3 {
+  color: var(--color-text);
 }
 
 /* Watchlist Button */

@@ -941,7 +941,7 @@ h2:hover::after {
 }
 
 p {
-  color: #555;
+  color: var(--color-text); /* Theme-aware: fixes faint text on dark backgrounds */
   margin: 8px 0;
   font-size: 16px;
   animation: fadeIn 0.7s ease-out;
