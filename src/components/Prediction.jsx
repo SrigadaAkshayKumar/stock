@@ -11,12 +11,11 @@ function Prediction({ ticker }) {
   const [returns, setReturns] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchPredictionData = useCallback(async () => {
+  const fetchPredictionData = useCallback(async (fresh = false) => {
     setIsLoading(true); // Start loading
     try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/stock/${ticker}/predict` //${process.env.REACT_APP_API_URL}
-      );
+      const url = `${process.env.REACT_APP_API_URL}/api/stock/${ticker}/predict${fresh ? "?refresh=true" : ""}`;
+      const res = await axios.get(url);
       setPredictedData(res.data.predictions || []);
       setPredictedDates(res.data.predicted_dates || []); // Updated
       setActualData(res.data.actual || []);
@@ -37,6 +36,11 @@ function Prediction({ ticker }) {
 
   return (
     <div className="predict">
+      <div style={{ textAlign: "right", marginBottom: "0.5rem" }}>
+        <button type="button" onClick={() => fetchPredictionData(true)}>
+          Refresh prediction
+        </button>
+      </div>
       <div className="predict12">
         {isLoading ? (
           <div className="loading-spinner">
