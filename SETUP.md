@@ -168,18 +168,15 @@ bash
 npm install
 
 
-Add server url to frontend Stockdata.jsx and Predict.jsx page
-
-from
-
-bash
-${process.env.REACT_APP_API_URL}
-
-
-to
+Create a `.env` file in the project root and set the backend URL there. Both
+`Stockdata.jsx` and `Prediction.jsx` already read it via `REACT_APP_API_URL`,
+so you do not need to edit those files.
 
 bash
-http://x.x.x.x:10000
+REACT_APP_API_URL=http://localhost:10000
+
+Use the backend server URL shown in the Flask console. Restart `npm start`
+after changing `.env` so the new value is picked up.
 
 
 ## Create a .env and add the following:
