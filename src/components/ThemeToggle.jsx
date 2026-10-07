@@ -20,7 +20,7 @@ const ThemeToggle = ({ className = '' }) => {
 
   if (!mounted) {
     return (
-      <button className={`theme-toggle ${className}`} aria-label="Toggle theme">
+      <button className={`theme-toggle ${className}`} aria-label="Toggle theme" title="Toggle theme">
         <div className="theme-toggle-track">
           <div className="theme-toggle-thumb" />
         </div>
