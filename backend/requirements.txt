@@ -16,7 +16,7 @@ joblib==1.5.1
 MarkupSafe==3.0.2
 multitasking==0.0.12
 narwhals==2.0.1
-numpy==2.3.2
+numpy==2.2.6
 packaging==25.0
 pandas==2.3.1
 peewee==3.18.2
@@ -28,7 +28,7 @@ python-dateutil==2.9.0.post0
 pytz==2025.2
 requests==2.32.4
 scikit-learn==1.7.1
-scipy==1.16.1
+scipy==1.15.3
 six==1.17.0
 soupsieve==2.7
 threadpoolctl==3.6.0
