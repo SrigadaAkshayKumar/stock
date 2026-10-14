@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Prediction from "./Prediction";
 import { ClipLoader } from "react-spinners";
-import { StockMetricsCard } from "./StockMetricsCard";
+import { StockMetricsCard, getCurrencySymbol } from "./StockMetricsCard";
 import BackToTopBtn from "./BackToTopBtn";
 
 import SentimentChart from "./SentimentChart";
@@ -177,6 +177,8 @@ function Stockdata() {
                   high={stockInfo.high}
                   low={stockInfo.low}
                   previousClose={stockData[0]?.Close}
+                  currency={stockInfo.currency_symbol || getCurrencySymbol(ticker, stockInfo.exchange)}
+                  ticker={ticker}
                 />
                 {/* <h1 className="exchange-badge">
                   Exchange : {stockInfo.exchange || "N/A"}

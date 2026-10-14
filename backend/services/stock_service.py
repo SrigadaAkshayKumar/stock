@@ -56,6 +56,8 @@ def get_stock_data_handler(symbol, chart_period="1mo", table_period="1mo"):
             "high": float(latest["High"]) if "High" in df.columns else 0,
             "low": float(latest["Low"]) if "Low" in df.columns else 0,
             "volume": int(latest["Volume"]) if "Volume" in df.columns else 0,
+            "currency": "INR",
+            "currency_symbol": "₹",
             "market_cap": 0,
             "pe_ratio": 0,
             "dividend_yield": 0

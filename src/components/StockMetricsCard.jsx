@@ -1,26 +1,58 @@
+// Helper to resolve appropriate currency symbol based on ticker or exchange
+export const getCurrencySymbol = (ticker = "", exchange = "") => {
+  const upperTicker = (ticker || "").toUpperCase();
+  const upperExchange = (exchange || "").toUpperCase();
+
+  // Non-Indian US market tickers or exchanges
+  if (
+    upperExchange.includes("NASDAQ") ||
+    upperExchange.includes("NYSE") ||
+    (!upperTicker.endsWith(".NS") &&
+     !upperTicker.endsWith(".BO") &&
+     ["AAPL", "GOOGL", "MSFT", "AMZN", "TSLA", "META", "NVDA"].includes(upperTicker))
+  ) {
+    return "$";
+  }
+
+  // Indian stocks (NSE, BSE, or default Indian market platform)
+  return "₹";
+};
+
 // StockMetricsCard component to display stock metrics
 export const StockMetricsCard = ({
   open,
   close,
   high,
   low,
-  previousClose
+  previousClose,
+  currency,
+  ticker,
 }) => {
-
+  const currencySymbol = currency || getCurrencySymbol(ticker);
   const PrevClose = previousClose ?? "N/A";
   const Open = open ?? "N/A";
   const Close = close ?? "N/A";
   const Low = low ?? "N/A";
   const High = high ?? "N/A";
 
-  // Formatting the value
-  const formatValue = (value) => `$${Number(value).toFixed(2)}`;
+  // Formatting the value with currency symbol
+  const formatValue = (value) => {
+    if (value === "N/A" || value === null || value === undefined || isNaN(Number(value))) {
+      return "N/A";
+    }
+    return `${currencySymbol}${Number(value).toFixed(2)}`;
+  };
 
   // Arrow indicator to check trends
   const getTrend = (current, compareWith) => {
-    if (current > compareWith) {
+    const cur = Number(current);
+    const comp = Number(compareWith);
+    if (isNaN(cur) || isNaN(comp)) {
+      return <span className="trend-neutral">—</span>;
+    }
+    if (cur > comp) {
       return <span className="trend-up">▲</span>;
-    } else if (current < compareWith) {
+    } else if (cur < comp) {
       return <span className="trend-down">▼</span>;
     }
     return <span className="trend-neutral">—</span>;

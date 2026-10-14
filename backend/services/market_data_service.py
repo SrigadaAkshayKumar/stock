@@ -130,6 +130,8 @@ class StockService:
             "previous_close": round(float(prev["Close"]), 2),
             "change": round(change, 2),
             "change_pct": round(change / float(prev["Close"]) * 100, 2) if prev["Close"] else 0.0,
+            "currency": "INR",
+            "currency_symbol": "₹",
             "as_of": latest["Date"].strftime("%Y-%m-%d"),
             "source": df.attrs.get("source", "local_dataset"),
             "is_live": df.attrs.get("source") == "yfinance",
