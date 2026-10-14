@@ -304,6 +304,37 @@ class EnhancedSentimentAnalyzer:
             "sentiment_strength": "weak"
         }
 
+DEFAULT_NEWS_CONNECT_TIMEOUT: float = 5.0
+DEFAULT_NEWS_READ_TIMEOUT: float = 10.0
+
+
+def get_news_timeout() -> Tuple[float, float]:
+    """Return configured (connect_timeout, read_timeout) in seconds for NewsAPI requests."""
+    try:
+        from core.settings import settings
+        connect_t = getattr(settings, "NEWS_CONNECT_TIMEOUT", DEFAULT_NEWS_CONNECT_TIMEOUT)
+        read_t = getattr(settings, "NEWS_READ_TIMEOUT", DEFAULT_NEWS_READ_TIMEOUT)
+    except Exception:
+        connect_t = DEFAULT_NEWS_CONNECT_TIMEOUT
+        read_t = DEFAULT_NEWS_READ_TIMEOUT
+
+    env_connect = os.getenv("NEWS_CONNECT_TIMEOUT")
+    if env_connect:
+        try:
+            connect_t = float(env_connect)
+        except (ValueError, TypeError):
+            pass
+
+    env_read = os.getenv("NEWS_READ_TIMEOUT")
+    if env_read:
+        try:
+            read_t = float(env_read)
+        except (ValueError, TypeError):
+            pass
+
+    return (float(connect_t), float(read_t))
+
+
 def fetch_stock_news_with_sentiment(ticker: str) -> Dict:
     """
     Fetch news articles for a stock ticker and analyze their sentiment.
@@ -323,12 +354,13 @@ def fetch_stock_news_with_sentiment(ticker: str) -> Dict:
                 "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
             }
 
-        # Fetch news from NewsAPI
+        # Fetch news from NewsAPI with bounded timeout
         url = (
             f'https://newsapi.org/v2/everything?q={search_query}'
             f'&apiKey={NEWS_API_KEY}&language=en&sortBy=publishedAt&pageSize=5'
         )
-        response = requests.get(url)
+        timeout = get_news_timeout()
+        response = requests.get(url, timeout=timeout)
         news_data = response.json()
 
         # Debug logs
@@ -352,6 +384,18 @@ def fetch_stock_news_with_sentiment(ticker: str) -> Dict:
             "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
         }
 
+    except requests.exceptions.Timeout as e:
+        logging.warning(f"NewsAPI request timed out for {ticker}: {e}")
+        return {
+            "articles": [],
+            "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
+        }
+    except requests.exceptions.RequestException as e:
+        logging.warning(f"NewsAPI request failed for {ticker}: {e}")
+        return {
+            "articles": [],
+            "sentiment_summary": EnhancedSentimentAnalyzer()._get_empty_sentiment_summary()
+        }
     except Exception as e:
         logging.error(f"Error fetching news: {e}")
         return {

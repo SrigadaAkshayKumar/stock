@@ -43,7 +43,7 @@ def fetch_latest_news(symbol: str, page_size: int = None) -> Dict:
     for attempt in range(3):
         try:
             resp = requests.get("https://newsapi.org/v2/everything", params=params,
-                                timeout=settings.HTTP_TIMEOUT_SECONDS)
+                                timeout=(settings.NEWS_CONNECT_TIMEOUT, settings.NEWS_READ_TIMEOUT))
             if resp.status_code == 429 or resp.status_code >= 500:
                 raise requests.HTTPError(f"status {resp.status_code}")
             data = resp.json()

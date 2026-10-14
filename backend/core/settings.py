@@ -54,6 +54,8 @@ class Settings:
     # Reliability
     RATE_LIMIT_PER_MINUTE = int(os.getenv("RATE_LIMIT_PER_MINUTE", "30"))
     HTTP_TIMEOUT_SECONDS = float(os.getenv("HTTP_TIMEOUT_SECONDS", "8"))
+    NEWS_CONNECT_TIMEOUT = float(os.getenv("NEWS_CONNECT_TIMEOUT", "5.0"))
+    NEWS_READ_TIMEOUT = float(os.getenv("NEWS_READ_TIMEOUT", "10.0"))
     WORKER_THREADS = int(os.getenv("WORKER_THREADS", "4"))
     CACHE_TTL_ANALYSIS = int(os.getenv("CACHE_TTL_ANALYSIS", "600"))
 
