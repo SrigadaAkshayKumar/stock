@@ -18,9 +18,14 @@ export const StockMetricsCard = ({
 
   // Arrow indicator to check trends
   const getTrend = (current, compareWith) => {
-    if (current > compareWith) {
+    const cur = Number(current);
+    const comp = Number(compareWith);
+    if (isNaN(cur) || isNaN(comp)) {
+      return <span className="trend-neutral">—</span>;
+    }
+    if (cur > comp) {
       return <span className="trend-up">▲</span>;
-    } else if (current < compareWith) {
+    } else if (cur < comp) {
       return <span className="trend-down">▼</span>;
     }
     return <span className="trend-neutral">—</span>;

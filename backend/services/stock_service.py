@@ -46,16 +46,20 @@ def get_stock_data_handler(symbol, chart_period="1mo", table_period="1mo"):
         if df.empty:
             return jsonify({"error": f"No valid rows found in {clean_symbol}.csv"}), 500
 
-        # Extract latest row for stock info
+        # Extract latest row and previous trading session row for stock info
         latest = df.iloc[-1]
+        prev = df.iloc[-2] if len(df) > 1 else latest
+        prev_close = float(prev["Close"]) if "Close" in df.columns else (float(latest["Close"]) if "Close" in df.columns else 0.0)
+
         stock_basic_info = {
             "name": clean_symbol,
             "exchange": "Local CSV",
-            "open": float(latest["Open"]) if "Open" in df.columns else 0,
-            "close": float(latest["Close"]) if "Close" in df.columns else 0,
-            "high": float(latest["High"]) if "High" in df.columns else 0,
-            "low": float(latest["Low"]) if "Low" in df.columns else 0,
+            "open": round(float(latest["Open"]), 2) if "Open" in df.columns else 0.0,
+            "close": round(float(latest["Close"]), 2) if "Close" in df.columns else 0.0,
+            "high": round(float(latest["High"]), 2) if "High" in df.columns else 0.0,
+            "low": round(float(latest["Low"]), 2) if "Low" in df.columns else 0.0,
             "volume": int(latest["Volume"]) if "Volume" in df.columns else 0,
+            "previous_close": round(prev_close, 2),
             "market_cap": 0,
             "pe_ratio": 0,
             "dividend_yield": 0
