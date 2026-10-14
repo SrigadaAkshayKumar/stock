@@ -1,5 +1,17 @@
 import React, { useState } from "react";
 import styles from "./ContactForm.module.css";
+const NAME_REGEX = /^[a-zA-Z\s]*$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+export const isValidEmail = (email) => {
+  if (!email || typeof email !== "string") return false;
+  return EMAIL_REGEX.test(email.trim());
+};
+
+export const isValidName = (name) => {
+  if (typeof name !== "string") return false;
+  return NAME_REGEX.test(name);
+};
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -12,18 +24,15 @@ const ContactForm = () => {
   const [status, setStatus] = useState("");
   const [errors, setErrors] = useState({});
 
-  const nameRegex = /^[a-zA-Z\s]*$/;
-  const emailRegex = /^[a-zA-Z][a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
   const validateField = (name, value) => {
     let error = "";
     if (
       (name === "firstName" || name === "lastName") &&
-      !nameRegex.test(value)
+      !isValidName(value)
     ) {
       error = "Only letters and spaces are allowed.";
     }
-    if (name === "email" && !emailRegex.test(value)) {
+    if (name === "email" && !isValidEmail(value)) {
       error = "Please enter a valid email address.";
     }
     setErrors((prev) => ({ ...prev, [name]: error }));

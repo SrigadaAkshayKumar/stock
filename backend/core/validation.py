@@ -30,3 +30,21 @@ def clean_question(raw) -> str:
     if len(question) > MAX_QUESTION_CHARS:
         raise ValidationError(f"Question must be at most {MAX_QUESTION_CHARS} characters")
     return question
+
+
+_EMAIL_RE = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+
+
+def is_valid_email(raw: str) -> bool:
+    """Validate an email address, accepting digits at start of local part (fixes #251)."""
+    if not isinstance(raw, str):
+        return False
+    return bool(_EMAIL_RE.match(raw.strip()))
+
+
+def clean_email(raw: str) -> str:
+    """Validate and normalize email address format."""
+    if not is_valid_email(raw):
+        raise ValidationError(f"Invalid email address: {raw!r}")
+    return raw.strip().lower()
+
