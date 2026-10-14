@@ -9,7 +9,76 @@ import {
   doc,
 } from "firebase/firestore";
 
+const WATCHLIST_KEY = "watchlist";
+
+/**
+ * Safely retrieve the local watchlist from localStorage.
+ * Handles corrupted, non-JSON, and non-array data gracefully by returning an empty array.
+ */
+export const getLocalWatchlist = () => {
+  try {
+    if (typeof window === "undefined" || !window.localStorage) {
+      return [];
+    }
+    const raw = window.localStorage.getItem(WATCHLIST_KEY);
+    if (!raw) {
+      return [];
+    }
+
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      console.warn("Corrupted watchlist data in localStorage (expected array). Resetting.");
+      setLocalWatchlist([]);
+      return [];
+    }
+
+    // Filter out invalid items (null, non-objects, or items without symbol)
+    return parsed.filter(
+      (item) => item && typeof item === "object" && typeof item.symbol === "string"
+    );
+  } catch (error) {
+    console.error("Failed to parse watchlist from localStorage. Falling back to empty watchlist.", error);
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        window.localStorage.setItem(WATCHLIST_KEY, JSON.stringify([]));
+      }
+    } catch {
+      // Ignore write errors (e.g., storage quota or disabled)
+    }
+    return [];
+  }
+};
+
+/**
+ * Safely persist the watchlist array to localStorage.
+ */
+export const setLocalWatchlist = (list) => {
+  try {
+    if (typeof window === "undefined" || !window.localStorage) {
+      return;
+    }
+    const safeList = Array.isArray(list) ? list : [];
+    window.localStorage.setItem(WATCHLIST_KEY, JSON.stringify(safeList));
+  } catch (error) {
+    console.error("Failed to save watchlist to localStorage:", error);
+  }
+};
+
+/**
+ * Safely remove the local watchlist from localStorage.
+ */
+export const clearLocalWatchlist = () => {
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      window.localStorage.removeItem(WATCHLIST_KEY);
+    }
+  } catch (error) {
+    console.error("Failed to clear local watchlist from localStorage:", error);
+  }
+};
+
 export const toggleWatchlist = async (stock) => {
+  if (!stock || !stock.symbol) return;
   const user = auth.currentUser;
 
   if (user) {
@@ -34,14 +103,14 @@ export const toggleWatchlist = async (stock) => {
       });
     }
   } else {
-    const stored = JSON.parse(localStorage.getItem("watchlist")) || [];
+    const stored = getLocalWatchlist();
     const exists = stored.find((s) => s.symbol === stock.symbol);
 
     if (exists) {
       const updated = stored.filter((s) => s.symbol !== stock.symbol);
-      localStorage.setItem("watchlist", JSON.stringify(updated));
+      setLocalWatchlist(updated);
     } else {
-      localStorage.setItem("watchlist", JSON.stringify([...stored, stock]));
+      setLocalWatchlist([...stored, stock]);
     }
   }
 };
@@ -54,17 +123,17 @@ export const getWatchlistSymbols = async () => {
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => doc.data().symbol);
   } else {
-    const stored = JSON.parse(localStorage.getItem("watchlist")) || [];
+    const stored = getLocalWatchlist();
     return stored.map((stock) => stock.symbol);
   }
 };
 
-export const syncLocalToFirebase = async () => {
-  const user = auth.currentUser;
+export const syncLocalToFirebase = async (passedUser) => {
+  const user = passedUser || auth.currentUser;
 
   if (!user) return;
 
-  const localWatchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
+  const localWatchlist = getLocalWatchlist();
 
   const q = query(
     collection(firestoreDb, "watchlist"),
@@ -85,7 +154,7 @@ export const syncLocalToFirebase = async () => {
     });
   }
 
-  localStorage.removeItem("watchlist");
+  clearLocalWatchlist();
 };
 
 export const getWatchlist = async () => {
@@ -96,8 +165,7 @@ export const getWatchlist = async () => {
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => doc.data());
   } else {
-    const stored = JSON.parse(localStorage.getItem("watchlist")) || [];
-    return stored;
+    return getLocalWatchlist();
   }
 };
 
@@ -118,8 +186,8 @@ export const removeStockFromWatchlist = async (symbol) => {
       )
     );
   } else {
-    const stored = JSON.parse(localStorage.getItem("watchlist")) || [];
+    const stored = getLocalWatchlist();
     const updated = stored.filter((s) => s.symbol !== symbol);
-    localStorage.setItem("watchlist", JSON.stringify(updated));
+    setLocalWatchlist(updated);
   }
 };

@@ -11,10 +11,16 @@ const Watchlist = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      getWatchlist().then((data) => {
-        setWatchlist(data);
-        setLoading(false);
-      });
+      getWatchlist()
+        .then((data) => {
+          setWatchlist(Array.isArray(data) ? data : []);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Failed to load watchlist:", err);
+          setWatchlist([]);
+          setLoading(false);
+        });
     });
 
     return () => unsubscribe();
@@ -24,8 +30,12 @@ const Watchlist = () => {
     const confirm = window.confirm(`Remove ${symbol} from your watchlist?`);
     if (!confirm) return;
 
-    await removeStockFromWatchlist(symbol);
-    setWatchlist((prev) => prev.filter((s) => s.symbol !== symbol));
+    try {
+      await removeStockFromWatchlist(symbol);
+      setWatchlist((prev) => prev.filter((s) => s.symbol !== symbol));
+    } catch (err) {
+      console.error("Failed to remove stock from watchlist:", err);
+    }
   };
 
   if (loading) {
