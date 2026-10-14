@@ -13,6 +13,20 @@ import AnalysisDashboard from "./AnalysisDashboard";
 import AgentChat from "./AgentChat";
 import Disclaimer from "./Disclaimer";
 
+export const DEFAULT_STOCK_ERROR_MESSAGE =
+  "No stock data found for this ticker. Please try another symbol.";
+
+export const resolveStockErrorMessage = (err, ticker) => {
+  const backendError = err?.response?.data?.error;
+  if (backendError && typeof backendError === "string") {
+    return `${backendError}. Please try another symbol.`;
+  }
+  if (err?.message === "Network Error") {
+    return "Network error: Unable to connect to server. Please try again.";
+  }
+  return DEFAULT_STOCK_ERROR_MESSAGE;
+};
+
 function Stockdata() {
   const { ticker } = useParams();
   const [stockData, setStockData] = useState([]);
@@ -23,6 +37,7 @@ function Stockdata() {
   const [chartPeriod, setChartPeriod] = useState("1mo");
   const [tablePeriod, setTablePeriod] = useState("1mo");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [showMore, setShowMore] = useState(false);
   const [showPrediction, setShowPrediction] = useState(false);
 
@@ -42,18 +57,26 @@ function Stockdata() {
 
   const fetchStockInfo = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
+      const apiUrl = process.env.REACT_APP_API_URL || "";
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/stock/${ticker}?chart_period=${chartPeriod}&table_period=${tablePeriod}`,
+        `${apiUrl}/api/stock/${ticker}?chart_period=${chartPeriod}&table_period=${tablePeriod}`,
       );
 
-      setStockData(res.data.stock_data);
-      setGraphData1(JSON.parse(res.data.graph_data1));
-      setStockInfo(res.data.stock_info);
-      setNews(Array.isArray(res.data.stock_news) ? res.data.stock_news : []);
-      setSentimentSummary(res.data.sentiment_summary || {});
-    } catch (error) {
-      console.error("Error fetching stock data:", error);
+      if (res.data && res.data.stock_data && res.data.stock_data.length > 0) {
+        setStockData(res.data.stock_data);
+        setGraphData1(res.data.graph_data1 ? JSON.parse(res.data.graph_data1) : {});
+        setStockInfo(res.data.stock_info || {});
+        setNews(Array.isArray(res.data.stock_news) ? res.data.stock_news : []);
+        setSentimentSummary(res.data.sentiment_summary || {});
+        setError(null);
+      } else {
+        setError(DEFAULT_STOCK_ERROR_MESSAGE);
+      }
+    } catch (err) {
+      console.error("Error fetching stock data:", err);
+      setError(resolveStockErrorMessage(err, ticker));
     } finally {
       setIsLoading(false);
     }
@@ -148,6 +171,88 @@ function Stockdata() {
           >
             It takes less than a minute
           </p>
+        </motion.div>
+      ) : error ? (
+        <motion.div
+          key="error"
+          className="stock-error-container"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          style={{
+            textAlign: "center",
+            padding: "3rem 1.5rem",
+            margin: "2rem auto",
+            maxWidth: "600px",
+            backgroundColor: "rgba(239, 68, 68, 0.08)",
+            border: "1px solid rgba(239, 68, 68, 0.25)",
+            borderRadius: "12px",
+          }}
+        >
+          <div
+            style={{ fontSize: "2.5rem", marginBottom: "1rem" }}
+            role="img"
+            aria-label="Warning"
+          >
+            ⚠️
+          </div>
+          <h2
+            style={{
+              fontSize: "1.4rem",
+              color: "#ef4444",
+              marginBottom: "0.75rem",
+            }}
+          >
+            Stock Data Unavailable
+          </h2>
+          <p
+            style={{
+              fontSize: "1.05rem",
+              marginBottom: "1.5rem",
+              color: "inherit",
+              opacity: 0.9,
+            }}
+          >
+            {error}
+          </p>
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              justifyContent: "center",
+            }}
+          >
+            <button
+              onClick={() => window.history.back()}
+              style={{
+                padding: "0.6rem 1.25rem",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+                backgroundColor: "#2563eb",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+              }}
+            >
+              Go Back
+            </button>
+            <button
+              onClick={fetchStockInfo}
+              style={{
+                padding: "0.6rem 1.25rem",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+                backgroundColor: "transparent",
+                color: "inherit",
+                border: "1px solid #6b7280",
+                borderRadius: "8px",
+                cursor: "pointer",
+              }}
+            >
+              Retry
+            </button>
+          </div>
         </motion.div>
       ) : (
         <div
