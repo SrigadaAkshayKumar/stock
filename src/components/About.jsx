@@ -31,13 +31,13 @@ const AboutComponent = () => {
           <div className="mission">
             <h2 style={headingStyle}>Our Mission</h2>
             <p>
-              To deliver reliable and data-driven stock analysis through innovative tools and insights, we are committed to empowering investors, learners and financial professionals with transparent , accurate and user-friendly solutions that support smarter investment decisions.
+              To deliver reliable and data-driven stock analysis through innovative tools and insights, we are committed to empowering investors, learners and financial professionals with transparent, accurate and user-friendly solutions that support smarter investment decisions.
             </p>
           </div>
           <div className="vision">
             <h2 style={headingStyle}>Our Vision</h2>
             <p>
-              To be recognized as a leading global platform for stock market analysis - where innovation, trust, and accessibility come together to help evry individual and organization achieve long-term financial success.
+              To be recognized as a leading global platform for stock market analysis - where innovation, trust, and accessibility come together to help every individual and organization achieve long-term financial success.
             </p>
           </div>
         </div>
