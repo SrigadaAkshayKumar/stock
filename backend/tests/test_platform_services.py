@@ -52,7 +52,38 @@ def test_indicators(prices):
 
 def test_rsi_bounds():
     up = pd.Series(range(1, 60), dtype=float)
-    assert rsi(up).iloc[-1] > 90
+    assert rsi(up).iloc[-1] == 100.0
+    down = pd.Series(range(60, 1, -1), dtype=float)
+    assert rsi(down).iloc[-1] == 0.0
+
+
+def test_rsi_flat_series():
+    flat = pd.Series([100.0] * 30)
+    series_rsi = rsi(flat)
+    assert (series_rsi == 50.0).all()
+
+
+def test_flat_series_signals_and_risk():
+    dates = pd.date_range("2025-01-01", periods=30)
+    flat_df = pd.DataFrame({
+        "Date": dates,
+        "Close": [100.0] * 30,
+        "High": [100.0] * 30,
+        "Low": [100.0] * 30,
+        "Volume": [1000] * 30,
+    })
+    indicators = get_technical_indicators(flat_df)
+    assert indicators["latest"]["rsi_14"] == 50.0
+    rsi_signals = [s for s in indicators["signals"] if s["indicator"] == "RSI(14)"]
+    assert len(rsi_signals) == 1
+    assert rsi_signals[0]["signal"] == "neutral"
+
+    risk = calculate_risk(flat_df, indicators=indicators)
+    pullback_warnings = [
+        f for f in risk["risk_factors"]
+        if "overbought conditions" in f or "pullback risk" in f
+    ]
+    assert len(pullback_warnings) == 0
 
 
 def test_risk(prices):

@@ -10,8 +10,12 @@ def rsi(close: pd.Series, period: int = 14) -> pd.Series:
     delta = close.diff()
     gain = delta.clip(lower=0).ewm(alpha=1 / period, adjust=False).mean()
     loss = (-delta.clip(upper=0)).ewm(alpha=1 / period, adjust=False).mean()
-    rs = gain / loss.replace(0, np.nan)
-    return (100 - 100 / (1 + rs)).fillna(100)
+    total = gain + loss
+    res = pd.Series(50.0, index=close.index, dtype=float, name=close.name)
+    nonzero = total > 0
+    res[nonzero] = 100.0 * (gain[nonzero] / total[nonzero])
+    res[close.isna()] = np.nan
+    return res
 
 
 def macd(close: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9):
