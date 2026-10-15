@@ -6,12 +6,14 @@ Env vars:
   - REDIS_URL (default: redis://localhost:6379/0)
   - CACHE_TTL_STOCK (default: 900 seconds)
   - CACHE_TTL_PRED (default: 3600 seconds)
+  - CACHE_MEMORY_MAX_ENTRIES (default: 500)
 
 Functions:
   - get_cache(key) -> Optional[str]
   - set_cache(key, value, ttl=None) -> bool
   - cache_key_from(path: str, params: dict) -> str
   - is_cache_enabled() -> bool
+  - clear_memory_cache() -> None
 
 Adds X-Cache header handling at call sites; this module only manages storage.
 """
@@ -22,6 +24,7 @@ import os
 import time
 import json
 import logging
+from collections import OrderedDict
 from typing import Optional, Dict, Any
 
 try:
@@ -42,13 +45,19 @@ CACHE_ENABLED: bool = _str2bool(os.getenv("CACHE_ENABLED"), True)
 REDIS_URL: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 DEFAULT_TTL_STOCK: int = int(os.getenv("CACHE_TTL_STOCK", "900"))
 DEFAULT_TTL_PRED: int = int(os.getenv("CACHE_TTL_PRED", "3600"))
+DEFAULT_MAX_MEMORY_ENTRIES: int = int(os.getenv("CACHE_MEMORY_MAX_ENTRIES", "500"))
 
 _redis_client = None
-_memory_cache: Dict[str, Any] = {}
+_memory_cache: OrderedDict[str, Any] = OrderedDict()
 
 
 def is_cache_enabled() -> bool:
     return CACHE_ENABLED
+
+
+def clear_memory_cache() -> None:
+    """Clear all in-memory cache entries (primarily for testing)."""
+    _memory_cache.clear()
 
 
 def _get_redis_client():
@@ -71,6 +80,39 @@ def _get_redis_client():
         return None
 
 
+def _prune_expired_entries(now: float) -> None:
+    """Remove all expired entries from in-memory cache."""
+    expired_keys = [
+        k for k, (_, expires_at) in _memory_cache.items()
+        if expires_at is not None and now > expires_at
+    ]
+    for k in expired_keys:
+        _memory_cache.pop(k, None)
+
+
+def _mark_recently_used(key: str) -> None:
+    """Mark an entry as recently used, compatible with OrderedDict and dict."""
+    if hasattr(_memory_cache, "move_to_end"):
+        _memory_cache.move_to_end(key)
+    else:
+        try:
+            _memory_cache[key] = _memory_cache.pop(key)
+        except KeyError:
+            pass
+
+
+def _evict_lru_entry() -> None:
+    """Evict the least recently used entry (first entry)."""
+    if isinstance(_memory_cache, OrderedDict):
+        _memory_cache.popitem(last=False)
+    else:
+        try:
+            first_key = next(iter(_memory_cache))
+            _memory_cache.pop(first_key, None)
+        except (StopIteration, RuntimeError):
+            pass
+
+
 def get_cache(key: str) -> Optional[str]:
     """Return cached string payload if present and not expired."""
     if not CACHE_ENABLED:
@@ -85,20 +127,23 @@ def get_cache(key: str) -> Optional[str]:
             _logger.warning(f"Redis GET failed: {e}")
             return None
 
-    # Fallback: in-memory cache with TTL
+    # Fallback: in-memory cache with TTL and LRU ordering
     entry = _memory_cache.get(key)
     if not entry:
         return None
     value, expires_at = entry
-    if expires_at is not None and time.time() > expires_at:
+    now = time.time()
+    if expires_at is not None and now > expires_at:
         # Expired; remove
         _memory_cache.pop(key, None)
         return None
+    # Move to end to mark as recently used
+    _mark_recently_used(key)
     return value
 
 
 def set_cache(key: str, value: str, ttl: Optional[int] = None) -> bool:
-    """Set cache value with optional TTL (seconds)."""
+    """Set cache value with optional TTL (seconds), enforcing bounded capacity."""
     if not CACHE_ENABLED:
         return False
 
@@ -113,8 +158,26 @@ def set_cache(key: str, value: str, ttl: Optional[int] = None) -> bool:
         except Exception as e:  # pragma: no cover
             _logger.warning(f"Redis SET failed: {e}")
 
-    # Fallback: in-memory
-    expires_at = (time.time() + ttl) if ttl else None
+    # Fallback: bounded in-memory cache with LRU eviction
+    now = time.time()
+    expires_at = (now + ttl) if ttl else None
+
+    # If key already exists, update and mark recently used
+    if key in _memory_cache:
+        _memory_cache[key] = (value, expires_at)
+        _mark_recently_used(key)
+        return True
+
+    max_entries = max(1, DEFAULT_MAX_MEMORY_ENTRIES)
+
+    # If at capacity, first prune any expired entries
+    if len(_memory_cache) >= max_entries:
+        _prune_expired_entries(now)
+
+    # If still at capacity, evict the least recently used item (first item)
+    while len(_memory_cache) >= max_entries:
+        _evict_lru_entry()
+
     _memory_cache[key] = (value, expires_at)
     return True
 
@@ -136,6 +199,8 @@ __all__ = [
     "set_cache",
     "cache_key_from",
     "is_cache_enabled",
+    "clear_memory_cache",
     "DEFAULT_TTL_STOCK",
     "DEFAULT_TTL_PRED",
+    "DEFAULT_MAX_MEMORY_ENTRIES",
 ]
