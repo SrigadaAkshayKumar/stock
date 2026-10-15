@@ -7,7 +7,17 @@ import { auth } from "./firebase";
 import stockData from "./data/stockData.json";
 import BackToTopBtn from "./BackToTopBtn";
 import styles from "./StockList.module.css";
-import stockBg2 from "./images/bg.png";
+
+// Helper functions for stock search
+export const sanitizeSearchQuery = (query) => {
+  if (typeof query !== "string") return "";
+  return query.trim();
+};
+
+export const getStockSearchUrl = (query) => {
+  const sanitized = sanitizeSearchQuery(query);
+  return sanitized ? `/stock/${sanitized}` : null;
+};
 
 const StocksList = () => {
   const [stocks, setStocks] = useState([]);
@@ -24,11 +34,22 @@ const StocksList = () => {
     }, 500);
   }, [exchange]);
 
-  const handleSearch = () => {
-    if (searchTicker.trim()) {
-      navigate(`/stock/${searchTicker.trim()}`);
-      console.log(`Searching for stock: ${searchTicker.trim()}`);
+  const handleSearch = (e) => {
+    if (e && typeof e.preventDefault === "function") {
+      e.preventDefault();
+    }
+    const targetUrl = getStockSearchUrl(searchTicker);
+    if (targetUrl) {
+      navigate(targetUrl);
+      console.log(`Searching for stock: ${sanitizeSearchQuery(searchTicker)}`);
       console.log(`API call sent successfully`);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch();
     }
   };
 
@@ -68,18 +89,24 @@ const StocksList = () => {
       </section>
 
       {/* 🔍 Modern Search Bar */}
-      <div className={styles.searchContainer}>
+      <form
+        onSubmit={handleSearch}
+        className={styles.searchContainer}
+        role="search"
+      >
         <input
           type="text"
           placeholder="Search for stocks..."
           value={searchTicker}
           onChange={(e) => setSearchTicker(e.target.value)}
+          onKeyDown={handleKeyDown}
           className={styles.searchInput}
+          aria-label="Search for stocks"
         />
-        <button onClick={handleSearch} className={styles.searchButton}>
+        <button type="submit" className={styles.searchButton}>
           Search
         </button>
-      </div>
+      </form>
 
       {/* 🏦 Exchange Toggle */}
       <div className={styles.exchangeButtons}>
