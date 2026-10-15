@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, request, make_response, Response
 from services.stock_service import get_stock_data_handler
 from services.stock_predict import predict_stock_handler
@@ -9,6 +10,27 @@ from utils.cache import (
     DEFAULT_TTL_STOCK,
     DEFAULT_TTL_PRED,
 )
+
+DATA_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "services", "data"))
+
+
+def get_stock_data_version(clean_symbol: str) -> str:
+    """Returns the data version (file modification timestamp) for the stock CSV dataset."""
+    csv_path = os.path.join(DATA_FOLDER, f"{clean_symbol}.csv")
+    try:
+        if os.path.exists(csv_path):
+            return str(int(os.path.getmtime(csv_path)))
+    except OSError:
+        pass
+    return "0"
+
+
+def get_prediction_cache_key(symbol: str) -> str:
+    """Builds a canonical cache key incorporating the symbol and underlying data version."""
+    clean_symbol = symbol.split(".")[0].upper()
+    data_version = get_stock_data_version(clean_symbol)
+    return cache_key_from(f"/api/stock/{clean_symbol}/predict", {"v": data_version})
+
 
 stock_routes = Blueprint('stock_routes', __name__)
 
@@ -82,9 +104,12 @@ def get_stock_data(symbol):
 # GET /api/stock/<symbol>/predict
 @stock_routes.route('/stock/<symbol>/predict', methods=['GET'])
 def predict(symbol):
-    refresh = request.args.get("refresh", "false").lower() in ("1", "true", "yes", "on")
+    refresh = (
+        request.args.get("refresh", "false").lower() in ("1", "true", "yes", "on")
+        or request.args.get("fresh", "false").lower() in ("1", "true", "yes", "on")
+    )
 
-    key = cache_key_from(f"/api/stock/{symbol}/predict", {})
+    key = get_prediction_cache_key(symbol)
 
     if is_cache_enabled() and not refresh:
         cached = get_cache(key)
