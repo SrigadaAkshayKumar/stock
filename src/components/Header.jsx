@@ -79,8 +79,21 @@ const Header = () => {
           {/* User Dashboard */}
           <div className="nav-actions" ref={dropdownRef}>
             <ThemeToggle className="toggle-theme" />
-            <div className="user-dashboard">
-              <FaRegUserCircle onClick={() => setDashBoardOpen(prev => !prev)} />
+            <div
+              className="user-dashboard"
+              role="button"
+              tabIndex={0}
+              aria-label="User account menu"
+              title="User account menu"
+              onClick={() => setDashBoardOpen(prev => !prev)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setDashBoardOpen(prev => !prev);
+                }
+              }}
+            >
+              <FaRegUserCircle />
             </div>
             <div className={`user-section ${dashBoardOpen ? "show" : ""}`}>
               {currentUser ? (
@@ -116,7 +129,20 @@ const Header = () => {
         {/* Mobile Navigation */}
         <div className="mobile-nav">
           <ThemeToggle />
-          <div className="menu-icon" onClick={toggleMenu}>
+          <div
+            className="menu-icon"
+            onClick={toggleMenu}
+            role="button"
+            tabIndex={0}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            title={isMenuOpen ? "Close menu" : "Open menu"}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleMenu();
+              }
+            }}
+          >
             {isMenuOpen ? <LuX /> : <LuMenu />}
           </div>
         </div>

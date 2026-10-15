@@ -144,6 +144,12 @@ body {
   cursor: pointer;
 }
 
+.user-dashboard:focus-visible {
+  outline: 2px solid var(--primary-color, #3b82f6);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
 .login-button {
   color: var(--header-text);
   background-color: var(--header-hover);
@@ -278,6 +284,12 @@ body {
   font-size: 1.5rem;
   cursor: pointer;
   z-index: 1001;
+}
+
+.menu-icon:focus-visible {
+  outline: 2px solid var(--primary-color, #3b82f6);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 @media (max-width: 768px) {
