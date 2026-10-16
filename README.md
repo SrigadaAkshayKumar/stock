@@ -128,10 +128,30 @@ Directory structure:
 
 ## API Endpoints
 
-| **Endpoint**            | **Method** | **Description**             |
-| ----------------------- | ---------- | --------------------------- |
-| `/api/stocks/<ticker>`  | GET        | Fetch historical stock data |
-| `/api/predict/<ticker>` | GET        | Predict future stock prices |
+The backend routes are served under the `/api` prefix. Symbols can be passed as `TCS`, `TCS.NS`, or `TCS.BO`.
+
+### Core Stock & Prediction Endpoints
+
+| **Endpoint** | **Method** | **Description** |
+| ------------ | ---------- | --------------- |
+| `/api/stock/<symbol>` | GET | Fetch comprehensive stock data, price history, technical indicators, and news. Supports query params `chart_period` (e.g., `1mo`, `1y`), `table_period`, and `refresh=true`. |
+| `/api/stock/<symbol>/predict` | GET | Generate future price projections and machine learning trend predictions. |
+| `/api/stocks` | GET | List all supported stock tickers with company metadata and sectors. |
+
+### Extended Analysis & AI Endpoints
+
+| **Endpoint** | **Method** | **Description** |
+| ------------ | ---------- | --------------- |
+| `/api/stock/<symbol>/price` | GET | Latest price quote, day change, and live data status. |
+| `/api/stock/<symbol>/history` | GET | OHLCV historical time-series data (supports `period=1mo,1y,max`). |
+| `/api/stock/<symbol>/indicators` | GET | Technical indicators including RSI, MACD, and SMA/EMA. |
+| `/api/stock/<symbol>/fundamentals` | GET | Company financial ratios, market cap, and valuation metrics. |
+| `/api/stock/<symbol>/forecast` | GET | Multi-day ML forecast with model evaluation and backtesting metrics. |
+| `/api/stock/<symbol>/risk` | GET | Volatility, maximum drawdown, and Value-at-Risk (VaR) analysis. |
+| `/api/stock/<symbol>/news` | GET | Recent stock news articles annotated with sentiment scores. |
+| `/api/stock/<symbol>/agent/chat` | POST | Ask the stock-specific AI analyst questions with multi-tool grounding. |
+| `/api/stock/<symbol>/report.pdf` | GET | Download complete 14-section PDF stock analysis report. |
+| `/api/health` | GET | Backend health check and provider readiness status. |
 
 ---
 
