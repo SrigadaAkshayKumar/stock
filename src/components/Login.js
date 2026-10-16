@@ -7,6 +7,7 @@ import {
 import { auth } from "./firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { syncLocalToFirebase } from "../utils/watchlistManager";
+import { getAuthErrorMessage } from "../utils/authErrors";
 import "./Login.css";
 
 const Login = () => {
@@ -34,7 +35,7 @@ const Login = () => {
 
       navigate("/"); // redirect to home page
     } catch (err) {
-      setError(err.message);
+      setError(getAuthErrorMessage(err, "sign-in"));
     } finally {
       setLoading(false);
     }
@@ -51,17 +52,7 @@ const Login = () => {
       await syncLocalToFirebase(result.user);
       navigate("/"); // redirect to home page
     } catch (err) {
-      const errorCode = err.code;
-
-      if (errorCode === "auth/popup-closed-by-user") {
-        setError("Sign-in cancelled by user");
-      } else if (errorCode === "auth/popup-blocked") {
-        setError(
-          "Popup blocked by browser. Please allow popups and try again."
-        );
-      } else {
-        setError(err.message);
-      }
+      setError(getAuthErrorMessage(err, "sign-in"));
     } finally {
       setLoading(false);
     }

@@ -8,6 +8,7 @@ import { auth, realtimeDb as database } from "./firebase";
 import { ref, set } from "firebase/database";
 import { useNavigate, Link } from "react-router-dom";
 import { syncLocalToFirebase } from "../utils/watchlistManager";
+import { getAuthErrorMessage } from "../utils/authErrors";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./AuthContext";
@@ -57,7 +58,7 @@ const Signup = () => {
       toast.success("Signup successful!");
       navigate("/"); // Signup के बाद home page पर redirect करें
     } catch (err) {
-      setError(err.message);
+      setError(getAuthErrorMessage(err, "sign-up"));
       console.error("Signup error:", err);
     } finally {
       setLoading(false);
@@ -85,17 +86,7 @@ const Signup = () => {
       toast.success("Signup successful with Google!");
       navigate("/"); // Google signup के बाद redirect
     } catch (err) {
-      const errorCode = err.code;
-
-      if (errorCode === "auth/popup-closed-by-user") {
-        setError("Sign-up cancelled by user");
-      } else if (errorCode === "auth/popup-blocked") {
-        setError("Popup blocked by browser. Please allow popups and try again.");
-      } else if (errorCode === "auth/account-exists-with-different-credential") {
-        setError("An account already exists with this email. Try signing in instead.");
-      } else {
-        setError(err.message);
-      }
+      setError(getAuthErrorMessage(err, "sign-up"));
       console.error("Google Signup error:", err);
     } finally {
       setLoading(false);
