@@ -4,7 +4,9 @@ import html
 import re
 from typing import List
 
-_TAG_RE = re.compile(r"<[^>]+>")
+# Only things that look like tags (or comments). "<[^>]+>" also ate plain
+# comparisons, e.g. "P/E < 20 while ROE > 15%" became "P/E 15%".
+_TAG_RE = re.compile(r"</?[A-Za-z][^<>]*>|<!--.*?-->", re.DOTALL)
 _WS_RE = re.compile(r"\s+")
 _CTRL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 _TRUNC_RE = re.compile(r"\[\+\d+ chars\]")  # NewsAPI truncation marker
