@@ -309,3 +309,15 @@ tr:hover {
   outline: none;
   box-shadow: 0 5px 16px rgba(32, 84, 214, 0.18);
 }
+
+.instantBadge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  vertical-align: middle;
+}

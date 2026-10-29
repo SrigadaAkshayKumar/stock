@@ -401,3 +401,31 @@
 .userMsg p {
   color: #fff;
 }
+
+a.button {
+  display: inline-block;
+  margin-top: 0.5rem;
+  text-decoration: none;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, inherit);
+  margin: 0.25rem 0 0.75rem;
+  cursor: pointer;
+}
+
+.instant {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  vertical-align: middle;
+}

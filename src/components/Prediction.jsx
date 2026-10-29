@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import Plot from "react-plotly.js";
+import Plot from "./Plot";
 import { ClipLoader } from "react-spinners"; // Import ClipLoader
+import { API, loadSnapshot } from "../services/snapshot";
 
 function Prediction({ ticker }) {
   const [predictedData, setPredictedData] = useState([]);
@@ -14,14 +15,15 @@ function Prediction({ ticker }) {
   const fetchPredictionData = useCallback(async () => {
     setIsLoading(true); // Start loading
     try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/stock/${ticker}/predict` //${process.env.REACT_APP_API_URL}
-      );
-      setPredictedData(res.data.predictions || []);
-      setPredictedDates(res.data.predicted_dates || []); // Updated
-      setActualData(res.data.actual || []);
-      setActualDates(res.data.actual_dates || []); // Updated
-      setReturns(res.data.returns || []);
+      // Use the pre-computed prediction when the stock has a snapshot.
+      const snapshot = await loadSnapshot(ticker);
+      const data =
+        snapshot?.legacy_prediction || (await axios.get(`${API}/api/stock/${ticker}/predict`)).data;
+      setPredictedData(data.predictions || []);
+      setPredictedDates(data.predicted_dates || []); // Updated
+      setActualData(data.actual || []);
+      setActualDates(data.actual_dates || []); // Updated
+      setReturns(data.returns || []);
     } catch (error) {
       console.error("Error fetching prediction data:", error);
     } finally {

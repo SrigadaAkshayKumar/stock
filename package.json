@@ -12,6 +12,7 @@
     "firebase": "^11.10.0",
     "framer-motion": "^12.23.9",
     "plotly.js": "^3.1.0",
+    "plotly.js-basic-dist-min": "^3.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-firebase-hooks": "^5.1.1",
@@ -27,7 +28,8 @@
     "start:original": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "snapshots": "cd backend && python scripts/build_snapshots.py"
   },
   "eslintConfig": {
     "extends": [

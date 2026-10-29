@@ -146,6 +146,17 @@ runs offline on the bundled CSV data, and the AI agent uses rule-based answers.
 | `LIVE_MARKET_DATA=true` | Uses yfinance for live prices and fundamentals, falling back to the CSV data |
 | `DB_BACKEND=excel` | Development database: `backend/storage/dev_database.xlsx` (created automatically) |
 
+### Refresh the frontend demo snapshots
+
+The frontend reads pre-computed analysis from `public/snapshots/` so pages load without waiting for the backend. After changing data or models, rebuild them (from the project root, with the backend's virtual environment active):
+
+```bash
+npm run snapshots                                   # stocks with local CSV data
+LIVE_MARKET_DATA=true npm run snapshots             # every listed stock, via yfinance
+```
+
+On Windows Command Prompt, use `set LIVE_MARKET_DATA=true` first, then `npm run snapshots`.
+
 ### Run the backend tests
 
 ```bash
