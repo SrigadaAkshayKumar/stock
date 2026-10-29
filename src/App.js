@@ -1,8 +1,9 @@
 // App.js
 import React, { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import "./App.css";
 import "./styles/global.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Components
 import Header from "./components/Header";
@@ -70,7 +71,13 @@ const App = () => {
                   <Route
                     path="/stock/:ticker"
                     element={
-                      <Suspense fallback={<div className="loading-spinner">Loading…</div>}>
+                      <Suspense
+                        fallback={
+                          <div className="loading-spinner">
+                            <div className="spinner" />
+                          </div>
+                        }
+                      >
                         <Stockdata />
                       </Suspense>
                     }
@@ -82,6 +89,7 @@ const App = () => {
                 </Routes>
               </div>
               <Footer />
+              <ToastContainer position="bottom-right" autoClose={2500} hideProgressBar theme="colored" />
             </div>
           </Router>
         </AuthProvider>

@@ -7,7 +7,7 @@ export const API = process.env.REACT_APP_API_URL;
 const BASE = process.env.PUBLIC_URL || "";
 
 const snapshots = new Map();
-let index = null;
+let indexData = null;
 
 export const baseSymbol = (ticker) => (ticker || "").toUpperCase().split(".")[0];
 
@@ -22,11 +22,18 @@ async function fetchJson(url) {
   }
 }
 
+function loadIndexData() {
+  if (!indexData) indexData = fetchJson(`${BASE}/snapshots/index.json`).then((d) => d || {});
+  return indexData;
+}
+
 export function loadSnapshotIndex() {
-  if (!index) {
-    index = fetchJson(`${BASE}/snapshots/index.json`).then((d) => new Set(d?.symbols || []));
-  }
-  return index;
+  return loadIndexData().then((d) => new Set(d.symbols || []));
+}
+
+// Per-stock card data (last close, change, sparkline) keyed by base symbol.
+export function loadSnapshotSummaries() {
+  return loadIndexData().then((d) => d.summaries || {});
 }
 
 export function loadSnapshot(ticker) {

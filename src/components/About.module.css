@@ -1,0 +1,174 @@
+.about {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero {
+  padding: 72px 24px 48px;
+  text-align: center;
+  background: var(--hero-gradient), var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.hero h1 {
+  font-size: clamp(30px, 4.5vw, 46px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  max-width: 760px;
+}
+
+.hero p {
+  max-width: 680px;
+  font-size: 17px;
+  color: var(--muted);
+}
+
+.mv {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.mv > div {
+  padding: 24px;
+}
+
+.mv h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.mv p {
+  color: var(--muted);
+}
+
+.section {
+  margin-top: 56px;
+}
+
+.section > h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.feature {
+  padding: 22px;
+}
+
+.icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 20px;
+  margin-bottom: 14px;
+}
+
+.feature h3,
+.principle h3 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.feature p,
+.principle p {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.principles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.principle {
+  display: flex;
+  gap: 14px;
+}
+
+.principle > svg {
+  flex: none;
+  font-size: 22px;
+  color: var(--success);
+  margin-top: 2px;
+}
+
+.stack {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 24px;
+}
+
+.stack h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cta {
+  margin-top: 56px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: linear-gradient(90deg, var(--primary-soft), transparent 70%), var(--surface);
+}
+
+.cta h2 {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 960px) {
+  .grid,
+  .principles {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stack {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .mv,
+  .grid,
+  .principles,
+  .stack {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: 48px 16px 32px;
+  }
+}

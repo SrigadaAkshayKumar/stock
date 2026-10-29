@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { LuGithub, LuMail, LuMapPin, LuSend } from "react-icons/lu";
 import styles from "./ContactForm.module.css";
 
 const ContactForm = () => {
@@ -78,110 +79,90 @@ const ContactForm = () => {
     }
   };
 
+  const sending = status === "Sending message...";
+  const success = status.includes("successfully");
+
   return (
-    <div className={styles["contact-container"]}>
-      <div className={styles["contact-main"]}>
-        {/* Left Section */}
-        <div className={styles["contact-left"]}>
-          <h2 className={styles["contact-title"]}>
-            Let's talk about smart investments
-          </h2>
-          <p className={styles["contact-description"]}>
-            Stock Analyzer helps you track, analyze, and understand market
-            trends with ease. Get insights that empower smarter investment
-            decisions.
+    <div className="page">
+      <div className={styles.layout}>
+        <section className={styles.intro}>
+          <span className="eyebrow">Contact</span>
+          <h1>Let's talk about smart investing</h1>
+          <p className="muted">
+            Questions about the platform, feedback on the analysis, or interested in collaborating? Send a
+            message and we'll get back to you.
           </p>
-          <ul className={styles["contact-info"]}>
+          <ul className={styles.info}>
             <li>
-              <span>✉️</span> support@stockanalyzer.com
+              <span className={styles.infoIcon}>
+                <LuMail />
+              </span>
+              <div>
+                <strong>Email</strong>
+                <a href="mailto:support@stockanalyzer.com">support@stockanalyzer.com</a>
+              </div>
             </li>
             <li>
-              <span>📞</span> +1800-457-5834
+              <span className={styles.infoIcon}>
+                <LuMapPin />
+              </span>
+              <div>
+                <strong>Location</strong>
+                <span>Bhubaneswar, Odisha, India</span>
+              </div>
             </li>
             <li>
-              <span>📍</span> Bhubaneswar, Odisha
+              <span className={styles.infoIcon}>
+                <LuGithub />
+              </span>
+              <div>
+                <strong>Open source</strong>
+                <a href="https://github.com/SrigadaAkshayKumar/stock" target="_blank" rel="noopener noreferrer">
+                  github.com/SrigadaAkshayKumar/stock
+                </a>
+              </div>
             </li>
           </ul>
-        </div>
+        </section>
 
-        {/* Right Section (Form) */}
-        <div className={styles["contact-right"]}>
-          <h2 className={styles["contact-form-title"]}>Request a Callback</h2>
-          <form className={styles["contact-form"]} onSubmit={handleSubmit}>
-            <div className={styles["contact-row"]}>
-              <div className={styles["form-group"]}>
-                <input
-                  type="text"
-                  name="firstName"
-                  placeholder="First Name"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.firstName && (
-                  <span className={styles["contact-error"]}>
-                    {errors.firstName}
-                  </span>
-                )}
-              </div>
-              <div className={styles["form-group"]}>
-                <input
-                  type="text"
-                  name="lastName"
-                  placeholder="Last Name"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  required
-                />
-                {errors.lastName && (
-                  <span className={styles["contact-error"]}>
-                    {errors.lastName}
-                  </span>
-                )}
-              </div>
+        <section className={`card ${styles.formCard}`}>
+          <h2>Send a message</h2>
+          <form className={styles.form} onSubmit={handleSubmit} noValidate>
+            <div className={styles.row}>
+              <label className={styles.field}>
+                <span>First name</span>
+                <input className="input" type="text" name="firstName" value={formData.firstName} onChange={handleChange} required />
+                {errors.firstName && <small className={styles.fieldError}>{errors.firstName}</small>}
+              </label>
+              <label className={styles.field}>
+                <span>Last name</span>
+                <input className="input" type="text" name="lastName" value={formData.lastName} onChange={handleChange} required />
+                {errors.lastName && <small className={styles.fieldError}>{errors.lastName}</small>}
+              </label>
             </div>
-
-            <div className={styles["form-group"]}>
-              <input
-                type="email"
-                name="email"
-                placeholder="Your Email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-              {errors.email && (
-                <span className={styles["contact-error"]}>{errors.email}</span>
-              )}
-            </div>
-
-            <div className={styles["form-group"]}>
+            <label className={styles.field}>
+              <span>Email</span>
+              <input className="input" type="email" name="email" value={formData.email} onChange={handleChange} required />
+              {errors.email && <small className={styles.fieldError}>{errors.email}</small>}
+            </label>
+            <label className={styles.field}>
+              <span>Message</span>
               <textarea
+                className="input"
                 name="message"
                 rows="6"
-                placeholder="Write your message here"
+                placeholder="How can we help?"
                 value={formData.message}
                 onChange={handleChange}
                 required
               />
-            </div>
-
-            <button type="submit" disabled={status === "Sending message..."}>
-              {status === "Sending message..." ? "Sending..." : "Send Message"}
+            </label>
+            <button type="submit" className="btn btn-primary btn-lg" disabled={sending}>
+              <LuSend /> {sending ? "Sending…" : "Send message"}
             </button>
           </form>
-
-          {status && (
-            <div
-              className={`${styles["contact-status"]} ${status.includes("successfully")
-                ? styles["success"]
-                : styles["error"]
-                }`}
-            >
-              {status}
-            </div>
-          )}
-        </div>
+          {status && <div className={`${styles.status} ${success ? styles.success : styles.error}`}>{status}</div>}
+        </section>
       </div>
     </div>
   );

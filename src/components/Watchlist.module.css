@@ -1,112 +1,129 @@
-.container {
-  padding: 2rem 1rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  color: var(--color-text);
-  min-height: calc(100vh - 200px);
-  background-color: var(--color-bg);
-  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
 }
 
-.heading {
-  text-align: center;
-  margin-bottom: 2rem;
-  color: var(--color-text);
-  font-size: 2rem;
-  font-weight: 600;
-  position: relative;
-  padding-bottom: 0.5rem;
-}
-
-.heading::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 3px;
-  background-color: var(--color-primary);
-  border-radius: 2px;
-}
-
-.empty {
-  text-align: center;
-  color: var(--color-text-secondary);
-  padding: 3rem 1rem;
-  background-color: var(--color-bg-tertiary);
-  border-radius: var(--form-border-radius);
-  border: 1px dashed var(--color-border);
-}
-
-.empty::before {
-  content: '📋';
-  font-size: 2rem;
-  display: block;
-  margin-bottom: 1rem;
+.head h1 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  padding: 0.5rem 0;
+  gap: 16px;
+}
+
+.skeleton {
+  height: 170px;
 }
 
 .card {
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text);
-  padding: 1.5rem;
-  border-radius: var(--form-border-radius);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 2px 10px var(--color-shadow);
-  transition: all var(--transition-speed) ease;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.title span {
+  font-size: 13px;
+  color: var(--muted);
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px var(--color-shadow-hover);
-  background-color: var(--color-card-hover);
+.remove {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
 }
 
-.card h4 {
-  margin: 0 0 0.5rem 0;
-  color: var(--color-primary);
-  font-size: 1.1rem;
+.remove:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.price {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.price div {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
   font-weight: 600;
 }
 
-.card p {
-  margin: 0 0 1rem 0;
-  color: var(--color-text-secondary);
-  font-size: 0.95rem;
+.price strong {
+  font-size: 20px;
 }
 
-.removeBtn {
-  margin-top: 10px;
-  background-color: var(--color-danger);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--form-border-radius);
-  cursor: pointer;
-  transition: all var(--transition-speed) ease;
-  display: inline-flex;
+.empty {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  gap: 10px;
+  padding: 56px 24px;
+  text-align: center;
 }
 
-.removeBtn:hover {
-  background-color: var(--color-danger-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+.empty h2 {
+  font-size: 18px;
 }
 
-.removeBtn:active {
-  transform: translateY(0);
-  box-shadow: none;
+.empty .btn,
+.empty a {
+  margin-top: 8px;
+}
+
+.emptyIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 24px;
 }

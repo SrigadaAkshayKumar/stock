@@ -1,596 +1,518 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import {
+  LuArrowRight,
+  LuChevronRight,
+  LuFileText,
+  LuNewspaper,
+  LuRefreshCw,
+  LuSparkles,
+  LuStar,
+} from "react-icons/lu";
 import Plot from "./Plot";
-import { useParams } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import Prediction from "./Prediction";
-import { ClipLoader } from "react-spinners";
-import { StockMetricsCard } from "./StockMetricsCard";
-import BackToTopBtn from "./BackToTopBtn";
-
-import SentimentChart from "./SentimentChart";
 import AnalysisDashboard from "./AnalysisDashboard";
 import AgentChat from "./AgentChat";
 import Disclaimer from "./Disclaimer";
-import { API, filterPeriod, loadSnapshot, toTableRows } from "../services/snapshot";
+import BackToTopBtn from "./BackToTopBtn";
+import stockList from "./data/stockData.json";
+import { plotConfig, useChartTheme } from "./ui/chartTheme";
+import { API, baseSymbol, filterPeriod, loadSnapshot, reportUrl } from "../services/snapshot";
+import { getWatchlistSymbols, toggleWatchlist } from "../utils/watchlistManager";
+import {
+  exchangeOf,
+  formatCompact,
+  formatDate,
+  formatFixed,
+  formatPct,
+  formatPrice,
+  ratioPct,
+  toneOf,
+} from "../utils/format";
+import styles from "./Stockdata.module.css";
 
-// Same chart the legacy endpoint built with plotly express, drawn in the browser.
-function priceChart(symbol, prices) {
+const PERIODS = ["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "max"];
+const TABLE_PERIODS = ["5d", "1mo", "3mo", "6mo", "1y", "max"];
+const TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "analysis", label: "AI Analysis" },
+  { id: "ask", label: "Ask the AI Analyst" },
+  { id: "history", label: "Historical Data" },
+  { id: "projection", label: "Long-term Projection" },
+];
+
+const NAMES = Object.fromEntries([...stockList.BSE, ...stockList.NSE].map((s) => [s.symbol, s.name]));
+
+const toIso = (ddmmyyyy) => {
+  const [d, m, y] = String(ddmmyyyy).split("-");
+  return y && y.length === 4 ? `${y}-${m}-${d}` : ddmmyyyy;
+};
+
+// Legacy /api/stock/<symbol> rows -> the column arrays the snapshot uses.
+function rowsToPrices(rows) {
   return {
-    data: [
-      {
-        x: prices.date,
-        y: prices.close,
-        type: "scatter",
-        mode: "lines+markers",
-        name: "Close",
-        line: { color: "#636efa" },
-        marker: { size: 4 },
-        hovertemplate: "Date=%{x}<br>Close=%{y}<extra></extra>",
-      },
-    ],
-    layout: {
-      title: { text: `${symbol} Stock Price Over Time` },
-      width: 1200,
-      height: 600,
-      xaxis: { title: { text: "Date" } },
-      yaxis: { title: { text: "Close" } },
-    },
+    date: rows.map((r) => toIso(r.Date)),
+    open: rows.map((r) => r.Open),
+    high: rows.map((r) => r.High),
+    low: rows.map((r) => r.Low),
+    close: rows.map((r) => r.Close),
+    volume: rows.map((r) => r.Volume),
   };
+}
+
+function normaliseNews(articles = []) {
+  return articles.map((a) => ({
+    title: a.title,
+    url: a.url,
+    source: typeof a.source === "string" ? a.source : a.source?.name,
+    published_at: a.published_at || a.publishedAt,
+    sentiment: a.sentiment,
+    description: a.description,
+  }));
+}
+
+function PriceChart({ prices, ticker }) {
+  const t = useChartTheme();
+  if (!prices?.date.length) return <div className={styles.chartEmpty}>No price data for this period.</div>;
+  const up = prices.close[prices.close.length - 1] >= prices.close[0];
+  const color = up ? t.success : t.danger;
+  return (
+    <Plot
+      data={[
+        {
+          x: prices.date,
+          y: prices.close,
+          type: "scatter",
+          mode: prices.date.length < 30 ? "lines+markers" : "lines",
+          name: "Close",
+          line: { color, width: 2, shape: "spline", smoothing: 0.3 },
+          marker: { size: 5 },
+          fill: "tozeroy",
+          fillcolor: up ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)",
+          hovertemplate: `%{x|%d %b %Y}<br>Close %{y:,.2f}<extra></extra>`,
+        },
+      ]}
+      layout={t.layout({
+        height: 360,
+        showlegend: false,
+        yaxis: {
+          gridcolor: t.grid,
+          zeroline: false,
+          tickformat: ",.0f",
+          tickprefix: ticker.includes(".") ? "₹" : "",
+          range: [Math.min(...prices.low.filter(Boolean)) * 0.98, Math.max(...prices.high.filter(Boolean)) * 1.02],
+        },
+        xaxis: { gridcolor: "rgba(0,0,0,0)", linecolor: t.grid, type: "date" },
+      })}
+      config={plotConfig}
+      useResizeHandler
+      style={{ width: "100%" }}
+    />
+  );
+}
+
+function Stat({ label, value, tone }) {
+  return (
+    <div className={styles.stat}>
+      <span>{label}</span>
+      <strong className={tone}>{value}</strong>
+    </div>
+  );
+}
+
+function Outlook({ value }) {
+  const cls = value === "Bullish" ? "badge-success" : value === "Bearish" ? "badge-danger" : "badge-warning";
+  return <span className={`badge ${cls}`}>{value || "n/a"}</span>;
 }
 
 function Stockdata() {
   const { ticker } = useParams();
-  const [stockData, setStockData] = useState([]);
-  const [graphData1, setGraphData1] = useState({});
-  const [stockInfo, setStockInfo] = useState({});
-  const [news, setNews] = useState([]);
-  const [sentimentSummary, setSentimentSummary] = useState({});
-  const [chartPeriod, setChartPeriod] = useState("1mo");
-  const [tablePeriod, setTablePeriod] = useState("1mo");
-  const [isLoading, setIsLoading] = useState(false);
-  const [snapshot, setSnapshot] = useState(undefined); // undefined = not checked yet, null = none
-  const [loadError, setLoadError] = useState("");
-  const [showMore, setShowMore] = useState(false);
-  const [showPrediction, setShowPrediction] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = TABS.some((x) => x.id === searchParams.get("tab")) ? searchParams.get("tab") : "overview";
+  const setTab = (id) => setSearchParams(id === "overview" ? {} : { tab: id }, { replace: true });
 
-  const periods = [
-    "1d",
-    "5d",
-    "1mo",
-    "3mo",
-    "6mo",
-    "1y",
-    "2y",
-    "5y",
-    "10y",
-    "ytd",
-    "max",
-  ];
+  const [snapshot, setSnapshot] = useState(undefined); // undefined = loading, null = none
+  const [live, setLive] = useState(null); // legacy API payload when there is no snapshot
+  const [liveState, setLiveState] = useState({ loading: false, error: "" });
+  const [chartPeriod, setChartPeriod] = useState("6mo");
+  const [tablePeriod, setTablePeriod] = useState("1mo");
+  const [rowsShown, setRowsShown] = useState(15);
+  const [starred, setStarred] = useState(false);
+
+  const name = snapshot?.company?.name || NAMES[ticker] || baseSymbol(ticker);
+  const exchange = exchangeOf(ticker);
 
   useEffect(() => {
     let active = true;
     setSnapshot(undefined);
-    loadSnapshot(ticker).then((snap) => active && setSnapshot(snap));
+    setLive(null);
+    loadSnapshot(ticker).then((s) => active && setSnapshot(s));
+    getWatchlistSymbols()
+      .then((symbols) => active && setStarred(symbols.includes(ticker)))
+      .catch(() => {});
     return () => {
       active = false;
     };
   }, [ticker]);
 
-  // Snapshot available: periods are sliced in the browser, so switching is instant.
-  useEffect(() => {
-    if (!snapshot) return;
-    const symbol = snapshot.symbol;
-    const latest = snapshot.prices.close.length - 1;
-    const p = snapshot.prices;
-    setGraphData1(priceChart(symbol, filterPeriod(p, chartPeriod)));
-    setStockData(toTableRows(filterPeriod(p, tablePeriod)));
-    setStockInfo({
-      name: snapshot.company?.name || symbol,
-      exchange: p.source,
-      open: p.open[latest],
-      close: p.close[latest],
-      high: p.high[latest],
-      low: p.low[latest],
-      volume: p.volume[latest],
-    });
-    const news = snapshot.analysis.news || {};
-    setNews(
-      (news.articles || []).map((a) => ({
-        title: a.title,
-        url: a.url,
-        sentiment: a.sentiment,
-        publishedAt: a.published_at,
-        source: { name: a.source },
-      }))
-    );
-    setSentimentSummary(news.sentiment_summary || {});
-  }, [snapshot, chartPeriod, tablePeriod]);
-
-  // No snapshot for this stock: fall back to the live API.
-  const fetchStockInfo = useCallback(async () => {
-    setIsLoading(true);
-    setLoadError("");
+  // No snapshot: one legacy API call returns the full history for both chart and table.
+  const fetchLive = useCallback(async () => {
+    setLiveState({ loading: true, error: "" });
     try {
-      const res = await axios.get(
-        `${API}/api/stock/${ticker}?chart_period=${chartPeriod}&table_period=${tablePeriod}`,
-      );
-
-      setStockData(res.data.stock_data);
-      setGraphData1(JSON.parse(res.data.graph_data1));
-      setStockInfo(res.data.stock_info);
-      setNews(Array.isArray(res.data.stock_news) ? res.data.stock_news : []);
-      setSentimentSummary(res.data.sentiment_summary || {});
+      const res = await axios.get(`${API}/api/stock/${ticker}?chart_period=max&table_period=max`);
+      setLive(res.data);
+      setLiveState({ loading: false, error: "" });
     } catch (error) {
-      setLoadError(
-        error.response?.status === 404
-          ? `No price data is available for ${ticker} yet.`
-          : "Could not reach the data server. It may be waking up. Please try again in a minute."
-      );
-    } finally {
-      setIsLoading(false);
+      setLiveState({
+        loading: false,
+        error:
+          error.response?.status === 404
+            ? `No price data is available for ${ticker} yet.`
+            : "Could not reach the data server. It may be waking up. Please try again in a minute.",
+      });
     }
-  }, [ticker, chartPeriod, tablePeriod]);
+  }, [ticker]);
 
   useEffect(() => {
-    if (snapshot === null) fetchStockInfo();
-  }, [snapshot, fetchStockInfo]);
+    if (snapshot === null) fetchLive();
+  }, [snapshot, fetchLive]);
 
-  const handleShowMore = () => {
-    setShowMore(!showMore);
+  const prices = useMemo(() => {
+    if (snapshot) return snapshot.prices;
+    if (live?.stock_data?.length) return rowsToPrices(live.stock_data);
+    return null;
+  }, [snapshot, live]);
+
+  const news = useMemo(
+    () => normaliseNews(snapshot ? snapshot.analysis.news?.articles : live?.stock_news),
+    [snapshot, live]
+  );
+
+  const chartPrices = useMemo(() => prices && filterPeriod(prices, chartPeriod), [prices, chartPeriod]);
+  const tableRows = useMemo(() => {
+    if (!prices) return [];
+    const p = filterPeriod(prices, tablePeriod);
+    return p.date.map((d, i) => ({ d, o: p.open[i], h: p.high[i], l: p.low[i], c: p.close[i], v: p.volume[i] })).reverse();
+  }, [prices, tablePeriod]);
+
+  const toggleStar = async () => {
+    try {
+      await toggleWatchlist({ symbol: ticker, name });
+      setStarred((s) => !s);
+      toast.success(`${ticker} ${starred ? "removed from" : "added to"} your watchlist`);
+    } catch {
+      toast.error("Could not update the watchlist.");
+    }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        when: "beforeChildren",
-        staggerChildren: 0.1,
-      },
-    },
-  };
+  const loading = snapshot === undefined || (snapshot === null && liveState.loading && !live);
+  const n = prices?.close.length || 0;
+  const last = n ? prices.close[n - 1] : null;
+  const prev = n > 1 ? prices.close[n - 2] : null;
+  const change = last != null && prev ? last - prev : null;
+  const changePct = change != null ? (change / prev) * 100 : null;
+  const periodChange =
+    chartPrices?.close.length > 1
+      ? (chartPrices.close[chartPrices.close.length - 1] / chartPrices.close[0] - 1) * 100
+      : null;
 
-  const itemVariants = {
-    hidden: { y: 30, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.6 },
-    },
-  };
-
-  const slideInLeft = {
-    hidden: { x: -100, opacity: 0 },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: { duration: 0.6 },
-    },
-  };
-
-  const slideInRight = {
-    hidden: { x: 100, opacity: 0 },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: { duration: 0.6 },
-    },
-  };
-
-  const chartConfig = {
-    ...graphData1,
-    layout: {
-      ...graphData1.layout,
-      transition: {
-        duration: 500,
-        easing: "cubic-in-out",
-      },
-    },
-  };
+  const analysis = snapshot?.analysis;
+  const metrics = analysis?.fundamentals?.price_metrics || {};
+  const primary = analysis?.primary_prediction;
+  const pdfHref = snapshot ? reportUrl(snapshot) : API ? `${API}/api/stock/${ticker}/report.pdf` : null;
 
   return (
-    <div
-      className="container"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <h1 variants={itemVariants}>{ticker} Stock Analysis</h1>
+    <div className="page">
+      <nav className={styles.breadcrumb} aria-label="Breadcrumb">
+        <Link to="/">Markets</Link>
+        <LuChevronRight />
+        <span>{baseSymbol(ticker)}</span>
+      </nav>
+
+      <header className={styles.header}>
+        <div className={styles.identity}>
+          <div className={styles.avatar}>{baseSymbol(ticker).slice(0, 2)}</div>
+          <div>
+            <h1>{name}</h1>
+            <div className={styles.tags}>
+              <span className={styles.symbol}>{ticker}</span>
+              {exchange && <span className="badge">{exchange}</span>}
+              {snapshot && (
+                <span className="badge badge-success">
+                  <LuSparkles /> AI analysis ready
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.quote}>
+          {loading ? (
+            <div className={`skeleton ${styles.quoteSkeleton}`} />
+          ) : last != null ? (
+            <>
+              <div className={styles.price}>{formatPrice(last, ticker)}</div>
+              <div className={`${styles.change} ${change >= 0 ? "up" : "down"}`}>
+                {change >= 0 ? "+" : ""}
+                {formatFixed(change)} ({formatPct(changePct)})
+              </div>
+              <div className={styles.asOf}>Last close · {formatDate(prices.date[n - 1])}</div>
+            </>
+          ) : null}
+        </div>
+
+        <div className={styles.actions}>
+          <button className="btn btn-secondary" onClick={toggleStar} aria-pressed={starred}>
+            <LuStar className={starred ? styles.starOn : ""} />
+            {starred ? "In watchlist" : "Add to watchlist"}
+          </button>
+          {pdfHref && (
+            <a className="btn btn-primary" href={pdfHref} target="_blank" rel="noopener noreferrer">
+              <LuFileText /> PDF report
+            </a>
+          )}
+        </div>
+      </header>
+
       <Disclaimer compact />
-      {loadError && !isLoading && (
-        <div className="loading-spinner">
-          <p>{loadError}</p>
-          <button onClick={fetchStockInfo}>Retry</button>
+
+      <div className={styles.tabs} role="tablist" aria-label="Stock sections">
+        {TABS.map((x) => (
+          <button
+            key={x.id}
+            role="tab"
+            aria-selected={tab === x.id}
+            className={tab === x.id ? styles.tabActive : ""}
+            onClick={() => setTab(x.id)}
+          >
+            {x.label}
+          </button>
+        ))}
+      </div>
+
+      {liveState.error && !prices && (
+        <div className={`card ${styles.errorCard}`}>
+          <p>{liveState.error}</p>
+          <button className="btn btn-secondary btn-sm" onClick={fetchLive}>
+            <LuRefreshCw /> Retry
+          </button>
         </div>
       )}
-      {isLoading || snapshot === undefined ? (
-        <motion.div
-          key="loading"
-          className="loading-spinner"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          transition={{ duration: 0.3 }}
-        >
-          <ClipLoader color="#36d7b7" size={50} />
-          <p
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            please wait while Loading...
-          </p>
-          <p
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            {snapshot === undefined ? "" : "Live data: the free-tier server can take up to a minute to wake up"}
-          </p>
-        </motion.div>
-      ) : (
-        <div
-          key="content"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6 }}
-        >
-          <section className="section2" variants={itemVariants}>
-            <div className="stock-info" variants={slideInLeft}>
-              <div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.6 }}
-              >
-                <h2
-                  initial={{ y: -20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  {ticker} - {stockInfo.name || "Stock"}
-                </h2>
 
-                <StockMetricsCard
-                  open={stockInfo.open}
-                  close={stockInfo.close}
-                  high={stockInfo.high}
-                  low={stockInfo.low}
-                  previousClose={stockData[0]?.Close}
-                />
-                {/* <h1 className="exchange-badge">
-                  Exchange : {stockInfo.exchange || "N/A"}
-                </h1> */}
+      {tab === "overview" && (
+        <div className={styles.overview}>
+          <section className={`card ${styles.chartCard}`}>
+            <div className={styles.cardHead}>
+              <div>
+                <h2>Price</h2>
+                {periodChange != null && (
+                  <span className={periodChange >= 0 ? "up" : "down"}>
+                    {formatPct(periodChange)} <span className="muted">over {chartPeriod}</span>
+                  </span>
+                )}
               </div>
-
-              <div className="period-buttons" variants={itemVariants}>
-                <h3
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  Select Period:
-                </h3>
-                {periods.map((period, index) => (
-                  <button
-                    key={period}
-                    onClick={() => setChartPeriod(period)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      backgroundColor:
-                        chartPeriod === period ? "#0056b3" : "#007bff",
-                    }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    {period}
+              <div className="segmented" role="tablist" aria-label="Chart period">
+                {PERIODS.map((p) => (
+                  <button key={p} className={chartPeriod === p ? "active" : ""} onClick={() => setChartPeriod(p)}>
+                    {p.toUpperCase()}
                   </button>
                 ))}
               </div>
-
-              <div
-                className="visualization"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4, duration: 0.6 }}
-              >
-                <div className="vis2">
-                  {graphData1.data && graphData1.layout ? (
-                    <Plot
-                      data={graphData1.data}
-                      layout={chartConfig.layout}
-                      config={{
-                        displayModeBar: true,
-                        responsive: true,
-                        toImageButtonOptions: {
-                          format: "png",
-                          filename: `${ticker}_chart`,
-                          height: 500,
-                          width: 900,
-                          scale: 1,
-                        },
-                      }}
-                    />
-                  ) : (
-                    <p
-                      animate={{ opacity: [0.5, 1, 0.5] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    >
-                      Loading visualization...
-                    </p>
-                  )}
-                </div>
-              </div>
             </div>
-
-            <div className="news" variants={slideInRight}>
-              <h2
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                Latest news about {ticker}
-              </h2>
-
-              {/* Sentiment Analysis Charts */}
-              {news.length > 0 && sentimentSummary && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6, duration: 0.5 }}
-                  style={{ marginBottom: "20px" }}
-                >
-                  <SentimentChart sentimentSummary={sentimentSummary} />
-                </motion.div>
-              )}
-
-              <AnimatePresence>
-                {news.length > 0 ? (
-                  news.map((article, index) => (
-                    <motion.div
-                      key={index}
-                      className="news-item"
-                      initial={{ opacity: 0, x: 50 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1, duration: 0.5 }}
-                      whileHover={{ scale: 1.02 }}
-                      style={{
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "8px",
-                        padding: "14px",
-                        marginBottom: "12px",
-                        background: "white",
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
-                        position: "relative",
-                      }}
-                    >
-                      {/* Sentiment Tag */}
-                      {article.sentiment && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{
-                            delay: index * 0.1 + 0.2,
-                            duration: 0.3,
-                          }}
-                          style={{
-                            position: "absolute",
-                            top: "10px",
-                            right: "10px",
-                            padding: "4px 8px",
-                            borderRadius: "12px",
-                            fontSize: "10px",
-                            fontWeight: "600",
-                            color: "white",
-                            background:
-                              article.sentiment === "positive"
-                                ? "#10B981"
-                                : article.sentiment === "negative"
-                                  ? "#EF4444"
-                                  : "#6B7280",
-                            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                          }}
-                        >
-                          {article.sentiment?.charAt(0).toUpperCase() +
-                            article.sentiment?.slice(1)}
-                        </motion.div>
-                      )}
-
-                      <h3
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                        style={{
-                          margin: "0 0 8px 0",
-                          fontSize: "16px",
-                          color: "#1f2937",
-                          paddingRight: article.sentiment ? "70px" : "0",
-                          lineHeight: "1.3",
-                        }}
-                      >
-                        {article.title}
-                      </h3>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "12px",
-                          marginBottom: "8px",
-                          fontSize: "12px",
-                          color: "#6b7280",
-                        }}
-                      >
-                        <span>
-                          <strong>Source:</strong>{" "}
-                          {article.source?.name || "N/A"}
-                        </span>
-                        <span>
-                          <strong>Date:</strong> {article.publishedAt || "N/A"}
-                        </span>
-                      </div>
-
-                      <p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                        style={{
-                          margin: "0 0 12px 0",
-                          lineHeight: "1.4",
-                          color: "#374151",
-                          fontSize: "13px",
-                          maxHeight: "50px",
-                          overflow: "hidden",
-                          display: "-webkit-box",
-                          WebkitLineClamp: "2",
-                          WebkitBoxOrient: "vertical",
-                        }}
-                      >
-                        {article.description
-                          ? article.description.length > 100
-                            ? article.description.substring(0, 100) + "..."
-                            : article.description
-                          : "No summary available."}
-                      </p>
-
-                      <a
-                        href={article.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        style={{
-                          display: "inline-block",
-                          padding: "6px 12px",
-                          background: "#3b82f6",
-                          color: "white",
-                          textDecoration: "none",
-                          borderRadius: "6px",
-                          fontSize: "12px",
-                          fontWeight: "500",
-                          transition: "all 0.2s ease",
-                        }}
-                      >
-                        Read more
-                      </a>
-                    </motion.div>
-                  ))
-                ) : (
-                  <p initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                    No news available.
-                  </p>
-                )}
-              </AnimatePresence>
-            </div>
+            {loading ? <div className={`skeleton ${styles.chartSkeleton}`} /> : <PriceChart prices={chartPrices} ticker={ticker} />}
           </section>
 
-          <AnalysisDashboard ticker={ticker} />
-          <AgentChat ticker={ticker} />
+          <aside className={styles.side}>
+            <section className="card">
+              <div className={styles.cardHeadSimple}>
+                <h2>Key statistics</h2>
+              </div>
+              <div className={styles.stats}>
+                <Stat label="Open" value={formatPrice(prices?.open[n - 1], ticker)} />
+                <Stat label="Prev. close" value={formatPrice(prev, ticker)} />
+                <Stat label="Day high" value={formatPrice(prices?.high[n - 1], ticker)} />
+                <Stat label="Day low" value={formatPrice(prices?.low[n - 1], ticker)} />
+                <Stat label="Volume" value={formatCompact(prices?.volume[n - 1])} />
+                <Stat label="Avg vol. (3M)" value={formatCompact(metrics.avg_volume_3m)} />
+                <Stat label="52W high" value={formatPrice(metrics.high_52w, ticker)} />
+                <Stat label="52W low" value={formatPrice(metrics.low_52w, ticker)} />
+                <Stat
+                  label="1M return"
+                  value={formatPct(metrics.return_1m_pct)}
+                  tone={toneOf(metrics.return_1m_pct)}
+                />
+                <Stat
+                  label="1Y return"
+                  value={formatPct(metrics.return_1y_pct)}
+                  tone={toneOf(metrics.return_1y_pct)}
+                />
+              </div>
+            </section>
 
-          <div className="period-buttons" variants={itemVariants}>
-            <h3 initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              Select Period:
-            </h3>
-            {periods.map((period, index) => (
-              <button
-                key={period}
-                onClick={() => setTablePeriod(period)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                  backgroundColor:
-                    tablePeriod === period ? "#0056b3" : "#007bff",
-                }}
-                transition={{ delay: index * 0.05 }}
-              >
-                {period}
-              </button>
-            ))}
-          </div>
+            <section className={`card ${styles.aiCard}`}>
+              <div className={styles.cardHeadSimple}>
+                <h2>
+                  <LuSparkles /> AI snapshot
+                </h2>
+              </div>
+              {analysis ? (
+                <>
+                  <div className={styles.aiRows}>
+                    <div>
+                      <span>5-day ML outlook</span>
+                      <Outlook value={primary?.outlook} />
+                    </div>
+                    <div>
+                      <span>Probability of rise</span>
+                      <strong>{ratioPct(primary?.probability_up, 0)}</strong>
+                    </div>
+                    <div>
+                      <span>Technical bias</span>
+                      <strong className={styles.capitalize}>{analysis.indicators?.technical_bias || "—"}</strong>
+                    </div>
+                    <div>
+                      <span>Risk level</span>
+                      <strong>{analysis.risk?.risk_level || "—"}</strong>
+                    </div>
+                    <div>
+                      <span>Backtest accuracy</span>
+                      <strong>{ratioPct(primary?.backtest?.directional_accuracy)}</strong>
+                    </div>
+                  </div>
+                  <div className={styles.aiActions}>
+                    <button className="btn btn-primary btn-sm" onClick={() => setTab("analysis")}>
+                      Full analysis <LuArrowRight />
+                    </button>
+                    <button className="btn btn-ghost btn-sm" onClick={() => setTab("ask")}>
+                      Ask the AI
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className={styles.aiEmpty}>
+                  <p className="muted">The AI analysis for this stock runs on the live backend.</p>
+                  <button className="btn btn-primary btn-sm" onClick={() => setTab("analysis")}>
+                    Run AI analysis <LuArrowRight />
+                  </button>
+                </div>
+              )}
+            </section>
+          </aside>
 
-          <h2 variants={itemVariants}>Stock Data</h2>
-
-          <div className="table" variants={itemVariants}>
-            <div
-              className="table-container"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <table>
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Open</th>
-                    <th>High</th>
-                    <th>Low</th>
-                    <th>Close</th>
-                    <th>Volume</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stockData
-                    .slice(0, showMore ? stockData.length : 15)
-                    .map((entry, index) => (
-                      <tr
-                        key={`${entry.Date}-${index}`}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.03, duration: 0.3 }}
-                        whileHover={{
-                          scale: 1.01,
-                          backgroundColor: "#e3f2fd",
-                        }}
-                      >
-                        <td>{entry.Date}</td>
-                        <td>{entry.Open}</td>
-                        <td>{entry.High}</td>
-                        <td>{entry.Low}</td>
-                        <td>{entry.Close}</td>
-                        <td>{entry.Volume}</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+          <section className={`card ${styles.newsCard}`}>
+            <div className={styles.cardHeadSimple}>
+              <h2>
+                <LuNewspaper /> Latest news
+              </h2>
+              {analysis?.news?.sentiment_summary?.overall_sentiment && news.length > 0 && (
+                <span className="badge">Sentiment: {analysis.news.sentiment_summary.overall_sentiment}</span>
+              )}
             </div>
-            {stockData.length > 15 && (
-              <button
-                onClick={handleShowMore}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                {showMore ? "Show Less" : "Show More"}
-              </button>
+            {news.length ? (
+              <ul className={styles.newsList}>
+                {news.slice(0, 6).map((a) => (
+                  <li key={a.url || a.title}>
+                    <a href={a.url} target="_blank" rel="noopener noreferrer">
+                      {a.title}
+                    </a>
+                    <div className={styles.newsMeta}>
+                      {a.source && <span>{a.source}</span>}
+                      {a.published_at && <span>{formatDate(a.published_at)}</span>}
+                      {a.sentiment && (
+                        <span
+                          className={`badge ${
+                            a.sentiment === "positive" ? "badge-success" : a.sentiment === "negative" ? "badge-danger" : ""
+                          }`}
+                        >
+                          {a.sentiment}
+                        </span>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.emptyText}>
+                No recent news is available for this stock. News appears here when a news API key is configured.
+              </p>
             )}
-          </div>
-
-          <button
-            onClick={() => setShowPrediction(!showPrediction)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            variants={itemVariants}
-          >
-            {showPrediction ? "Hide Prediction" : "Show Prediction"}
-          </button>
-          {showPrediction && (
-            <div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Prediction ticker={ticker} />
-            </div>
-          )}
+          </section>
         </div>
       )}
+
+      {tab === "analysis" && <AnalysisDashboard ticker={ticker} />}
+      {tab === "ask" && <AgentChat ticker={ticker} />}
+
+      {tab === "history" && (
+        <section className="card">
+          <div className={`${styles.cardHead} ${styles.padded}`}>
+            <h2>Historical prices</h2>
+            <div className="segmented" aria-label="Table period">
+              {TABLE_PERIODS.map((p) => (
+                <button
+                  key={p}
+                  className={tablePeriod === p ? "active" : ""}
+                  onClick={() => {
+                    setTablePeriod(p);
+                    setRowsShown(15);
+                  }}
+                >
+                  {p.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Open</th>
+                  <th>High</th>
+                  <th>Low</th>
+                  <th>Close</th>
+                  <th>Change</th>
+                  <th>Volume</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tableRows.slice(0, rowsShown).map((r, i) => {
+                  const prevClose = tableRows[i + 1]?.c;
+                  const chg = prevClose ? (r.c / prevClose - 1) * 100 : null;
+                  return (
+                    <tr key={r.d}>
+                      <td>{formatDate(r.d)}</td>
+                      <td>{formatFixed(r.o)}</td>
+                      <td>{formatFixed(r.h)}</td>
+                      <td>{formatFixed(r.l)}</td>
+                      <td>
+                        <strong>{formatFixed(r.c)}</strong>
+                      </td>
+                      <td className={toneOf(chg) || "muted"}>{formatPct(chg)}</td>
+                      <td>{formatCompact(r.v)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {tableRows.length > rowsShown && (
+            <div className={styles.tableFooter}>
+              <span className="muted">
+                Showing {rowsShown} of {tableRows.length} sessions
+              </span>
+              <button className="btn btn-secondary btn-sm" onClick={() => setRowsShown((r) => r + 30)}>
+                Show more
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+
+      {tab === "projection" && <Prediction ticker={ticker} />}
+
       <Disclaimer />
       <BackToTopBtn />
     </div>
