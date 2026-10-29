@@ -52,20 +52,27 @@ The backend runs on a free hosting tier that sleeps when idle, so the frontend d
 - **Prices, the AI analysis and the agent's evidence:** written to `public/snapshots/<SYMBOL>.json`. The evidence covers every tool's output plus the RAG results for each intent.
 - **The 14-section PDF report:** written to `public/reports/<SYMBOL>.pdf`.
 
-For stocks that have a snapshot (marked **⚡ AI ready** on the home page), everything loads instantly:
+Because every listed stock has a snapshot, everything loads instantly:
 
 - the chart and the period switches are computed in the browser
 - the dashboard renders straight from the snapshot
 - the AI analyst routes questions with the backend's own intent and tool tables and answers in the browser
 - the PDF opens immediately
 
-**Re-run live** on the dashboard and **Ask the live backend** in the chat still call the real API, including Claude when it is configured. Stocks without a snapshot use the live API.
+Stocks without a snapshot fall back to the live API.
+
+**Daily refresh.** The **Refresh market snapshots** workflow (`.github/workflows/snapshots.yml`) rebuilds the snapshots for all listed stocks with live market data (yfinance) and commits them.
+
+- It runs every weekday at 16:45 IST, after NSE/BSE close.
+- You can also run it on demand from the Actions tab, and it runs when the snapshot builder changes.
+- To include news and sentiment, add a `NEWS_API_KEY` repository secret (Settings → Secrets and variables → Actions).
+
+To build snapshots locally:
 
 ```bash
 npm run snapshots          # or: cd backend && python scripts/build_snapshots.py [SYMBOLS...]
+LIVE_MARKET_DATA=true npm run snapshots   # every listed stock, live prices
 ```
-
-Run it with `LIVE_MARKET_DATA=true` (and `NEWS_API_KEY`) to build snapshots for every listed stock with live prices and news. Then commit `public/snapshots` and `public/reports`.
 
 Design documentation: [HLD](docs/HLD.md) · [LLD](docs/LLD.md) · [API](docs/API.md) · [Database](docs/DATABASE.md) · [Model lifecycle](docs/MODEL_LIFECYCLE.md) · [AWS deployment](docs/DEPLOYMENT_AWS.md) · [Roadmap & status](docs/ROADMAP.md)
 

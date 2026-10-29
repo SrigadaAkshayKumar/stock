@@ -16,10 +16,11 @@ import stockData from "./data/stockData.json";
 import Sparkline from "./ui/Sparkline";
 import { getWatchlistSymbols, toggleWatchlist } from "../utils/watchlistManager";
 import { baseSymbol, loadSnapshot, loadSnapshotSummaries } from "../services/snapshot";
-import { formatPct, formatPrice } from "../utils/format";
+import { formatDate, formatPct, formatPrice } from "../utils/format";
 import styles from "./StockList.module.css";
 
 const ALL_STOCKS = [...stockData.BSE, ...stockData.NSE];
+const OUTLOOK_BADGE = { Bullish: "badge-success", Bearish: "badge-danger", Neutral: "badge-warning" };
 
 const STEPS = [
   {
@@ -55,7 +56,7 @@ function StockCard({ stock, summary, starred, onStar }) {
       tabIndex={0}
       onClick={open}
       onKeyDown={(e) => e.key === "Enter" && open()}
-      onMouseEnter={() => summary && loadSnapshot(stock.symbol)}
+      onMouseEnter={() => loadSnapshot(stock.symbol)}
     >
       <div className={styles.cardTop}>
         <div className={styles.avatar}>{baseSymbol(stock.symbol).slice(0, 2)}</div>
@@ -85,17 +86,15 @@ function StockCard({ stock, summary, starred, onStar }) {
           <Sparkline values={summary.spark} />
         </div>
       ) : (
-        <div className={styles.cardPlaceholder}>Live data on request</div>
+        <div className={`skeleton ${styles.cardSkeleton}`} aria-hidden="true" />
       )}
 
       <div className={styles.cardFooter}>
         <span className="badge">{exchange}</span>
-        {summary ? (
-          <span className="badge badge-success">
-            <LuSparkles /> AI analysis ready
+        {summary?.outlook && (
+          <span className={`badge ${OUTLOOK_BADGE[summary.outlook] || ""}`} title="5-day ML outlook">
+            <LuSparkles /> {summary.outlook}
           </span>
-        ) : (
-          <span className="badge">Live API</span>
         )}
         <LuArrowRight className={styles.arrow} />
       </div>
@@ -173,14 +172,12 @@ const StocksList = () => {
     import("./Stockdata");
   }, []);
 
-  const stocks = useMemo(() => {
-    const list = stockData[exchange] || [];
-    const ready = (s) => Boolean(summaries[baseSymbol(s.symbol)]);
-    return [...list.filter(ready), ...list.filter((s) => !ready(s))];
-  }, [exchange, summaries]);
-
-  const readyCount = Object.keys(summaries).length;
-  const featured = stocks.find((s) => summaries[baseSymbol(s.symbol)]);
+  const stocks = stockData[exchange] || [];
+  const featured = stocks.find((s) => baseSymbol(s.symbol) === "TCS") || stocks[0];
+  const asOf = Object.values(summaries)
+    .map((s) => s.as_of)
+    .sort()
+    .pop();
 
   const handleStar = async (stock) => {
     const had = watchlist.has(stock.symbol);
@@ -249,9 +246,8 @@ const StocksList = () => {
           <div>
             <h2 id="markets-title">Markets</h2>
             <p className="muted">
-              {readyCount
-                ? `${readyCount} stocks have full AI analysis ready instantly. The rest load from the live API.`
-                : "Select a stock to open its analysis."}
+              NSE & BSE large caps. Select a stock for its full AI analysis
+              {asOf ? ` · prices as of ${formatDate(asOf)}` : ""}.
             </p>
           </div>
           <div className="segmented" role="tablist" aria-label="Exchange">

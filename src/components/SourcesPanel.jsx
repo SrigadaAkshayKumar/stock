@@ -8,6 +8,8 @@ const KIND_LABEL = {
   model_output: "Model output",
 };
 
+const SOURCE_LABEL = { local_dataset: "Historical market dataset", yfinance: "Yahoo Finance" };
+
 function formatDate(value) {
   if (!value) return "undated";
   const d = new Date(value);
@@ -32,7 +34,7 @@ function SourcesPanel({ sources = [], title = "Sources & evidence" }) {
               <span>{s.title}</span>
             )}
             <div className={styles.sourceMeta}>
-              {s.source && <span>{s.source}</span>}
+              {s.source && <span>{SOURCE_LABEL[s.source] || s.source}</span>}
               <span>Published: {formatDate(s.published_at)}</span>
               {s.retrieved_at && <span>Retrieved: {formatDate(s.retrieved_at)}</span>}
               {s.flagged_untrusted_content && (

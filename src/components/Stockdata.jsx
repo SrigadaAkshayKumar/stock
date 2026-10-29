@@ -170,7 +170,7 @@ function Stockdata() {
         error:
           error.response?.status === 404
             ? `No price data is available for ${ticker} yet.`
-            : "Could not reach the data server. It may be waking up. Please try again in a minute.",
+            : "We couldn't load data for this stock right now. Please try again in a minute.",
       });
     }
   }, [ticker]);
@@ -239,11 +239,6 @@ function Stockdata() {
             <div className={styles.tags}>
               <span className={styles.symbol}>{ticker}</span>
               {exchange && <span className="badge">{exchange}</span>}
-              {snapshot && (
-                <span className="badge badge-success">
-                  <LuSparkles /> AI analysis ready
-                </span>
-              )}
             </div>
           </div>
         </div>
@@ -392,7 +387,7 @@ function Stockdata() {
                 </>
               ) : (
                 <div className={styles.aiEmpty}>
-                  <p className="muted">The AI analysis for this stock runs on the live backend.</p>
+                  <p className="muted">See ML forecasts, technical signals, risk and an AI summary for this stock.</p>
                   <button className="btn btn-primary btn-sm" onClick={() => setTab("analysis")}>
                     Run AI analysis <LuArrowRight />
                   </button>
@@ -435,7 +430,7 @@ function Stockdata() {
               </ul>
             ) : (
               <p className={styles.emptyText}>
-                No recent news is available for this stock. News appears here when a news API key is configured.
+                No recent news articles were found for this stock.
               </p>
             )}
           </section>

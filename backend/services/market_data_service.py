@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import threading
+import time
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
@@ -29,6 +30,7 @@ PERIOD_DAYS = {
 
 _cache_lock = threading.Lock()
 _frame_cache: Dict[str, tuple] = {}
+_LIVE_TTL_SECONDS = 15 * 60
 
 
 class StockNotFoundError(LookupError):
@@ -89,6 +91,20 @@ class StockService:
         return df.copy()
 
     def _load_live(self, base: str, period: str = "5y") -> Optional[pd.DataFrame]:
+        # One provider call per symbol per TTL: an analysis reads prices many times.
+        key = f"live:{base}:{period}"
+        with _cache_lock:
+            cached = _frame_cache.get(key)
+            if cached and time.monotonic() - cached[0] < _LIVE_TTL_SECONDS:
+                return cached[1].copy()
+        df = self._fetch_live(base, period)
+        if df is not None:
+            with _cache_lock:
+                _frame_cache[key] = (time.monotonic(), df)
+            return df.copy()
+        return None
+
+    def _fetch_live(self, base: str, period: str) -> Optional[pd.DataFrame]:
         try:
             import yfinance as yf  # optional dependency
             ticker = f"{base}{settings.DEFAULT_EXCHANGE_SUFFIX}"
@@ -96,8 +112,8 @@ class StockService:
             if df is None or df.empty:
                 return None
             df = df.reset_index()[["Date", "Open", "High", "Low", "Close", "Volume"]]
-            df["Date"] = pd.to_datetime(df["Date"]).dt.tz_localize(None)
-            return df
+            df["Date"] = pd.to_datetime(df["Date"]).dt.tz_localize(None).dt.normalize()
+            return df.dropna(subset=["Close"]).reset_index(drop=True)
         except Exception as exc:  # provider down, rate limited, offline...
             logger.warning("Live market data unavailable for %s: %s", base, exc)
             return None

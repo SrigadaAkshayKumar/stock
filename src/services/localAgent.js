@@ -5,6 +5,9 @@
 // Python implementation.
 
 import { reportUrl } from "./snapshot";
+import { formatMetricValue, metricLabel } from "../utils/format";
+
+const SOURCE_LABELS = { local_dataset: "historical market dataset", yfinance: "Yahoo Finance" };
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const signed = (v) => `${v >= 0 ? "+" : ""}${Number(v).toFixed(2)}`;
@@ -123,7 +126,7 @@ function ruleBasedAnswer(symbol, s, results) {
   if (price.price !== undefined) {
     lines.push(
       `**Market data:** ${symbol} last closed at ${price.price} on ${price.as_of} ` +
-        `(${signed(price.change_pct)}% vs previous close; source: ${price.source}).`
+        `(${signed(price.change_pct)}% vs previous close; source: ${SOURCE_LABELS[price.source] || price.source}).`
     );
   }
   const hist = results.get_historical_prices || {};
@@ -142,7 +145,11 @@ function ruleBasedAnswer(symbol, s, results) {
         `52-week range ${m.low_52w}–${m.high_52w}, 1-year return ${m.return_1y_pct}%.`
     );
     if (fund.provider_metrics && Object.keys(fund.provider_metrics).length) {
-      lines.push(`Provider metrics: ${Object.entries(fund.provider_metrics).map(([k, v]) => `${k}=${v}`).join(", ")}.`);
+      lines.push(
+        `Valuation: ${Object.entries(fund.provider_metrics)
+          .map(([k, v]) => `${metricLabel(k).replace(/^(?!P\/|ROE)\w/, (c) => c.toLowerCase())} ${formatMetricValue(k, v)}`)
+          .join(", ")}.`
+      );
     } else if (fund.note) {
       lines.push(fund.note);
     }

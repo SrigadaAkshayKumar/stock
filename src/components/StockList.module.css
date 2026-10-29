@@ -304,14 +304,8 @@
   letter-spacing: -0.01em;
 }
 
-.cardPlaceholder {
+.cardSkeleton {
   height: 52px;
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-  color: var(--muted);
-  border-top: 1px dashed var(--border);
-  border-bottom: 1px dashed var(--border);
 }
 
 .cardFooter {

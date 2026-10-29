@@ -8,9 +8,9 @@ import { API, loadSnapshot } from "../services/snapshot";
 import { askLocalAgent } from "../services/localAgent";
 
 const MODE_LABEL = {
-  llm: "LLM synthesis",
-  rule_based: "Rule-based synthesis",
-  in_browser: "Instant · pre-computed evidence",
+  llm: "AI-written",
+  rule_based: null,
+  in_browser: null,
 };
 
 const SUGGESTIONS = [
@@ -27,7 +27,6 @@ function AgentChat({ ticker }) {
   const [sessionId, setSessionId] = useState(null);
   const [busy, setBusy] = useState(false);
   const [snapshot, setSnapshot] = useState(null);
-  const [useLive, setUseLive] = useState(false);
   const messagesRef = useRef(null);
 
   // A new stock starts a new conversation: the selected stock is the agent's context.
@@ -58,7 +57,7 @@ function AgentChat({ ticker }) {
     if (!q || busy) return;
     setInput("");
     setMessages((m) => [...m, { role: "user", content: q }]);
-    if (snapshot && !useLive) {
+    if (snapshot) {
       const res = askLocalAgent(snapshot, q);
       setMessages((m) => [...m, { role: "assistant", ...res, content: res.answer }]);
       return;
@@ -85,7 +84,7 @@ function AgentChat({ ticker }) {
         err.response?.status === 429
           ? "You're sending questions too quickly. Please wait a moment."
           : err.response?.data?.error ||
-            "The live analysis server is unavailable or still waking up. Please try again in a minute.";
+            "The analyst is unavailable right now. Please try again in a minute.";
       setMessages((m) => [...m, { role: "assistant", content: msg, error: true }]);
     } finally {
       setBusy(false);
@@ -105,12 +104,6 @@ function AgentChat({ ticker }) {
             sources.
           </p>
         </div>
-        {snapshot && API && (
-          <label className={styles.toggle} title="Full agent run on the backend; uses Claude when configured">
-            <input type="checkbox" checked={useLive} onChange={(e) => setUseLive(e.target.checked)} />
-            Use live backend
-          </label>
-        )}
       </div>
 
       <div className={styles.messages} ref={messagesRef}>
@@ -142,7 +135,9 @@ function AgentChat({ ticker }) {
                     <span className="badge">Confidence {(m.analysis.model_confidence * 100).toFixed(0)}%</span>
                   )}
                   {m.analysis?.risk_level && <span className="badge">Risk: {m.analysis.risk_level}</span>}
-                  <span className={`badge ${styles.modeBadge}`}>{MODE_LABEL[m.answer_mode] || m.answer_mode}</span>
+                  {MODE_LABEL[m.answer_mode] && (
+                    <span className={`badge ${styles.modeBadge}`}>{MODE_LABEL[m.answer_mode]}</span>
+                  )}
                 </div>
               )}
               <div className={styles.answer}>

@@ -157,6 +157,7 @@ def _summary(snapshot):
         "change_pct": round((close[-1] / close[-2] - 1) * 100, 2) if len(close) > 1 else 0.0,
         "as_of": snapshot["prices"]["date"][-1],
         "outlook": (snapshot["analysis"].get("primary_prediction") or {}).get("outlook"),
+        "source": snapshot["prices"]["source"],
         "spark": close[-30:],
     }
 
@@ -196,7 +197,11 @@ def main(argv):
     with open(index_path, "w", encoding="utf-8") as fh:
         json.dump({"symbols": symbols, "summaries": summaries,
                    "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}, fh)
-    logger.info("Snapshots available for: %s", ", ".join(symbols) or "none")
+    sources = {sym: summary.get("source") for sym, summary in built.items()}
+    print(f"Built {len(built)}/{len(wanted)} snapshots: {sources}")
+    print(f"Snapshots available for: {', '.join(symbols) or 'none'}")
+    if not built:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 from xml.sax.saxutils import escape
 
 from core.settings import settings
+from services.agent.agent_service import format_metric
 from repositories import get_repository
 
 logger = logging.getLogger(__name__)
@@ -112,7 +113,7 @@ class ReportService:
         f = a.get("fundamentals") or {}
         fund_paras = [f"Sector: {company.get('sector') or 'n/a'} · Industry: {company.get('industry') or 'n/a'}"]
         if f.get("provider_metrics"):
-            fund_paras += [f"- {k.replace('_', ' ').title()}: {_fmt(v)}" for k, v in f["provider_metrics"].items()]
+            fund_paras += [f"- {format_metric(k, v)}" for k, v in f["provider_metrics"].items()]
         elif f.get("note"):
             fund_paras.append(f["note"])
         self._section(story, "5. Fundamental Analysis", fund_paras)
@@ -137,7 +138,7 @@ class ReportService:
         self._section(story, "8. Latest News", [
             f"- {art['title']} — {art.get('source') or 'n/a'}, {art.get('published_at') or 'n/a'} ({art.get('sentiment') or 'n/a'})"
             for art in arts[:8]
-        ] or ["No recent news was available from the news provider at generation time."])
+        ] or ["No recent news articles were found for this stock at generation time."])
 
         ss = news.get("sentiment_summary", {}) or {}
         counts = ss.get("sentiment_distribution", {}) or {}

@@ -1,0 +1,63 @@
+name: Refresh market snapshots
+
+# Runs the backend pipeline for every listed stock with live market data and
+# commits the results (public/snapshots, public/reports) that the frontend
+# serves instantly. Runs every weekday after the Indian market closes, on
+# demand, and when the snapshot builder itself changes.
+
+on:
+  schedule:
+    - cron: "15 11 * * 1-5" # 16:45 IST, after NSE/BSE close
+  workflow_dispatch:
+  push:
+    paths:
+      - backend/scripts/build_snapshots.py
+      - backend/data/stocks.json
+      - .github/workflows/snapshots.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: snapshots-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+
+      - run: pip install -r backend/requirements.txt
+
+      - name: Build snapshots for every listed stock
+        working-directory: backend
+        env:
+          LIVE_MARKET_DATA: "true"
+          DEFAULT_EXCHANGE_SUFFIX: ".NS"
+          CACHE_ENABLED: "false"
+          LLM_ENABLED: "false"
+          STORAGE_DIR: ${{ runner.temp }}/storage
+          # Optional: add a NEWS_API_KEY repository secret to include news and sentiment.
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+        run: python scripts/build_snapshots.py
+
+      - name: Commit refreshed snapshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/snapshots public/reports
+          if git diff --cached --quiet; then
+            echo "Snapshots unchanged."
+            exit 0
+          fi
+          git commit -m "Refresh market snapshots ($(date -u +%Y-%m-%d))"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

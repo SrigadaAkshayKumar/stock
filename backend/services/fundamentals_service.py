@@ -51,8 +51,8 @@ def get_fundamentals(symbol: str) -> Dict:
         "provider_metrics": provider,
         "provider_available": bool(provider),
         "note": None if provider else (
-            "Valuation metrics (P/E, market cap, margins) need a live provider. "
-            "Set LIVE_MARKET_DATA=true to fetch them; only price-derived metrics are shown."
+            "Valuation metrics (P/E, market cap, margins) are not available for this stock right now; "
+            "price-based performance metrics are shown instead."
         ),
         "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }

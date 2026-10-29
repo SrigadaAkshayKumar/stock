@@ -5,6 +5,8 @@ from flask import jsonify
 import pandas as pd
 import os
 
+from .market_data_service import StockNotFoundError, stock_service
+
 DATA_FOLDER = os.path.join(os.path.dirname(__file__), "data")
 
 def normalize_symbol(symbol: str) -> str:
@@ -16,22 +18,15 @@ def predict_stock_handler(symbol):
     Handles prediction request based on historical stock data.
     """
     try:
-        # Normalize symbol (remove .NS or .BO)
         symbol = normalize_symbol(symbol)
 
-        # Load CSV
-        file_path = os.path.join(DATA_FOLDER, f"{symbol}.csv")
-        if not os.path.exists(file_path):
-            return jsonify({'error': f'CSV data not found for {symbol}'}), 404
+        # Same price source as the rest of the platform: the local dataset, or
+        # live data when LIVE_MARKET_DATA is enabled.
+        try:
+            data = stock_service.get_price_history(symbol, "max")[["Date", "Close"]].copy()
+        except StockNotFoundError:
+            return jsonify({'error': f'Price data not found for {symbol}'}), 404
 
-        data = pd.read_csv(file_path)
-
-        # Expecting standard headers
-        if 'Date' not in data.columns or 'Close' not in data.columns:
-            return jsonify({'error': 'CSV must contain Date and Close columns'}), 400
-
-        # Preprocess
-        data['Date'] = pd.to_datetime(data['Date'], dayfirst=True)  # CSV dates are DD-MM-YYYY
         data = data.sort_values('Date')
         data.set_index('Date', inplace=True)
 
