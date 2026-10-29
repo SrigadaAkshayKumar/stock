@@ -1,0 +1,79 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 20px 4px;
+}
+
+.head h2 {
+  font-size: 16px;
+}
+
+.chart {
+  padding: 0 12px;
+}
+
+.note {
+  display: flex;
+  gap: 8px;
+  margin: 4px 20px 20px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.note svg {
+  flex: none;
+  margin-top: 3px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  padding: 8px 0 4px;
+}
+
+.table th,
+.table td {
+  padding: 11px 20px;
+  text-align: right;
+  font-size: 14px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--border);
+}
+
+.table th:first-child,
+.table td:first-child {
+  text-align: left;
+}
+
+.table th {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  color: var(--danger);
+}

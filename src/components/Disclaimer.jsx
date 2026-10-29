@@ -1,4 +1,5 @@
 import React from "react";
+import { LuInfo } from "react-icons/lu";
 import styles from "./Analysis.module.css";
 
 export const DISCLAIMER_TEXT =
@@ -11,11 +12,14 @@ export const DISCLAIMER_TEXT =
 
 function Disclaimer({ compact = false }) {
   return (
-    <div className={styles.disclaimer} role="note">
-      <strong>⚠ Disclaimer:</strong>{" "}
-      {compact
-        ? "AI-generated analysis for educational purposes only — not investment advice. Predictions are probabilistic and may be wrong."
-        : DISCLAIMER_TEXT}
+    <div className={`${styles.disclaimer} ${compact ? styles.compact : ""}`} role="note">
+      <LuInfo />
+      <span>
+        <strong>Disclaimer:</strong>{" "}
+        {compact
+          ? "AI-generated analysis for educational purposes only, not investment advice. Predictions are probabilistic and may be wrong."
+          : DISCLAIMER_TEXT}
+      </span>
     </div>
   );
 }

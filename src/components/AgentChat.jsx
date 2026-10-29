@@ -3,6 +3,7 @@ import axios from "axios";
 import styles from "./Analysis.module.css";
 import RichText from "./RichText";
 import SourcesPanel from "./SourcesPanel";
+import { LuBot, LuFileText, LuSendHorizontal } from "react-icons/lu";
 import { API, loadSnapshot } from "../services/snapshot";
 import { askLocalAgent } from "../services/localAgent";
 
@@ -41,10 +42,15 @@ function AgentChat({ ticker }) {
     };
   }, [ticker]);
 
-  // Scroll only the message list (not the page) when a new message arrives.
+  // Scroll only the message list (not the page). For a new answer, bring its question to the
+  // top so the start of the answer is visible; otherwise follow the bottom.
   useEffect(() => {
     const el = messagesRef.current;
-    if (el && messages.length) el.scrollTop = el.scrollHeight;
+    if (!el || !messages.length) return;
+    const last = el.lastElementChild;
+    const question = last?.previousElementSibling;
+    const answered = !busy && messages[messages.length - 1].role === "assistant";
+    el.scrollTop = answered && question ? question.offsetTop - 12 : el.scrollHeight;
   }, [messages, busy]);
 
   const ask = async (question) => {
@@ -87,69 +93,91 @@ function AgentChat({ ticker }) {
   };
 
   return (
-    <section className={`${styles.card} ${styles.chat}`} aria-label="AI stock analysis agent">
-      <h3>Ask the AI Analyst about {ticker}</h3>
-      <p className={styles.subtle}>
-        The agent uses market data, technical indicators, the ML model, news and retrieved documents for{" "}
-        {ticker}, and shows the sources behind its answer.
-      </p>
-      {snapshot && API && (
-        <label className={styles.toggle}>
-          <input type="checkbox" checked={useLive} onChange={(e) => setUseLive(e.target.checked)} />
-          Ask the live backend instead (slower: full agent run, Claude when configured)
-        </label>
-      )}
+    <section className={`card ${styles.chat}`} aria-label="AI stock analysis agent">
+      <div className={styles.chatHeader}>
+        <div className={styles.botIcon}>
+          <LuBot />
+        </div>
+        <div>
+          <h3>AI Analyst · {ticker}</h3>
+          <p className="muted">
+            Answers from market data, technical indicators, the ML model, news and retrieved documents, with
+            sources.
+          </p>
+        </div>
+        {snapshot && API && (
+          <label className={styles.toggle} title="Full agent run on the backend; uses Claude when configured">
+            <input type="checkbox" checked={useLive} onChange={(e) => setUseLive(e.target.checked)} />
+            Use live backend
+          </label>
+        )}
+      </div>
 
       <div className={styles.messages} ref={messagesRef}>
         {messages.length === 0 && (
-          <div className={styles.suggestions}>
-            {SUGGESTIONS.map((s) => (
-              <button key={s} className={styles.chip} onClick={() => ask(s)} disabled={busy}>
-                {s}
-              </button>
-            ))}
+          <div className={styles.welcome}>
+            <p>Ask anything about {ticker}. Try one of these:</p>
+            <div className={styles.suggestions}>
+              {SUGGESTIONS.map((s) => (
+                <button key={s} className={styles.chip} onClick={() => ask(s)} disabled={busy}>
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
         )}
-        {messages.map((m, i) => (
-          <div key={i} className={m.role === "user" ? styles.userMsg : styles.agentMsg}>
-            {m.role === "assistant" && !m.error && (
-              <div className={styles.msgMeta}>
-                {m.analysis?.short_term_outlook && (
-                  <span className={styles.badge}>Outlook: {m.analysis.short_term_outlook}</span>
-                )}
-                {m.analysis?.model_confidence != null && (
-                  <span className={styles.badge}>
-                    Confidence: {(m.analysis.model_confidence * 100).toFixed(0)}%
-                  </span>
-                )}
-                {m.analysis?.risk_level && <span className={styles.badge}>Risk: {m.analysis.risk_level}</span>}
-                <span className={styles.badge}>{MODE_LABEL[m.answer_mode] || m.answer_mode}</span>
-              </div>
-            )}
-            <div className={m.error ? styles.error : undefined}>
-              <RichText text={m.content} />
+        {messages.map((m, i) =>
+          m.role === "user" ? (
+            <div key={i} className={styles.userMsg}>
+              {m.content}
             </div>
-            {m.tool_trace && (
-              <details className={styles.trace}>
-                <summary>Tools used ({m.tool_trace.length})</summary>
-                <ul>
-                  {m.tool_trace.map((t) => (
-                    <li key={t.tool}>
-                      {t.tool}() — {t.status} · {t.duration_ms} ms
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            )}
-            {m.report_url && (
-              <a className={styles.button} href={m.report_url} download target="_blank" rel="noopener noreferrer">
-                Download PDF report
-              </a>
-            )}
-            {m.sources && <SourcesPanel sources={m.sources} title="Supporting sources" />}
+          ) : (
+            <div key={i} className={`${styles.agentMsg} ${m.error ? styles.agentError : ""}`}>
+              {!m.error && (
+                <div className={styles.msgMeta}>
+                  {m.analysis?.short_term_outlook && (
+                    <span className="badge badge-primary">Outlook: {m.analysis.short_term_outlook}</span>
+                  )}
+                  {m.analysis?.model_confidence != null && (
+                    <span className="badge">Confidence {(m.analysis.model_confidence * 100).toFixed(0)}%</span>
+                  )}
+                  {m.analysis?.risk_level && <span className="badge">Risk: {m.analysis.risk_level}</span>}
+                  <span className={`badge ${styles.modeBadge}`}>{MODE_LABEL[m.answer_mode] || m.answer_mode}</span>
+                </div>
+              )}
+              <div className={styles.answer}>
+                <RichText text={m.content} />
+              </div>
+              {m.report_url && (
+                <a className="btn btn-primary btn-sm" href={m.report_url} target="_blank" rel="noopener noreferrer">
+                  <LuFileText /> Open PDF report
+                </a>
+              )}
+              {m.tool_trace && (
+                <details className={styles.trace}>
+                  <summary>Tools used ({m.tool_trace.length})</summary>
+                  <ul>
+                    {m.tool_trace.map((t) => (
+                      <li key={t.tool}>
+                        <code>{t.tool}()</code>
+                        <span className={t.status === "ok" ? "up" : "down"}>{t.status}</span>
+                        <span className="muted">{t.duration_ms} ms</span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+              {m.sources && <SourcesPanel sources={m.sources} title="Supporting sources" />}
+            </div>
+          )
+        )}
+        {busy && (
+          <div className={`${styles.agentMsg} ${styles.typing}`}>
+            <span />
+            <span />
+            <span />
           </div>
-        ))}
-        {busy && <div className={styles.agentMsg}>Analysing {ticker}…</div>}
+        )}
       </div>
 
       <form
@@ -160,17 +188,17 @@ function AgentChat({ ticker }) {
         }}
       >
         <input
+          className="input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={`Ask about ${ticker}…`}
           maxLength={1000}
           aria-label="Question for the AI analyst"
         />
-        <button className={styles.button} type="submit" disabled={busy || !input.trim()}>
-          Ask
+        <button className="btn btn-primary" type="submit" disabled={busy || !input.trim()} aria-label="Send">
+          <LuSendHorizontal />
         </button>
       </form>
-      <p className={styles.subtle}>AI-generated analysis for educational purposes only — not investment advice.</p>
     </section>
   );
 }

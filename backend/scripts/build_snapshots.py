@@ -145,6 +145,20 @@ def build(symbol, reports):
     shutil.copyfile(pdf, os.path.join(REPORT_DIR, f"{symbol}.pdf"))
     logger.info("%s: snapshot %.0f KB, %.1fs", symbol, os.path.getsize(path) / 1024,
                 time.perf_counter() - started)
+    return _summary(snapshot)
+
+
+def _summary(snapshot):
+    """Small per-stock card data for the home page (last close, change, 30-day sparkline)."""
+    close = snapshot["prices"]["close"]
+    return {
+        "name": (snapshot.get("company") or {}).get("name"),
+        "close": close[-1],
+        "change_pct": round((close[-1] / close[-2] - 1) * 100, 2) if len(close) > 1 else 0.0,
+        "as_of": snapshot["prices"]["date"][-1],
+        "outlook": (snapshot["analysis"].get("primary_prediction") or {}).get("outlook"),
+        "spark": close[-30:],
+    }
 
 
 def _default_symbols():
@@ -163,24 +177,25 @@ def main(argv):
 
     wanted = [s.upper().split(".")[0] for s in argv] or _default_symbols()
     reports = ReportService()
-    built = []
+    built = {}
     for symbol in wanted:
         try:
-            build(symbol, reports)
-            built.append(symbol)
+            built[symbol] = build(symbol, reports)
         except StockNotFoundError:
             logger.warning("%s: no price data (set LIVE_MARKET_DATA=true to fetch it), skipped", symbol)
         except Exception:
             logger.exception("%s: snapshot failed", symbol)
 
     index_path = os.path.join(SNAPSHOT_DIR, "index.json")
-    existing = []
+    summaries = {}
     if os.path.exists(index_path):
         with open(index_path, encoding="utf-8") as fh:
-            existing = json.load(fh).get("symbols", [])
-    symbols = sorted(set(existing) | set(built))
+            summaries = json.load(fh).get("summaries", {})
+    summaries.update(built)
+    symbols = sorted(summaries)
     with open(index_path, "w", encoding="utf-8") as fh:
-        json.dump({"symbols": symbols, "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}, fh)
+        json.dump({"symbols": symbols, "summaries": summaries,
+                   "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}, fh)
     logger.info("Snapshots available for: %s", ", ".join(symbols) or "none")
 
 

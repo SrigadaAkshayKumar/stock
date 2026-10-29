@@ -1,32 +1,85 @@
 import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import {
+  LuActivity,
+  LuBrainCircuit,
+  LuBuilding2,
+  LuFileText,
+  LuNewspaper,
+  LuRefreshCw,
+  LuShieldAlert,
+  LuSparkles,
+  LuTriangleAlert,
+} from "react-icons/lu";
 import Plot from "./Plot";
-import { ClipLoader } from "react-spinners";
 import styles from "./Analysis.module.css";
 import RichText from "./RichText";
 import SourcesPanel from "./SourcesPanel";
+import { plotConfig, useChartTheme } from "./ui/chartTheme";
 import { API, loadSnapshot, reportUrl } from "../services/snapshot";
+import { formatDate, formatNumber, formatPct, formatPrice, ratioPct, toneOf } from "../utils/format";
 
-const pct = (v, digits = 1) =>
-  v === null || v === undefined ? "n/a" : `${(v * 100).toFixed(digits)}%`;
-const num = (v, digits = 2) =>
-  v === null || v === undefined
-    ? "n/a"
-    : Number(v).toLocaleString(undefined, { maximumFractionDigits: digits });
-
-function Metric({ label, value, hint }) {
+function Metric({ label, value, hint, tone }) {
   return (
     <div className={styles.metric} title={hint}>
       <span className={styles.metricLabel}>{label}</span>
-      <span className={styles.metricValue}>{value}</span>
+      <span className={`${styles.metricValue} ${tone || ""}`}>{value}</span>
     </div>
   );
 }
 
-function OutlookBadge({ outlook }) {
-  const cls =
-    outlook === "Bullish" ? styles.bullish : outlook === "Bearish" ? styles.bearish : styles.neutral;
-  return <span className={`${styles.outlook} ${cls}`}>{outlook || "n/a"}</span>;
+const toneClass = (v) =>
+  ({ Bullish: "badge-success", bullish: "badge-success", Bearish: "badge-danger", bearish: "badge-danger" }[v] ||
+  "badge-warning");
+
+const riskClass = (v) => ({ Low: "badge-success", Medium: "badge-warning", High: "badge-danger" }[v] || "");
+
+function CardTitle({ icon: Icon, children, badge }) {
+  return (
+    <div className={styles.cardTitle}>
+      <h3>
+        <Icon /> {children}
+      </h3>
+      {badge}
+    </div>
+  );
+}
+
+function IndicatorChart({ series }) {
+  const t = useChartTheme();
+  return (
+    <Plot
+      data={[
+        { x: series.dates, y: series.bb_upper, type: "scatter", mode: "lines", name: "Bollinger upper", line: { color: t.muted, dash: "dot", width: 1 } },
+        { x: series.dates, y: series.bb_lower, type: "scatter", mode: "lines", name: "Bollinger lower", line: { color: t.muted, dash: "dot", width: 1 }, fill: "tonexty", fillcolor: t.fill },
+        { x: series.dates, y: series.close, type: "scatter", mode: "lines", name: "Close", line: { color: t.line, width: 2 } },
+        { x: series.dates, y: series.sma_20, type: "scatter", mode: "lines", name: "SMA 20", line: { color: t.warning, width: 1.25 } },
+        { x: series.dates, y: series.sma_50, type: "scatter", mode: "lines", name: "SMA 50", line: { color: t.success, width: 1.25 } },
+        { x: series.dates, y: series.rsi_14, type: "scatter", mode: "lines", name: "RSI 14", yaxis: "y2", line: { color: t.purple, width: 1.25 } },
+      ]}
+      layout={t.layout({
+        height: 440,
+        margin: { l: 56, r: 16, t: 8, b: 40 },
+        yaxis: { title: { text: "Price" }, domain: [0.32, 1], gridcolor: t.grid, zeroline: false, tickformat: ",.0f" },
+        yaxis2: {
+          title: { text: "RSI" },
+          domain: [0, 0.22],
+          range: [0, 100],
+          gridcolor: t.grid,
+          zeroline: false,
+          tickvals: [30, 70],
+        },
+        shapes: [30, 70].map((y) => ({
+          type: "line", xref: "paper", x0: 0, x1: 1, yref: "y2", y0: y, y1: y,
+          line: { color: t.muted, width: 1, dash: "dash" },
+        })),
+        xaxis: { gridcolor: "rgba(0,0,0,0)", linecolor: t.grid, type: "date" },
+      })}
+      config={plotConfig}
+      useResizeHandler
+      style={{ width: "100%" }}
+    />
+  );
 }
 
 function AnalysisDashboard({ ticker }) {
@@ -34,13 +87,12 @@ function AnalysisDashboard({ ticker }) {
   const [snapshot, setSnapshot] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [downloading, setDownloading] = useState(false);
 
   const load = useCallback(
     async (refresh = false) => {
       setLoading(true);
       setError("");
-      // Pre-computed analysis renders instantly; "Refresh" re-runs it on the live backend.
+      // Pre-computed analysis renders instantly; "Re-run live" re-runs it on the backend.
       if (!refresh) {
         const snap = await loadSnapshot(ticker);
         setSnapshot(snap);
@@ -51,9 +103,7 @@ function AnalysisDashboard({ ticker }) {
         }
       }
       try {
-        const res = await axios.get(
-          `${API}/api/stock/${ticker}/analysis${refresh ? "?refresh=true" : ""}`
-        );
+        const res = await axios.get(`${API}/api/stock/${ticker}/analysis${refresh ? "?refresh=true" : ""}`);
         setAnalysis(res.data);
       } catch (err) {
         setError(
@@ -72,248 +122,217 @@ function AnalysisDashboard({ ticker }) {
     if (ticker) load();
   }, [ticker, load]);
 
-  const downloadReport = async () => {
-    if (snapshot) {
-      window.open(reportUrl(snapshot), "_blank", "noopener");
-      return;
-    }
-    setDownloading(true);
-    try {
-      const res = await axios.get(`${API}/api/stock/${ticker}/report.pdf`, { responseType: "blob" });
-      const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${ticker}_analysis_report.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      setError("Report generation failed. Please try again.");
-    } finally {
-      setDownloading(false);
-    }
-  };
+  const pdfHref = snapshot ? reportUrl(snapshot) : `${API}/api/stock/${ticker}/report.pdf`;
 
   if (loading && !analysis) {
     return (
-      <div className={styles.card}>
-        <div className={styles.loading}>
-          <ClipLoader color="#36d7b7" size={36} />
-          <p>Running ML models, indicators, news and document retrieval on the live backend…</p>
-          <p className={styles.subtle}>The free-tier server can take up to a minute to wake up.</p>
-        </div>
+      <div className={`card ${styles.state}`}>
+        <div className="spinner" />
+        <p>Running ML models, indicators, news and document retrieval on the live backend…</p>
+        <p className="muted">The free-tier server can take up to a minute to wake up.</p>
       </div>
     );
   }
   if (error && !analysis) {
     return (
-      <div className={styles.card}>
-        <p className={styles.error}>{error}</p>
-        <button className={styles.button} onClick={() => load(true)}>
-          Retry
+      <div className={`card ${styles.state}`}>
+        <LuTriangleAlert className={styles.stateIcon} />
+        <p>{error}</p>
+        <button className="btn btn-secondary" onClick={() => load(true)}>
+          <LuRefreshCw /> Retry
         </button>
       </div>
     );
   }
   if (!analysis) return null;
 
-  const { predictions = [], primary_prediction: primary, indicators = {}, risk = {}, fundamentals = {} } =
-    analysis;
+  const { predictions = [], primary_prediction: primary, indicators = {}, risk = {}, fundamentals = {} } = analysis;
   const bt = primary?.backtest || {};
   const series = indicators.series || {};
   const metrics = fundamentals.price_metrics || {};
   const news = analysis.news || {};
+  const weak = bt.directional_accuracy !== undefined && bt.directional_accuracy < 0.55;
 
   return (
     <section className={styles.dashboard} aria-label="AI analysis">
-      <div className={styles.header}>
-        <div>
-          <h2>AI Analysis — {analysis.company?.name || ticker}</h2>
-          <p className={styles.subtle}>
-            Data as of {analysis.price?.as_of} ({analysis.price?.source}) · generated{" "}
-            {new Date(analysis.generated_at).toLocaleString()}
-          </p>
-        </div>
-        <div className={styles.actions}>
+      <div className={styles.toolbar}>
+        <p className="muted">
+          Data as of {formatDate(analysis.price?.as_of)} ({analysis.price?.source}) · generated{" "}
+          {new Date(analysis.generated_at).toLocaleString("en-IN")}
+        </p>
+        <div className={styles.toolbarActions}>
           {API && (
             <button
-              className={styles.buttonSecondary}
+              className="btn btn-secondary btn-sm"
               onClick={() => load(true)}
               disabled={loading}
               title="Re-run the full analysis on the backend"
             >
-              {loading ? "Running live analysis…" : "Re-run live"}
+              <LuRefreshCw /> {loading ? "Running live analysis…" : "Re-run live"}
             </button>
           )}
-          <button className={styles.button} onClick={downloadReport} disabled={downloading}>
-            {downloading ? "Generating PDF…" : "Open full report (PDF)"}
-          </button>
+          <a className="btn btn-primary btn-sm" href={pdfHref} target="_blank" rel="noopener noreferrer">
+            <LuFileText /> Open PDF report
+          </a>
         </div>
       </div>
       {error && <p className={styles.error}>{error}</p>}
 
+      {/* AI conclusion first: the answer, then the evidence */}
+      <div className={`card ${styles.summary}`}>
+        <CardTitle icon={LuSparkles}>AI-generated analysis</CardTitle>
+        <div className={styles.aiText}>
+          <RichText text={analysis.ai_conclusion} />
+        </div>
+        <SourcesPanel sources={analysis.sources} />
+      </div>
+
       <div className={styles.grid}>
-        {/* ML prediction */}
-        <div className={styles.card}>
-          <h3>ML Prediction</h3>
-          {predictions.map((p) => (
-            <div key={p.horizon_trading_days} className={styles.predictionRow}>
-              <div>
-                <strong>Next {p.horizon_trading_days} trading day{p.horizon_trading_days > 1 ? "s" : ""}</strong>
-                <div className={styles.subtle}>Target {p.target_date}</div>
+        <div className="card">
+          <CardTitle icon={LuBrainCircuit}>ML prediction</CardTitle>
+          <div className={styles.body}>
+            {predictions.map((p) => (
+              <div key={p.horizon_trading_days} className={styles.predictionRow}>
+                <div className={styles.predictionHead}>
+                  <strong>
+                    Next {p.horizon_trading_days} trading day{p.horizon_trading_days > 1 ? "s" : ""}
+                  </strong>
+                  <span className={`badge ${toneClass(p.outlook)}`}>{p.outlook}</span>
+                </div>
+                <div className={styles.metricRow}>
+                  <Metric label="P(up)" value={ratioPct(p.probability_up)} />
+                  <Metric label="Confidence" value={ratioPct(p.confidence)} />
+                  <Metric label="Expected price" value={formatPrice(p.predicted_price, ticker)} />
+                </div>
+                <span className={styles.subtle}>Target date {formatDate(p.target_date)}</span>
               </div>
-              <OutlookBadge outlook={p.outlook} />
-              <Metric label="P(up)" value={pct(p.probability_up)} />
-              <Metric label="Confidence" value={pct(p.confidence)} />
-              <Metric label="Expected price" value={num(p.predicted_price)} />
-            </div>
-          ))}
-          {primary && (
-            <div className={styles.backtest}>
-              <h4>Backtest (walk-forward, out-of-sample)</h4>
-              <div className={styles.metricRow}>
-                <Metric label="Directional accuracy" value={pct(bt.directional_accuracy)} />
-                <Metric label="Baseline" value={pct(bt.baseline_accuracy)} hint="Always predicting the majority class" />
-                <Metric label="MAE" value={num(bt.mae)} />
-                <Metric label="RMSE" value={num(bt.rmse)} />
+            ))}
+            {primary && (
+              <div className={styles.backtest}>
+                <h4>Walk-forward backtest (out-of-sample)</h4>
+                <div className={styles.metricRow}>
+                  <Metric label="Directional accuracy" value={ratioPct(bt.directional_accuracy)} />
+                  <Metric label="Baseline" value={ratioPct(bt.baseline_accuracy)} hint="Always predicting the majority class" />
+                  <Metric label="MAE" value={formatNumber(bt.mae)} />
+                  <Metric label="RMSE" value={formatNumber(bt.rmse)} />
+                </div>
+                {weak && (
+                  <p className={styles.warning}>
+                    <LuTriangleAlert /> Historical accuracy is close to chance, so treat this signal as weak evidence.
+                  </p>
+                )}
+                <code className={styles.version}>{primary.model_version}</code>
               </div>
-              {bt.directional_accuracy !== undefined && bt.directional_accuracy < 0.55 && (
-                <p className={styles.warning}>
-                  Historical accuracy is close to chance — treat this signal as weak evidence.
-                </p>
-              )}
-              <p className={styles.subtle}>Model: {primary.model_version}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="card">
+          <CardTitle
+            icon={LuShieldAlert}
+            badge={risk.risk_level && <span className={`badge ${riskClass(risk.risk_level)}`}>{risk.risk_level} risk</span>}
+          >
+            Risk assessment
+          </CardTitle>
+          <div className={styles.body}>
+            <div className={styles.metricGrid}>
+              <Metric label="Volatility (ann.)" value={ratioPct(risk.annualized_volatility)} />
+              <Metric label="Max drawdown 1Y" value={ratioPct(risk.max_drawdown_1y)} tone="down" />
+              <Metric label="VaR 95% (1D)" value={ratioPct(risk.var_95_1d, 2)} />
+              <Metric label="Sharpe 1Y" value={formatNumber(risk.sharpe_ratio_1y)} />
             </div>
-          )}
-        </div>
-
-        {/* Risk */}
-        <div className={styles.card}>
-          <h3>
-            Risk Assessment <span className={`${styles.badge} ${styles["risk" + risk.risk_level]}`}>{risk.risk_level}</span>
-          </h3>
-          <div className={styles.metricRow}>
-            <Metric label="Volatility (ann.)" value={pct(risk.annualized_volatility)} />
-            <Metric label="Max drawdown 1Y" value={pct(risk.max_drawdown_1y)} />
-            <Metric label="VaR 95% (1D)" value={pct(risk.var_95_1d, 2)} />
-            <Metric label="Sharpe 1Y" value={num(risk.sharpe_ratio_1y)} />
-          </div>
-          <ul className={styles.list}>
-            {(risk.risk_factors || []).map((f) => (
-              <li key={f}>{f}</li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Technicals */}
-        <div className={`${styles.card} ${styles.wide}`}>
-          <h3>
-            Technical Indicators{" "}
-            <span className={`${styles.badge} ${styles[indicators.technical_bias] || ""}`}>
-              {indicators.technical_bias}
-            </span>
-          </h3>
-          <div className={styles.metricRow}>
-            <Metric label="RSI (14)" value={num(indicators.latest?.rsi_14, 1)} />
-            <Metric label="MACD" value={num(indicators.latest?.macd, 2)} />
-            <Metric label="SMA 50" value={num(indicators.latest?.sma_50)} />
-            <Metric label="SMA 200" value={num(indicators.latest?.sma_200)} />
-            <Metric label="ATR (14)" value={num(indicators.latest?.atr_14)} />
-          </div>
-          {series.dates && (
-            <Plot
-              data={[
-                { x: series.dates, y: series.close, type: "scatter", mode: "lines", name: "Close", line: { color: "#2563eb" } },
-                { x: series.dates, y: series.sma_20, type: "scatter", mode: "lines", name: "SMA 20", line: { color: "#f59e0b", width: 1 } },
-                { x: series.dates, y: series.sma_50, type: "scatter", mode: "lines", name: "SMA 50", line: { color: "#10b981", width: 1 } },
-                { x: series.dates, y: series.bb_upper, type: "scatter", mode: "lines", name: "Bollinger upper", line: { color: "#94a3b8", dash: "dot", width: 1 } },
-                { x: series.dates, y: series.bb_lower, type: "scatter", mode: "lines", name: "Bollinger lower", line: { color: "#94a3b8", dash: "dot", width: 1 } },
-                { x: series.dates, y: series.rsi_14, type: "scatter", mode: "lines", name: "RSI 14", yaxis: "y2", line: { color: "#a855f7", width: 1 } },
-              ]}
-              layout={{
-                autosize: true,
-                height: 420,
-                margin: { l: 50, r: 50, t: 20, b: 40 },
-                legend: { orientation: "h", y: -0.15 },
-                yaxis: { title: { text: "Price" }, domain: [0.3, 1] },
-                yaxis2: { title: { text: "RSI" }, domain: [0, 0.22], range: [0, 100] },
-                paper_bgcolor: "rgba(0,0,0,0)",
-                plot_bgcolor: "rgba(0,0,0,0)",
-              }}
-              useResizeHandler
-              style={{ width: "100%" }}
-              config={{ displayModeBar: false, responsive: true }}
-            />
-          )}
-          <ul className={styles.signals}>
-            {(indicators.signals || []).map((s) => (
-              <li key={s.indicator} className={styles[s.signal]}>
-                <strong>{s.indicator}:</strong> {s.detail}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Fundamentals */}
-        <div className={styles.card}>
-          <h3>Fundamentals & Performance</h3>
-          <p className={styles.subtle}>
-            {analysis.company?.sector} · {analysis.company?.industry}
-          </p>
-          <div className={styles.metricRow}>
-            <Metric label="52W high" value={num(metrics.high_52w)} />
-            <Metric label="52W low" value={num(metrics.low_52w)} />
-            <Metric label="1M return" value={`${num(metrics.return_1m_pct)}%`} />
-            <Metric label="1Y return" value={`${num(metrics.return_1y_pct)}%`} />
-          </div>
-          {fundamentals.provider_available ? (
-            <div className={styles.metricRow}>
-              {Object.entries(fundamentals.provider_metrics).map(([k, v]) => (
-                <Metric key={k} label={k.replace(/_/g, " ")} value={num(v, 3)} />
+            <ul className={styles.list}>
+              {(risk.risk_factors || []).map((f) => (
+                <li key={f}>{f}</li>
               ))}
-            </div>
-          ) : (
-            <p className={styles.subtle}>{fundamentals.note}</p>
-          )}
-        </div>
-
-        {/* News sentiment */}
-        <div className={styles.card}>
-          <h3>News & Sentiment</h3>
-          {news.articles?.length ? (
-            <>
-              <p>
-                Overall sentiment: <strong>{news.sentiment_summary?.overall_sentiment}</strong> across{" "}
-                {news.articles.length} articles.
-              </p>
-              <ul className={styles.list}>
-                {news.articles.slice(0, 5).map((a) => (
-                  <li key={a.url}>
-                    <a href={a.url} target="_blank" rel="noopener noreferrer">
-                      {a.title}
-                    </a>{" "}
-                    <span className={styles.subtle}>
-                      ({a.source}, {a.sentiment})
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <p className={styles.subtle}>
-              No recent news available{news.provider_available === false ? " (news provider not configured)" : ""}.
-            </p>
-          )}
-        </div>
-
-        {/* AI conclusion */}
-        <div className={`${styles.card} ${styles.wide}`}>
-          <h3>AI-Generated Analysis</h3>
-          <div className={styles.aiText}>
-            <RichText text={analysis.ai_conclusion} />
+            </ul>
           </div>
-          <SourcesPanel sources={analysis.sources} />
+        </div>
+
+        <div className={`card ${styles.wide}`}>
+          <CardTitle
+            icon={LuActivity}
+            badge={
+              indicators.technical_bias && (
+                <span className={`badge ${toneClass(indicators.technical_bias)}`}>
+                  {indicators.technical_bias} bias
+                </span>
+              )
+            }
+          >
+            Technical indicators
+          </CardTitle>
+          <div className={styles.body}>
+            <div className={styles.metricRow}>
+              <Metric label="RSI (14)" value={formatNumber(indicators.latest?.rsi_14, 1)} />
+              <Metric label="MACD" value={formatNumber(indicators.latest?.macd)} />
+              <Metric label="SMA 50" value={formatNumber(indicators.latest?.sma_50)} />
+              <Metric label="SMA 200" value={formatNumber(indicators.latest?.sma_200)} />
+              <Metric label="ATR (14)" value={formatNumber(indicators.latest?.atr_14)} />
+            </div>
+            {series.dates && <IndicatorChart series={series} />}
+            <ul className={styles.signals}>
+              {(indicators.signals || []).map((s) => (
+                <li key={s.indicator} className={styles[s.signal]}>
+                  <strong>{s.indicator}</strong> {s.detail}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="card">
+          <CardTitle icon={LuBuilding2}>Fundamentals & performance</CardTitle>
+          <div className={styles.body}>
+            <p className={styles.subtle}>
+              {analysis.company?.sector} · {analysis.company?.industry}
+            </p>
+            <div className={styles.metricGrid}>
+              <Metric label="52W high" value={formatPrice(metrics.high_52w, ticker)} />
+              <Metric label="52W low" value={formatPrice(metrics.low_52w, ticker)} />
+              <Metric label="1M return" value={formatPct(metrics.return_1m_pct)} tone={toneOf(metrics.return_1m_pct)} />
+              <Metric label="1Y return" value={formatPct(metrics.return_1y_pct)} tone={toneOf(metrics.return_1y_pct)} />
+            </div>
+            {fundamentals.provider_available ? (
+              <div className={styles.metricGrid}>
+                {Object.entries(fundamentals.provider_metrics).map(([k, v]) => (
+                  <Metric key={k} label={k.replace(/_/g, " ")} value={formatNumber(v, 3)} />
+                ))}
+              </div>
+            ) : (
+              <p className={styles.note}>{fundamentals.note}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="card">
+          <CardTitle icon={LuNewspaper}>News & sentiment</CardTitle>
+          <div className={styles.body}>
+            {news.articles?.length ? (
+              <>
+                <p>
+                  Overall sentiment <strong>{news.sentiment_summary?.overall_sentiment}</strong> across{" "}
+                  {news.articles.length} articles.
+                </p>
+                <ul className={styles.list}>
+                  {news.articles.slice(0, 5).map((a) => (
+                    <li key={a.url}>
+                      <a href={a.url} target="_blank" rel="noopener noreferrer">
+                        {a.title}
+                      </a>{" "}
+                      <span className={styles.subtle}>
+                        ({a.source}, {a.sentiment})
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className={styles.note}>
+                No recent news available{news.provider_available === false ? " (news provider not configured)" : ""}.
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </section>
