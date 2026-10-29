@@ -28,6 +28,10 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Start from the branch tip (not the triggering commit) so a queued run
+          # builds on top of any snapshot commit pushed by an earlier run.
+          ref: ${{ github.ref_name }}
 
       - uses: actions/setup-python@v5
         with:
@@ -59,5 +63,6 @@ jobs:
             exit 0
           fi
           git commit -m "Refresh market snapshots ($(date -u +%Y-%m-%d))"
-          git pull --rebase origin "${GITHUB_REF_NAME}"
+          # Snapshots are fully regenerated, so on a race the newer build wins.
+          git pull --rebase -X theirs origin "${GITHUB_REF_NAME}"
           git push origin "HEAD:${GITHUB_REF_NAME}"
