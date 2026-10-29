@@ -57,6 +57,34 @@ INTENT_TOOLS = {
                  "search_latest_news", "retrieve_company_documents", "calculate_risk"],
 }
 
+METRIC_LABELS = {
+    "market_cap": "market cap", "pe_ratio": "P/E", "forward_pe": "forward P/E", "price_to_book": "P/B",
+    "dividend_yield": "dividend yield", "return_on_equity": "ROE", "debt_to_equity": "debt/equity",
+    "profit_margin": "profit margin", "revenue_growth": "revenue growth", "earnings_growth": "earnings growth",
+    "beta": "beta",
+}
+_FRACTION_METRICS = {"return_on_equity", "profit_margin", "revenue_growth", "earnings_growth"}
+
+
+def format_metric(key: str, value) -> str:
+    """Human-readable valuation metric, e.g. 'market cap ₹10.54 lakh crore', 'ROE 11.0%'."""
+    label = METRIC_LABELS.get(key, key.replace("_", " "))
+    try:
+        v = float(value)
+    except (TypeError, ValueError):
+        return f"{label} {value}"
+    if key == "market_cap":
+        crore = v / 1e7
+        text = f"₹{crore / 1e5:.2f} lakh crore" if crore >= 1e5 else f"₹{crore:,.0f} crore"
+    elif key in _FRACTION_METRICS:
+        text = f"{v * 100:.1f}%"
+    elif key == "dividend_yield":
+        text = f"{v:.2f}%"
+    else:
+        text = f"{v:.2f}"
+    return f"{label} {text}"
+
+
 SOURCE_LABELS = {"local_dataset": "historical market dataset", "yfinance": "Yahoo Finance"}
 
 # Tools whose inputs depend on other tools' outputs run last.
@@ -203,7 +231,7 @@ class AgentService:
                          f"52-week range {m.get('low_52w')}–{m.get('high_52w')}, 1-year return {m.get('return_1y_pct')}%.")
             if fund.get("provider_metrics"):
                 pm = fund["provider_metrics"]
-                lines.append("Provider metrics: " + ", ".join(f"{k}={v}" for k, v in pm.items()) + ".")
+                lines.append("Valuation: " + ", ".join(format_metric(k, v) for k, v in pm.items()) + ".")
             elif fund.get("note"):
                 lines.append(fund["note"])
         news = results.get("search_latest_news") or {}

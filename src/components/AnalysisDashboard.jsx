@@ -17,7 +17,16 @@ import RichText from "./RichText";
 import SourcesPanel from "./SourcesPanel";
 import { plotConfig, useChartTheme } from "./ui/chartTheme";
 import { API, loadSnapshot, reportUrl } from "../services/snapshot";
-import { formatDate, formatNumber, formatPct, formatPrice, ratioPct, toneOf } from "../utils/format";
+import {
+  formatDate,
+  formatMetricValue,
+  formatNumber,
+  formatPct,
+  formatPrice,
+  metricLabel,
+  ratioPct,
+  toneOf,
+} from "../utils/format";
 
 function Metric({ label, value, hint, tone }) {
   return (
@@ -286,7 +295,7 @@ function AnalysisDashboard({ ticker }) {
             {fundamentals.provider_available ? (
               <div className={styles.metricGrid}>
                 {Object.entries(fundamentals.provider_metrics).map(([k, v]) => (
-                  <Metric key={k} label={k.replace(/_/g, " ")} value={formatNumber(v, 3)} />
+                  <Metric key={k} label={metricLabel(k)} value={formatMetricValue(k, v)} />
                 ))}
               </div>
             ) : (

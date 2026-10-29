@@ -5,6 +5,7 @@
 // Python implementation.
 
 import { reportUrl } from "./snapshot";
+import { formatMetricValue, metricLabel } from "../utils/format";
 
 const SOURCE_LABELS = { local_dataset: "historical market dataset", yfinance: "Yahoo Finance" };
 
@@ -144,7 +145,11 @@ function ruleBasedAnswer(symbol, s, results) {
         `52-week range ${m.low_52w}–${m.high_52w}, 1-year return ${m.return_1y_pct}%.`
     );
     if (fund.provider_metrics && Object.keys(fund.provider_metrics).length) {
-      lines.push(`Provider metrics: ${Object.entries(fund.provider_metrics).map(([k, v]) => `${k}=${v}`).join(", ")}.`);
+      lines.push(
+        `Valuation: ${Object.entries(fund.provider_metrics)
+          .map(([k, v]) => `${metricLabel(k).replace(/^(?!P\/|ROE)\w/, (c) => c.toLowerCase())} ${formatMetricValue(k, v)}`)
+          .join(", ")}.`
+      );
     } else if (fund.note) {
       lines.push(fund.note);
     }

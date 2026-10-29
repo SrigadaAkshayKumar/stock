@@ -48,3 +48,35 @@ export function formatDate(iso, opts = { day: "numeric", month: "short", year: "
   const d = new Date(iso);
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString("en-IN", opts);
 }
+
+// Valuation metrics from the data provider, e.g. market cap -> "₹10.54 lakh crore", ROE 0.11 -> "11.0%".
+export const METRIC_LABELS = {
+  market_cap: "Market cap",
+  pe_ratio: "P/E",
+  forward_pe: "Forward P/E",
+  price_to_book: "P/B",
+  dividend_yield: "Dividend yield",
+  return_on_equity: "ROE",
+  debt_to_equity: "Debt / equity",
+  profit_margin: "Profit margin",
+  revenue_growth: "Revenue growth",
+  earnings_growth: "Earnings growth",
+  beta: "Beta",
+};
+const FRACTION_METRICS = new Set(["return_on_equity", "profit_margin", "revenue_growth", "earnings_growth"]);
+
+export function formatMetricValue(key, value) {
+  const v = Number(value);
+  if (value === null || value === undefined || Number.isNaN(v)) return "—";
+  if (key === "market_cap") {
+    const crore = v / 1e7;
+    return crore >= 1e5
+      ? `₹${(crore / 1e5).toFixed(2)} lakh crore`
+      : `₹${crore.toLocaleString("en-IN", { maximumFractionDigits: 0 })} crore`;
+  }
+  if (FRACTION_METRICS.has(key)) return `${(v * 100).toFixed(1)}%`;
+  if (key === "dividend_yield") return `${v.toFixed(2)}%`;
+  return v.toFixed(2);
+}
+
+export const metricLabel = (key) => METRIC_LABELS[key] || key.replace(/_/g, " ");
