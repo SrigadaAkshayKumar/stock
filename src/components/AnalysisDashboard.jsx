@@ -108,7 +108,7 @@ function AnalysisDashboard({ ticker }) {
       } catch (err) {
         setError(
           err.response?.data?.error ||
-            "Could not reach the live analysis server (it may be waking up). Please try again in a minute."
+            "We couldn't load the analysis for this stock right now. Please try again in a minute."
         );
       } finally {
         setLoading(false);
@@ -128,8 +128,8 @@ function AnalysisDashboard({ ticker }) {
     return (
       <div className={`card ${styles.state}`}>
         <div className="spinner" />
-        <p>Running ML models, indicators, news and document retrieval on the live backend…</p>
-        <p className="muted">The free-tier server can take up to a minute to wake up.</p>
+        <p>Running the ML models, indicators, news and document retrieval…</p>
+        <p className="muted">This can take up to a minute.</p>
       </div>
     );
   }
@@ -157,20 +157,10 @@ function AnalysisDashboard({ ticker }) {
     <section className={styles.dashboard} aria-label="AI analysis">
       <div className={styles.toolbar}>
         <p className="muted">
-          Data as of {formatDate(analysis.price?.as_of)} ({analysis.price?.source}) · generated{" "}
+          Market data as of {formatDate(analysis.price?.as_of)} · analysis generated{" "}
           {new Date(analysis.generated_at).toLocaleString("en-IN")}
         </p>
         <div className={styles.toolbarActions}>
-          {API && (
-            <button
-              className="btn btn-secondary btn-sm"
-              onClick={() => load(true)}
-              disabled={loading}
-              title="Re-run the full analysis on the backend"
-            >
-              <LuRefreshCw /> {loading ? "Running live analysis…" : "Re-run live"}
-            </button>
-          )}
           <a className="btn btn-primary btn-sm" href={pdfHref} target="_blank" rel="noopener noreferrer">
             <LuFileText /> Open PDF report
           </a>
@@ -329,7 +319,7 @@ function AnalysisDashboard({ ticker }) {
               </>
             ) : (
               <p className={styles.note}>
-                No recent news available{news.provider_available === false ? " (news provider not configured)" : ""}.
+                No recent news articles were found for this stock.
               </p>
             )}
           </div>

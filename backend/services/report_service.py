@@ -137,7 +137,7 @@ class ReportService:
         self._section(story, "8. Latest News", [
             f"- {art['title']} — {art.get('source') or 'n/a'}, {art.get('published_at') or 'n/a'} ({art.get('sentiment') or 'n/a'})"
             for art in arts[:8]
-        ] or ["No recent news was available from the news provider at generation time."])
+        ] or ["No recent news articles were found for this stock at generation time."])
 
         ss = news.get("sentiment_summary", {}) or {}
         counts = ss.get("sentiment_distribution", {}) or {}

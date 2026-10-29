@@ -23,7 +23,7 @@ function Prediction({ ticker }) {
       const snapshot = await loadSnapshot(ticker);
       setData(snapshot?.legacy_prediction || (await axios.get(`${API}/api/stock/${ticker}/predict`)).data);
     } catch {
-      setError("Could not load the projection. The server may be waking up. Please try again in a minute.");
+      setError("We couldn't load the projection right now. Please try again in a minute.");
     } finally {
       setIsLoading(false);
     }

@@ -57,6 +57,8 @@ INTENT_TOOLS = {
                  "search_latest_news", "retrieve_company_documents", "calculate_risk"],
 }
 
+SOURCE_LABELS = {"local_dataset": "historical market dataset", "yfinance": "Yahoo Finance"}
+
 # Tools whose inputs depend on other tools' outputs run last.
 _TOOL_ORDER = list(TOOLS.keys())
 
@@ -186,7 +188,7 @@ class AgentService:
         if "price" in price:
             lines.append(
                 f"**Market data:** {symbol} last closed at {price['price']} on {price['as_of']} "
-                f"({price['change_pct']:+.2f}% vs previous close; source: {price['source']})."
+                f"({price['change_pct']:+.2f}% vs previous close; source: {SOURCE_LABELS.get(price['source'], price['source'])})."
             )
         hist = results.get("get_historical_prices") or {}
         if "change_pct" in hist:
@@ -210,7 +212,7 @@ class AgentService:
                 lines.append(f"**News:** {len(news['articles'])} recent articles, overall sentiment "
                              f"{s.get('news_sentiment') or 'n/a'}. Latest: \"{news['articles'][0]['title']}\".")
             else:
-                lines.append("**News:** no recent articles were available from the news provider.")
+                lines.append("**News:** no recent news articles were found for this stock.")
         docs = (results.get("retrieve_company_documents") or {}).get("sources", [])
         if docs:
             refs = "; ".join(f"[{d['id']}] {d['title']} ({d['recency']})" for d in docs[:3])

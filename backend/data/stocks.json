@@ -1,5 +1,18 @@
 {
   "TCS": {"name": "Tata Consultancy Services", "exchange": "NSE/BSE", "sector": "Information Technology", "industry": "IT Services & Consulting"},
   "INFY": {"name": "Infosys", "exchange": "NSE/BSE", "sector": "Information Technology", "industry": "IT Services & Consulting"},
-  "RELIANCE": {"name": "Reliance Industries", "exchange": "NSE/BSE", "sector": "Energy / Conglomerate", "industry": "Oil & Gas, Retail, Telecom"}
+  "WIPRO": {"name": "Wipro", "exchange": "NSE/BSE", "sector": "Information Technology", "industry": "IT Services & Consulting"},
+  "RELIANCE": {"name": "Reliance Industries", "exchange": "NSE/BSE", "sector": "Energy / Conglomerate", "industry": "Oil & Gas, Retail, Telecom"},
+  "HDFCBANK": {"name": "HDFC Bank", "exchange": "NSE/BSE", "sector": "Financial Services", "industry": "Private Sector Bank"},
+  "ICICIBANK": {"name": "ICICI Bank", "exchange": "NSE/BSE", "sector": "Financial Services", "industry": "Private Sector Bank"},
+  "SBIN": {"name": "State Bank of India", "exchange": "NSE/BSE", "sector": "Financial Services", "industry": "Public Sector Bank"},
+  "KOTAKBANK": {"name": "Kotak Mahindra Bank", "exchange": "NSE/BSE", "sector": "Financial Services", "industry": "Private Sector Bank"},
+  "AXISBANK": {"name": "Axis Bank", "exchange": "NSE/BSE", "sector": "Financial Services", "industry": "Private Sector Bank"},
+  "BAJFINANCE": {"name": "Bajaj Finance", "exchange": "NSE/BSE", "sector": "Financial Services", "industry": "Non-Banking Financial Company"},
+  "ITC": {"name": "ITC Limited", "exchange": "NSE/BSE", "sector": "Fast Moving Consumer Goods", "industry": "Diversified FMCG & Tobacco"},
+  "HINDUNILVR": {"name": "Hindustan Unilever", "exchange": "NSE/BSE", "sector": "Fast Moving Consumer Goods", "industry": "Personal & Household Products"},
+  "LT": {"name": "Larsen & Toubro", "exchange": "NSE/BSE", "sector": "Industrials", "industry": "Engineering & Construction"},
+  "BHARTIARTL": {"name": "Bharti Airtel", "exchange": "NSE/BSE", "sector": "Telecommunication", "industry": "Telecom Services"},
+  "MARUTI": {"name": "Maruti Suzuki", "exchange": "NSE/BSE", "sector": "Automobile", "industry": "Passenger Vehicles"},
+  "SUNPHARMA": {"name": "Sun Pharmaceutical Industries", "exchange": "NSE/BSE", "sector": "Healthcare", "industry": "Pharmaceuticals"}
 }

@@ -6,6 +6,8 @@
 
 import { reportUrl } from "./snapshot";
 
+const SOURCE_LABELS = { local_dataset: "historical market dataset", yfinance: "Yahoo Finance" };
+
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const signed = (v) => `${v >= 0 ? "+" : ""}${Number(v).toFixed(2)}`;
 
@@ -123,7 +125,7 @@ function ruleBasedAnswer(symbol, s, results) {
   if (price.price !== undefined) {
     lines.push(
       `**Market data:** ${symbol} last closed at ${price.price} on ${price.as_of} ` +
-        `(${signed(price.change_pct)}% vs previous close; source: ${price.source}).`
+        `(${signed(price.change_pct)}% vs previous close; source: ${SOURCE_LABELS[price.source] || price.source}).`
     );
   }
   const hist = results.get_historical_prices || {};
