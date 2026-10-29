@@ -1,5 +1,5 @@
 // App.js
-import React, { useEffect } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 import "./styles/global.css";
@@ -8,7 +8,6 @@ import "./styles/global.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import StocksList from "./components/StockList";
-import Stockdata from "./components/Stockdata";
 import AboutComponent from "./components/About";
 import ContactForm from "./components/ContactForm";
 import Login from "./components/Login";
@@ -19,6 +18,10 @@ import ErrorBoundary from "./components/ErrorBoundary";
 
 // Theme
 import { ThemeProvider, useTheme } from "./components/ThemeContext";
+import { warmBackend } from "./services/snapshot";
+
+// The stock page carries the charting library; load it separately so the home page opens fast.
+const Stockdata = lazy(() => import("./components/Stockdata"));
 
 // Global styles for smooth transitions
 const GlobalStyles = () => {
@@ -44,6 +47,10 @@ const GlobalStyles = () => {
 };
 
 const App = () => {
+  useEffect(() => {
+    warmBackend();
+  }, []);
+
   return (
     <ErrorBoundary>
       <ThemeProvider>
@@ -60,7 +67,14 @@ const App = () => {
                   />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
-                  <Route path="/stock/:ticker" element={<Stockdata />} />
+                  <Route
+                    path="/stock/:ticker"
+                    element={
+                      <Suspense fallback={<div className="loading-spinner">Loading…</div>}>
+                        <Stockdata />
+                      </Suspense>
+                    }
+                  />
                   <Route path="/about" element={<AboutComponent />} />
                   <Route path="/stocks" element={<StocksList />} />
                   <Route path="/watchlist" element={<Watchlist />} />

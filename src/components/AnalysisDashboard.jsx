@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import Plot from "react-plotly.js";
+import Plot from "./Plot";
 import { ClipLoader } from "react-spinners";
 import styles from "./Analysis.module.css";
 import RichText from "./RichText";
 import SourcesPanel from "./SourcesPanel";
-
-const API = process.env.REACT_APP_API_URL;
+import { API, loadSnapshot, reportUrl } from "../services/snapshot";
 
 const pct = (v, digits = 1) =>
   v === null || v === undefined ? "n/a" : `${(v * 100).toFixed(digits)}%`;
@@ -32,6 +31,7 @@ function OutlookBadge({ outlook }) {
 
 function AnalysisDashboard({ ticker }) {
   const [analysis, setAnalysis] = useState(null);
+  const [snapshot, setSnapshot] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [downloading, setDownloading] = useState(false);
@@ -40,13 +40,26 @@ function AnalysisDashboard({ ticker }) {
     async (refresh = false) => {
       setLoading(true);
       setError("");
+      // Pre-computed analysis renders instantly; "Refresh" re-runs it on the live backend.
+      if (!refresh) {
+        const snap = await loadSnapshot(ticker);
+        setSnapshot(snap);
+        if (snap) {
+          setAnalysis(snap.analysis);
+          setLoading(false);
+          return;
+        }
+      }
       try {
         const res = await axios.get(
           `${API}/api/stock/${ticker}/analysis${refresh ? "?refresh=true" : ""}`
         );
         setAnalysis(res.data);
       } catch (err) {
-        setError(err.response?.data?.error || "Could not load the AI analysis.");
+        setError(
+          err.response?.data?.error ||
+            "Could not reach the live analysis server (it may be waking up). Please try again in a minute."
+        );
       } finally {
         setLoading(false);
       }
@@ -55,10 +68,15 @@ function AnalysisDashboard({ ticker }) {
   );
 
   useEffect(() => {
+    setAnalysis(null);
     if (ticker) load();
   }, [ticker, load]);
 
   const downloadReport = async () => {
+    if (snapshot) {
+      window.open(reportUrl(snapshot), "_blank", "noopener");
+      return;
+    }
     setDownloading(true);
     try {
       const res = await axios.get(`${API}/api/stock/${ticker}/report.pdf`, { responseType: "blob" });
@@ -82,7 +100,8 @@ function AnalysisDashboard({ ticker }) {
       <div className={styles.card}>
         <div className={styles.loading}>
           <ClipLoader color="#36d7b7" size={36} />
-          <p>Running ML models, indicators, news and document retrieval…</p>
+          <p>Running ML models, indicators, news and document retrieval on the live backend…</p>
+          <p className={styles.subtle}>The free-tier server can take up to a minute to wake up.</p>
         </div>
       </div>
     );
@@ -117,11 +136,18 @@ function AnalysisDashboard({ ticker }) {
           </p>
         </div>
         <div className={styles.actions}>
-          <button className={styles.buttonSecondary} onClick={() => load(true)} disabled={loading}>
-            {loading ? "Refreshing…" : "Refresh"}
-          </button>
+          {API && (
+            <button
+              className={styles.buttonSecondary}
+              onClick={() => load(true)}
+              disabled={loading}
+              title="Re-run the full analysis on the backend"
+            >
+              {loading ? "Running live analysis…" : "Re-run live"}
+            </button>
+          )}
           <button className={styles.button} onClick={downloadReport} disabled={downloading}>
-            {downloading ? "Generating PDF…" : "Download full report (PDF)"}
+            {downloading ? "Generating PDF…" : "Open full report (PDF)"}
           </button>
         </div>
       </div>

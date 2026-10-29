@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import Plot from "react-plotly.js";
+import Plot from "./Plot";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Prediction from "./Prediction";
@@ -12,6 +12,32 @@ import SentimentChart from "./SentimentChart";
 import AnalysisDashboard from "./AnalysisDashboard";
 import AgentChat from "./AgentChat";
 import Disclaimer from "./Disclaimer";
+import { API, filterPeriod, loadSnapshot, toTableRows } from "../services/snapshot";
+
+// Same chart the legacy endpoint built with plotly express, drawn in the browser.
+function priceChart(symbol, prices) {
+  return {
+    data: [
+      {
+        x: prices.date,
+        y: prices.close,
+        type: "scatter",
+        mode: "lines+markers",
+        name: "Close",
+        line: { color: "#636efa" },
+        marker: { size: 4 },
+        hovertemplate: "Date=%{x}<br>Close=%{y}<extra></extra>",
+      },
+    ],
+    layout: {
+      title: { text: `${symbol} Stock Price Over Time` },
+      width: 1200,
+      height: 600,
+      xaxis: { title: { text: "Date" } },
+      yaxis: { title: { text: "Close" } },
+    },
+  };
+}
 
 function Stockdata() {
   const { ticker } = useParams();
@@ -23,6 +49,8 @@ function Stockdata() {
   const [chartPeriod, setChartPeriod] = useState("1mo");
   const [tablePeriod, setTablePeriod] = useState("1mo");
   const [isLoading, setIsLoading] = useState(false);
+  const [snapshot, setSnapshot] = useState(undefined); // undefined = not checked yet, null = none
+  const [loadError, setLoadError] = useState("");
   const [showMore, setShowMore] = useState(false);
   const [showPrediction, setShowPrediction] = useState(false);
 
@@ -40,11 +68,52 @@ function Stockdata() {
     "max",
   ];
 
+  useEffect(() => {
+    let active = true;
+    setSnapshot(undefined);
+    loadSnapshot(ticker).then((snap) => active && setSnapshot(snap));
+    return () => {
+      active = false;
+    };
+  }, [ticker]);
+
+  // Snapshot available: periods are sliced in the browser, so switching is instant.
+  useEffect(() => {
+    if (!snapshot) return;
+    const symbol = snapshot.symbol;
+    const latest = snapshot.prices.close.length - 1;
+    const p = snapshot.prices;
+    setGraphData1(priceChart(symbol, filterPeriod(p, chartPeriod)));
+    setStockData(toTableRows(filterPeriod(p, tablePeriod)));
+    setStockInfo({
+      name: snapshot.company?.name || symbol,
+      exchange: p.source,
+      open: p.open[latest],
+      close: p.close[latest],
+      high: p.high[latest],
+      low: p.low[latest],
+      volume: p.volume[latest],
+    });
+    const news = snapshot.analysis.news || {};
+    setNews(
+      (news.articles || []).map((a) => ({
+        title: a.title,
+        url: a.url,
+        sentiment: a.sentiment,
+        publishedAt: a.published_at,
+        source: { name: a.source },
+      }))
+    );
+    setSentimentSummary(news.sentiment_summary || {});
+  }, [snapshot, chartPeriod, tablePeriod]);
+
+  // No snapshot for this stock: fall back to the live API.
   const fetchStockInfo = useCallback(async () => {
     setIsLoading(true);
+    setLoadError("");
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/stock/${ticker}?chart_period=${chartPeriod}&table_period=${tablePeriod}`,
+        `${API}/api/stock/${ticker}?chart_period=${chartPeriod}&table_period=${tablePeriod}`,
       );
 
       setStockData(res.data.stock_data);
@@ -53,15 +122,19 @@ function Stockdata() {
       setNews(Array.isArray(res.data.stock_news) ? res.data.stock_news : []);
       setSentimentSummary(res.data.sentiment_summary || {});
     } catch (error) {
-      console.error("Error fetching stock data:", error);
+      setLoadError(
+        error.response?.status === 404
+          ? `No price data is available for ${ticker} yet.`
+          : "Could not reach the data server. It may be waking up. Please try again in a minute."
+      );
     } finally {
       setIsLoading(false);
     }
   }, [ticker, chartPeriod, tablePeriod]);
 
   useEffect(() => {
-    fetchStockInfo();
-  }, [fetchStockInfo]);
+    if (snapshot === null) fetchStockInfo();
+  }, [snapshot, fetchStockInfo]);
 
   const handleShowMore = () => {
     setShowMore(!showMore);
@@ -126,7 +199,13 @@ function Stockdata() {
     >
       <h1 variants={itemVariants}>{ticker} Stock Analysis</h1>
       <Disclaimer compact />
-      {isLoading ? (
+      {loadError && !isLoading && (
+        <div className="loading-spinner">
+          <p>{loadError}</p>
+          <button onClick={fetchStockInfo}>Retry</button>
+        </div>
+      )}
+      {isLoading || snapshot === undefined ? (
         <motion.div
           key="loading"
           className="loading-spinner"
@@ -146,7 +225,7 @@ function Stockdata() {
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
-            It takes less than a minute
+            {snapshot === undefined ? "" : "Live data: the free-tier server can take up to a minute to wake up"}
           </p>
         </motion.div>
       ) : (

@@ -8,27 +8,32 @@ import stockData from "./data/stockData.json";
 import BackToTopBtn from "./BackToTopBtn";
 import styles from "./StockList.module.css";
 import stockBg2 from "./images/bg.png";
+import { baseSymbol, loadSnapshot, loadSnapshotIndex } from "../services/snapshot";
 
 const StocksList = () => {
   const [stocks, setStocks] = useState([]);
   const [exchange, setExchange] = useState("BSE");
   const [searchTicker, setSearchTicker] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
+  const [instant, setInstant] = useState(new Set());
   const navigate = useNavigate();
 
   useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setStocks(stockData[exchange] || []);
-      setIsLoading(false);
-    }, 500);
-  }, [exchange]);
+    loadSnapshotIndex().then(setInstant);
+    // Load the stock page code in the background so the first click is fast.
+    import("./Stockdata");
+  }, []);
+
+  // Stocks with pre-computed data first: they open instantly.
+  useEffect(() => {
+    const list = stockData[exchange] || [];
+    const ready = (s) => instant.has(baseSymbol(s.symbol));
+    setStocks([...list.filter(ready), ...list.filter((s) => !ready(s))]);
+  }, [exchange, instant]);
 
   const handleSearch = () => {
     if (searchTicker.trim()) {
       navigate(`/stock/${searchTicker.trim()}`);
-      console.log(`Searching for stock: ${searchTicker.trim()}`);
-      console.log(`API call sent successfully`);
     }
   };
 
@@ -112,9 +117,17 @@ const StocksList = () => {
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
                 onClick={() => navigate(`/stock/${stock.symbol}`)}
+                onMouseEnter={() => instant.has(baseSymbol(stock.symbol)) && loadSnapshot(stock.symbol)}
               >
                 <div className={styles.stockIcon}>📈</div>
-                <h3>{stock.symbol}</h3>
+                <h3>
+                  {stock.symbol}
+                  {instant.has(baseSymbol(stock.symbol)) && (
+                    <span className={styles.instantBadge} title="Full AI analysis loads instantly">
+                      ⚡ AI ready
+                    </span>
+                  )}
+                </h3>
                 <p>{stock.name}</p>
                 <button
                   onClick={(e) => {

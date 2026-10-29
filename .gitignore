@@ -308,7 +308,7 @@ dist
 
 # Gatsby files
 .cache/
-public
+# (Gatsby's "public" output rule removed: in this CRA app public/ holds source files and the demo snapshots)
 
 # Vuepress build output
 .vuepress/dist

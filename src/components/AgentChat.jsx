@@ -3,8 +3,14 @@ import axios from "axios";
 import styles from "./Analysis.module.css";
 import RichText from "./RichText";
 import SourcesPanel from "./SourcesPanel";
+import { API, loadSnapshot } from "../services/snapshot";
+import { askLocalAgent } from "../services/localAgent";
 
-const API = process.env.REACT_APP_API_URL;
+const MODE_LABEL = {
+  llm: "LLM synthesis",
+  rule_based: "Rule-based synthesis",
+  in_browser: "Instant · pre-computed evidence",
+};
 
 const SUGGESTIONS = [
   "Will the stock decrease over the next few days?",
@@ -19,16 +25,26 @@ function AgentChat({ ticker }) {
   const [input, setInput] = useState("");
   const [sessionId, setSessionId] = useState(null);
   const [busy, setBusy] = useState(false);
-  const endRef = useRef(null);
+  const [snapshot, setSnapshot] = useState(null);
+  const [useLive, setUseLive] = useState(false);
+  const messagesRef = useRef(null);
 
   // A new stock starts a new conversation: the selected stock is the agent's context.
   useEffect(() => {
+    let active = true;
     setMessages([]);
     setSessionId(null);
+    setSnapshot(null);
+    loadSnapshot(ticker).then((s) => active && setSnapshot(s));
+    return () => {
+      active = false;
+    };
   }, [ticker]);
 
+  // Scroll only the message list (not the page) when a new message arrives.
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const el = messagesRef.current;
+    if (el && messages.length) el.scrollTop = el.scrollHeight;
   }, [messages, busy]);
 
   const ask = async (question) => {
@@ -36,6 +52,11 @@ function AgentChat({ ticker }) {
     if (!q || busy) return;
     setInput("");
     setMessages((m) => [...m, { role: "user", content: q }]);
+    if (snapshot && !useLive) {
+      const res = askLocalAgent(snapshot, q);
+      setMessages((m) => [...m, { role: "assistant", ...res, content: res.answer }]);
+      return;
+    }
     setBusy(true);
     try {
       const res = await axios.post(`${API}/api/stock/${ticker}/agent/chat`, {
@@ -43,12 +64,22 @@ function AgentChat({ ticker }) {
         session_id: sessionId,
       });
       setSessionId(res.data.session_id);
-      setMessages((m) => [...m, { role: "assistant", ...res.data, content: res.data.answer }]);
+      const report = res.data.tool_trace?.some((t) => t.tool === "generate_report");
+      setMessages((m) => [
+        ...m,
+        {
+          role: "assistant",
+          ...res.data,
+          content: res.data.answer,
+          report_url: report ? `${API}/api/stock/${ticker}/report.pdf` : undefined,
+        },
+      ]);
     } catch (err) {
       const msg =
         err.response?.status === 429
           ? "You're sending questions too quickly. Please wait a moment."
-          : err.response?.data?.error || "The analysis agent is unavailable right now.";
+          : err.response?.data?.error ||
+            "The live analysis server is unavailable or still waking up. Please try again in a minute.";
       setMessages((m) => [...m, { role: "assistant", content: msg, error: true }]);
     } finally {
       setBusy(false);
@@ -59,11 +90,17 @@ function AgentChat({ ticker }) {
     <section className={`${styles.card} ${styles.chat}`} aria-label="AI stock analysis agent">
       <h3>Ask the AI Analyst about {ticker}</h3>
       <p className={styles.subtle}>
-        The agent uses live market data, technical indicators, the ML model, news and retrieved documents
-        for {ticker}, and shows the sources behind its answer.
+        The agent uses market data, technical indicators, the ML model, news and retrieved documents for{" "}
+        {ticker}, and shows the sources behind its answer.
       </p>
+      {snapshot && API && (
+        <label className={styles.toggle}>
+          <input type="checkbox" checked={useLive} onChange={(e) => setUseLive(e.target.checked)} />
+          Ask the live backend instead (slower: full agent run, Claude when configured)
+        </label>
+      )}
 
-      <div className={styles.messages}>
+      <div className={styles.messages} ref={messagesRef}>
         {messages.length === 0 && (
           <div className={styles.suggestions}>
             {SUGGESTIONS.map((s) => (
@@ -86,7 +123,7 @@ function AgentChat({ ticker }) {
                   </span>
                 )}
                 {m.analysis?.risk_level && <span className={styles.badge}>Risk: {m.analysis.risk_level}</span>}
-                <span className={styles.badge}>{m.answer_mode === "llm" ? "LLM synthesis" : "Rule-based synthesis"}</span>
+                <span className={styles.badge}>{MODE_LABEL[m.answer_mode] || m.answer_mode}</span>
               </div>
             )}
             <div className={m.error ? styles.error : undefined}>
@@ -104,11 +141,15 @@ function AgentChat({ ticker }) {
                 </ul>
               </details>
             )}
+            {m.report_url && (
+              <a className={styles.button} href={m.report_url} download target="_blank" rel="noopener noreferrer">
+                Download PDF report
+              </a>
+            )}
             {m.sources && <SourcesPanel sources={m.sources} title="Supporting sources" />}
           </div>
         ))}
         {busy && <div className={styles.agentMsg}>Analysing {ticker}…</div>}
-        <div ref={endRef} />
       </div>
 
       <form
