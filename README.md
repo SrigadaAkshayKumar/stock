@@ -18,8 +18,6 @@ The **Stock Analyzer** project is an AI-powered stock market analysis platform. 
 
 ---
 
-OSCI 2026 contributors Please Follow this link to join [WhatsApp group](https://chat.whatsapp.com/CNiFekAmXmVGwyFsVMcncM?s=sh&p=a&mlu=4&ilr=4) to involve in the discussions Thank you. 
-
 ## Overview
 
 ### Home Page
